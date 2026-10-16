@@ -22,6 +22,10 @@
 
 Classes from `slides.css`: `.kicker`, `h1`, `h2`, `p`, `.accent`, `.brand`, `[data-number]` (filled with `02 / 12`). Add a `<style>` block for layouts (grids, charts, image + text). Charts are inline SVG, drawn by you from the data, with the values labeled.
 
+## PDF hygiene
+
+`ambar slides` checks every slide before printing (content that leaves the slide or does not fit its box is an error) and scans the PDF after (Type 3 fonts, soft masks, a page per slide). The rules are the documents' (`references/doc.md`): static fonts in the weights they ship (`/@ambar/runtime/fonts.css`), no shadows in print (`.glass` shadows are stripped and noted), canvases with `{ alpha: false }`, phone layouts under `@media screen and (…)`. Slide PNGs are shot one slide at a time in a viewport of the slide's exact size (`--scale 2` for @2x).
+
 ## Check
 
 `ambar check deck.html --json`, then Read `out/check/deck/sheet.png`. Look for slides that are walls of text, titles that wrap to three lines, and inconsistent spacing between slides.
