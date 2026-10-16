@@ -1,9 +1,23 @@
 {
-  "voice": { "provider": "say", "name": "Samantha" },
+  "voice": {
+    "provider": "say",
+    "name": "Samantha"
+  },
   "lines": [
-    { "id": "hello", "text": "Hello, world." }
+    {
+      "id": "hello",
+      "text": "Hello, world."
+    }
   ],
   "sfx": [
-    { "type": "whoosh", "at": "hello-0.3", "gain": 0.15 }
-  ]
+    {
+      "type": "whoosh",
+      "at": "hello-0.3",
+      "gain": 0.15
+    }
+  ],
+  "music": {
+    "file": "@ambar/music/inspired.mp3",
+    "gain": 0.35
+  }
 }

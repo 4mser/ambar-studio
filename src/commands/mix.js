@@ -14,6 +14,7 @@ import { EFFECTS, RATE } from '../lib/sfx.js'
 import { resolveTime } from '../lib/timeline.js'
 import { follow, softClip, toMono, transient } from '../lib/audio.js'
 import { done, step } from '../lib/log.js'
+import { ROOT } from '../lib/server.js'
 
 /** Adds interleaved stereo (or mono, to both channels) at `at` seconds */
 function place (bus, samples, at, gain = 1, mono = false) {
@@ -87,7 +88,9 @@ export async function mix (project, duration) {
     const m = config.music
     const { from, delay } = musicPlacement(m, cues)
     if (delay > 0.05) console.log(`  the track starts ${delay.toFixed(2)} s into the video to line up its hit: music usually reads better from frame 0`)
-    const samples = decodeAudio(resolve(dir, m.file), { rate: RATE, start: from, duration: duration + 2 })
+    // "@ambar/music/inspired.mp3" is a track of AMBAR's own library (music/)
+    const file = m.file.startsWith('@ambar/') ? join(ROOT, m.file.slice('@ambar/'.length)) : resolve(dir, m.file)
+    const samples = decodeAudio(file, { rate: RATE, start: from, duration: duration + 2 })
     const duck = follow(speaking, RATE, { attack: m.attack ?? 0.035, release: m.release ?? 0.4 })
     const fadeIn = Math.round((m.fadeIn ?? 0.6) * RATE)
     const fadeOut = Math.round((m.fadeOut ?? 2.5) * RATE)

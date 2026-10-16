@@ -52,6 +52,7 @@ Everything a viewer hears. The narration drives the timeline (`voice/timings.jso
 "music": { "file": "music/track.mp3", "gain": 0.6, "hit": 15.25, "at": "reveal", "stop": { "at": "climax", "style": "tape" } }
 ```
 
+- **Every video gets a music bed** unless the brief says none. AMBAR ships a small library you may commit and publish with credit: `"file": "@ambar/music/inspired.mp3"` (bright, explainers), `chill-wave.mp3` (tutorials), `deliberate-thought.mp3` (reports). Credits in `music/README.md`: put the credit line in the description, the site footer or an end card. Other sources and their licenses: `references/resources.md`.
 - **Real produced tracks only.** Synthesized music sounds like a toy. No vocals or vocal chops under narration ("hey" chants included). Mood: cool, not cute, corporate or funky.
 - **Line the track up with the story**: `hit` (a second of the track) lands on `at` (a time or cue). Music starts at frame 0; if the hit forces a later start, AMBAR says so.
 - **Build on a beat grid** when the piece is cut to music: measure the BPM and a downbeat, place scenes in whole bars, and extend scenes by bars, not seconds.
