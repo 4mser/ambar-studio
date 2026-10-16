@@ -52,6 +52,10 @@ Después le pides a Claude Code lo que necesites, desde cualquier carpeta: *«un
   <img src="docs/assets/check.png" width="100%" alt="Hoja de contacto que genera ambar check para el tutorial de Harbor: seis cuadros de muestra con sus tiempos">
 </p>
 
+### Música y recursos abiertos
+
+`music/` trae tres pistas de Kevin MacLeod con licencia CC BY 4.0 que cualquier proyecto puede usar (`"music": { "file": "@ambar/music/inspired.mp3" }`); los créditos están en `music/README.md`. Para todo lo demás (música, sonidos, voces, fuentes, íconos, fotos y librerías que funcionan con `render(t)`) la skill mantiene una guía con las licencias revisadas en `.claude/skills/ambar/references/resources.md`.
+
 ### `// 03` Para empezar
 
 Requiere Node 20+ y `ffmpeg` (`brew install ffmpeg` en macOS).

@@ -52,6 +52,10 @@ Then ask Claude Code for what you need, from any folder: *"a 30-second launch vi
   <img src="docs/assets/check.png" width="100%" alt="Contact sheet written by ambar check for the Harbor tutorial: six sampled frames with their times">
 </p>
 
+### Music and open resources
+
+`music/` ships three CC BY 4.0 tracks by Kevin MacLeod that any project can use (`"music": { "file": "@ambar/music/inspired.mp3" }`); credits in `music/README.md`. For anything else (music, sound, voices, fonts, icons, photos and libraries that work with `render(t)`) the skill keeps a license-checked guide in `.claude/skills/ambar/references/resources.md`.
+
 ### `// 03` Quick start
 
 Requires Node 20+ and `ffmpeg` (`brew install ffmpeg` on macOS).
