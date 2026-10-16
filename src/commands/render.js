@@ -11,7 +11,7 @@ import { done, progress, seconds, step } from '../lib/log.js'
 
 async function openComposition (project) {
   const server = await serve(project.dir)
-  const { browser, page, errors } = await openPage(`${server.url}/${project.entry}?render`)
+  const { browser, page, errors } = await openPage(`${server.url}/${project.entry}?render${project.query ?? ""}`)
   const comp = await waitForComposition(page, errors)
   await page.setViewport({ width: comp.width, height: comp.height, deviceScaleFactor: 1 })
   const close = async () => { await browser.close(); await server.close() }

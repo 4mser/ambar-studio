@@ -55,7 +55,7 @@ export async function embed (project, { out } = {}) {
 
   const timings = (config.lines ?? []).length ? await voice(project) : { cues: {} }
   const server = await serve(project.dir)
-  const { browser, page, errors } = await openPage(`${server.url}/${project.entry}?render`)
+  const { browser, page, errors } = await openPage(`${server.url}/${project.entry}?render${project.query ?? ""}`)
   const { duration } = await waitForComposition(page, errors)
   await browser.close()
   await server.close()
@@ -68,6 +68,7 @@ export async function embed (project, { out } = {}) {
   const data = playerData(config, timings.cues ?? {}, duration)
   data.speaker = config.player?.speaker ?? ''
   if (config.player?.hint) data.hint = config.player.hint
+  if (config.player?.label === false) data.label = false // the scene shows its own chapter titles
   const hasSound = (config.lines ?? []).length || config.music || (config.sfx ?? []).length
   if (hasSound) {
     const wav = await mix(project, duration)

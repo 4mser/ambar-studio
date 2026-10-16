@@ -67,10 +67,10 @@ render (t, { duration }) {
 <iframe src="explicador/index.html?player" allow="autoplay; fullscreen" loading="lazy" style="aspect-ratio: 16/9; width: 100%; border: 0"></iframe>
 ```
 
-In `ambar.json`: `"chapters": [{ "title": "La voz", "at": "voz" }]` (times as in `sfx.at`; without it, one segment per line, titled by each line's `chapter`), `"player": { "speaker": "ÁMBAR", "hint": "Activa el sonido" }`, and a line's `caption` replaces its text in the captions.
+In `ambar.json`: `"chapters": [{ "title": "La voz", "at": "voz" }]` (times as in `sfx.at`; without it, one segment per line, titled by each line's `chapter`), `"player": { "speaker": "ÁMBAR", "hint": "Activa el sonido", "label": false }` (`label: false` hides the player's chapter title when the scene shows its own), and a line's `caption` replaces its text in the captions.
 
 ## Variants the user may ask for
 
-- **Vertical (9:16)**: `video({ width: 1080, height: 1920 })`; stack instead of side by side, headlines 80–110 px.
+- **Vertical (9:16) or 4:5 for phones**: `video({ width: 1080, height: 1920 })` or 1080×1350; stack instead of side by side, headlines 64–110 px, labels 20 px or more (phones show it ~400 px wide). To keep one timeline for both cuts, read a flag from `location.search` (`?v`), switch sizes and add a class to `#stage` for the CSS; then `ambar check|render <dir> --query v` (→ `out/<name>-v.mp4`) and `index.html?player&v` on a page.
 - **Square (1:1)**: 1080×1080.
 - **Silent loop for a site or README**: no lines, set `duration`, render with `--gif` or `--no-audio`.

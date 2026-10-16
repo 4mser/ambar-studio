@@ -23,6 +23,7 @@ const HELP = `
   ${bold('Video')}
     ambar studio <project>              timeline studio in the browser
     ambar render <project>              narration + mix + frames → out/<name>.mp4
+      --query v                         render a variant (?v) → out/<name>-v.mp4 (also for check)
       --fps <n>                         override the composition frame rate
       --no-audio                        picture only
       --cover <s>                       also <name>-cover.mp4 with the frame at <s> first (feed thumbnail)
@@ -80,6 +81,12 @@ async function main () {
   }
 
   const project = loadProject(target ?? '.')
+  // --query v: a variant of the same composition (for instance a vertical cut
+  // read from location.search); renders go to out/<name>-v.mp4
+  if (typeof args.query === 'string') {
+    project.query = `&${args.query}`
+    project.output = project.output.replace(/(\.\w+)$/, `-${args.query.replace(/\W+/g, '-')}$1`)
+  }
   switch (command) {
     case 'studio':
       return studio(project, { port: num(args.port), open: args.open !== false })

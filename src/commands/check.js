@@ -227,7 +227,7 @@ async function contactSheet (browser, tiles, file, { columns, width }) {
 }
 
 async function checkVideo (project, server, report, dir, at) {
-  const { browser, page, errors } = await openPage(`${server.url}/${project.entry}?render`)
+  const { browser, page, errors } = await openPage(`${server.url}/${project.entry}?render${project.query ?? ""}`)
   const comp = await waitForComposition(page, errors)
   await page.setViewport({ width: comp.width, height: comp.height, deviceScaleFactor: 1 })
   report.duration = comp.duration

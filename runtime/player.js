@@ -53,6 +53,7 @@ export async function mountPlayer ({ stage, width, height, duration, frame }) {
   const css = document.createElement('link')
   css.rel = 'stylesheet'
   css.href = new URL('./player.css', import.meta.url).href
+  const styled = new Promise((resolve) => { css.onload = css.onerror = resolve })
   document.head.append(css)
   const root = el('div', 'ap')
   const shell = el('div', 'ap-shell')
@@ -134,7 +135,8 @@ export async function mountPlayer ({ stage, width, height, duration, frame }) {
     stage.style.transform = `scale(${scale})`
     stage.style.left = stage.style.top = '0px'
   }
-  addEventListener('resize', fit)
+  await styled // sizes are only right once player.css applies
+  new ResizeObserver(fit).observe(root)
   fit()
 
   let lastCaption = -1
@@ -147,7 +149,7 @@ export async function mountPlayer ({ stage, width, height, duration, frame }) {
       seg.firstChild.style.transform = `scaleX(${Math.max(0, Math.min(1, k))})`
       seg.classList.toggle('on', i === index)
     })
-    label.textContent = chapters[index].title ? `${String(index + 1).padStart(2, '0')} · ${chapters[index].title}` : ''
+    label.textContent = config.label !== false && chapters[index].title ? `${String(index + 1).padStart(2, '0')} · ${chapters[index].title}` : ''
     const ci = captions.findIndex((c) => t >= c.start - 0.15 && t <= c.end + 0.5)
     caption.classList.toggle('on', ci >= 0)
     if (ci >= 0) {
