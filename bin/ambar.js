@@ -11,6 +11,7 @@ import { scaffold } from '../src/commands/new.js'
 import { capture } from '../src/commands/capture.js'
 import { check } from '../src/commands/check.js'
 import { skill } from '../src/commands/skill.js'
+import { embed } from '../src/commands/embed.js'
 import { serve } from '../src/lib/server.js'
 import { openPage, waitForComposition } from '../src/lib/browser.js'
 import { amber, bold, dim, fail } from '../src/lib/log.js'
@@ -29,6 +30,7 @@ const HELP = `
     ambar voice <project> [--force]     record narration lines → voice/*.wav + timings
     ambar mix <project>                 narration, music and effects → out/mix.wav
     ambar capture <project>             screenshots + element boxes of an app (capture.json)
+    ambar embed <project> [--out dir]   the composition as a live web player (index.html?player)
 
   ${bold('Review')}
     ambar check <project | deck.html | doc.html> [--json] [--at 1,4.5]
@@ -94,6 +96,8 @@ async function main () {
       if (!result.ok) process.exitCode = 1
       return
     }
+    case 'embed':
+      return embed(project, { out: typeof args.out === 'string' ? args.out : undefined })
     case 'capture':
       return capture(project, { config: typeof args.config === 'string' ? args.config : 'capture.json' })
     case 'voice':

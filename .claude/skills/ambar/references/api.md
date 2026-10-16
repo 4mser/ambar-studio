@@ -105,4 +105,5 @@ sc.callout(t, { box, text, from, to, side: 'right' | 'left' | 'top' | 'bottom' }
 - `pause` adds silence before a line; `at` pins it to an absolute time.
 - `sfx.at` takes seconds or a cue expression: `intro`, `intro+0.5`, `intro.end-0.2`.
 - Effects: `whoosh` (`from`, `to`, `duration`), `tap` (`pitch`), `tick` (`pitch`, `duration`), `impact`, `riser`; all take `gain`, `repeat`, `every`.
+- Gemini key: `AMBAR_GEMINI_API_KEY`, or on macOS the Keychain item `ambar-gemini` (`security add-generic-password -a "$USER" -s ambar-gemini -w`, run by the user in their own terminal). Never ask the user to paste a key into the chat.
 - Voices: `say` (macOS, offline; English `Samantha`, Spanish `Paulina` or `Mónica`) and `gemini` (needs `AMBAR_GEMINI_API_KEY` in the environment).

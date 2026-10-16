@@ -152,7 +152,7 @@ export function mascot (options) {
  */
 export async function video ({ width = 1920, height = 1080, fps = 30, duration, tail = 1.6, setup, render } = {}) {
   const params = new URLSearchParams(location.search)
-  const mode = params.has('render') ? 'render' : params.has('studio') ? 'studio' : 'preview'
+  const mode = params.has('render') ? 'render' : params.has('studio') ? 'studio' : params.has('player') ? 'player' : 'preview'
   document.documentElement.dataset.mode = mode
 
   let stage = document.getElementById('stage')
@@ -184,6 +184,12 @@ export async function video ({ width = 1920, height = 1080, fps = 30, duration, 
   if (mode === 'render') {
     frame(0)
     return
+  }
+
+  // Player: a web video player with chapters, sound and captions (player.js)
+  if (mode === 'player') {
+    const { mountPlayer } = await import('./player.js')
+    return mountPlayer({ stage, width, height, duration: total, frame })
   }
 
   // Studio and preview: fit the stage to the window

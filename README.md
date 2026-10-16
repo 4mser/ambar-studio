@@ -122,7 +122,7 @@ The runtime ships the pieces that make motion feel right: easings (`out`, `inOut
 | Voice provider | Notes |
 |---|---|
 | `say` | macOS voices, offline, no key. Good for drafts. |
-| `gemini` | Gemini text-to-speech. Reads `AMBAR_GEMINI_API_KEY` and nothing else. |
+| `gemini` | Gemini text-to-speech. Reads `AMBAR_GEMINI_API_KEY`, or on macOS the Keychain item `ambar-gemini`, and nothing else. |
 
 Recordings are cached by text and voice, so only changed lines are recorded again. Effects are `whoosh`, `tap`, `tick`, `impact` and `riser`, synthesized from noise and sine waves with a fixed seed: the same config always sounds the same. The final mix is loudness-normalized to −16 LUFS.
 
@@ -193,6 +193,7 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
 | `ambar voice <project>` | Records the narration and writes the cues |
 | `ambar mix <project>` | Narration, music and effects → `out/mix.wav` |
 | `ambar capture <project>` | Screenshots and element boxes of an app, from `capture.json` |
+| `ambar embed <project>` | The composition as a live web player with chapters, sound and captions (`--out`) |
 | `ambar check <target>` | Machine review and contact sheet (`--json`, `--at`) → `out/check/` |
 | `ambar slides <deck.html>` | PDF and PNGs of a deck |
 | `ambar doc <doc.html>` | A4 PDF of a document |

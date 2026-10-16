@@ -122,7 +122,7 @@ El runtime trae lo necesario para que el movimiento se sienta bien: curvas de ea
 | Voz | Notas |
 |---|---|
 | `say` | Voces de macOS, sin conexión ni clave. Sirve para borradores. |
-| `gemini` | Texto a voz de Gemini. Lee `AMBAR_GEMINI_API_KEY` y ninguna otra clave. |
+| `gemini` | Texto a voz de Gemini. Lee `AMBAR_GEMINI_API_KEY`, o en macOS el ítem `ambar-gemini` del Llavero, y ninguna otra clave. |
 
 Las grabaciones quedan en caché por texto y voz, así que solo se vuelven a grabar las líneas que cambian. Los efectos son `whoosh`, `tap`, `tick`, `impact` y `riser`, sintetizados con ruido y ondas seno a partir de una semilla fija: la misma configuración siempre suena igual. La mezcla final se normaliza a −16 LUFS.
 
@@ -193,6 +193,7 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
 | `ambar voice <proyecto>` | Graba la narración y escribe las marcas |
 | `ambar mix <proyecto>` | Narración, música y efectos → `out/mix.wav` |
 | `ambar capture <proyecto>` | Capturas y posiciones de elementos de una app, según `capture.json` |
+| `ambar embed <proyecto>` | La composición como reproductor web en vivo, con capítulos, sonido y subtítulos (`--out`) |
 | `ambar check <objetivo>` | Revisión automática y hoja de contacto (`--json`, `--at`) → `out/check/` |
 | `ambar slides <deck.html>` | PDF y PNG de un deck |
 | `ambar doc <doc.html>` | PDF A4 de un documento |

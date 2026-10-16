@@ -59,6 +59,16 @@ render (t, { duration }) {
 
 `ambar check <dir> --json` → zero errors, then Read `out/check/sheet.png`. Look for: a frame where nothing is on screen, two things competing for attention, text crossing the safe area, the mascot covering content, a beat that still shows the previous beat's leftovers.
 
+## On a web page
+
+`ambar embed <dir> [--out folder]` exports the project as a static folder (project + `_ambar/` runtime + `audio.m4a` + `player.json`). `index.html?player` plays it live with a chapter bar, a sound button (starts muted), captions word by word with the mascot, keyboard and touch controls, and it pauses when scrolled away. Put it in an iframe:
+
+```html
+<iframe src="explicador/index.html?player" allow="autoplay; fullscreen" loading="lazy" style="aspect-ratio: 16/9; width: 100%; border: 0"></iframe>
+```
+
+In `ambar.json`: `"chapters": [{ "title": "La voz", "at": "voz" }]` (times as in `sfx.at`; without it, one segment per line, titled by each line's `chapter`), `"player": { "speaker": "ÁMBAR", "hint": "Activa el sonido" }`, and a line's `caption` replaces its text in the captions.
+
 ## Variants the user may ask for
 
 - **Vertical (9:16)**: `video({ width: 1080, height: 1920 })`; stack instead of side by side, headlines 80–110 px.

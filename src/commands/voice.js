@@ -26,10 +26,23 @@ async function sayProvider (text, voice, file) {
   rmSync(raw, { force: true })
 }
 
-/** Gemini text-to-speech. Reads AMBAR_GEMINI_API_KEY, never any other key. */
+/**
+ * The Gemini key: AMBAR_GEMINI_API_KEY, or else the macOS Keychain item
+ * "ambar-gemini", so the key never has to sit in a file or a shell history.
+ * Never any other key.
+ */
+function geminiKey () {
+  if (process.env.AMBAR_GEMINI_API_KEY) return process.env.AMBAR_GEMINI_API_KEY
+  if (process.platform === 'darwin') {
+    const found = spawnSync('security', ['find-generic-password', '-s', 'ambar-gemini', '-w'], { encoding: 'utf8' })
+    if (found.status === 0 && found.stdout.trim()) return found.stdout.trim()
+  }
+  throw new Error('No Gemini key. Set AMBAR_GEMINI_API_KEY, or on macOS store it once with:\n  security add-generic-password -a "$USER" -s ambar-gemini -w')
+}
+
+/** Gemini text-to-speech */
 async function geminiProvider (text, voice, file) {
-  const key = process.env.AMBAR_GEMINI_API_KEY
-  if (!key) throw new Error('Set AMBAR_GEMINI_API_KEY to use the gemini voice provider.')
+  const key = geminiKey()
   const prompt = voice.style ? `${voice.style}: ${text}` : text
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${voice.model ?? GEMINI_MODEL}:generateContent`,

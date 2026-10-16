@@ -67,6 +67,7 @@ Your job is to deliver a piece the user can publish without fixing it: correct, 
 | `ambar render <project>` | MP4 with narration, music and effects |
 | `ambar render <project> --frames 1,4.5` | PNG stills |
 | `ambar render <project> --gif out.gif` | Looping GIF |
+| `ambar embed <project> [--out dir]` | Live web player for a site (see video.md) |
 | `ambar studio <project>` | Timeline in the browser, for the user |
 | `ambar slides <deck.html>` | PDF + PNG per slide |
 | `ambar doc <doc.html> [--png]` | A4 PDF |

@@ -1,0 +1,32 @@
+/* AMBAR web player (runtime/player.js). Colors come from ambar.css tokens. */
+html[data-mode='player'], html[data-mode='player'] body { margin: 0; height: 100%; overflow: hidden; background: var(--player-bg, #0a0603); }
+.ap { position: fixed; inset: 0; display: grid; place-items: center; font-family: var(--font); color: var(--cream); user-select: none; -webkit-user-select: none; }
+.ap-shell { position: relative; overflow: hidden; border-radius: var(--player-radius, 0); touch-action: manipulation; cursor: pointer; }
+.ap-shell #stage { position: absolute; transform-origin: 0 0; }
+
+.ap-top { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: 0.9em; padding: 1em 1.1em 2em; background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent); pointer-events: none; }
+.ap-bar { flex: 1; min-width: 30%; display: flex; gap: 0.3em; pointer-events: auto; }
+.ap-seg { position: relative; flex: 1; height: 1em; padding: 0; border: 0; background: none; cursor: pointer; }
+.ap-seg::before, .ap-seg i { content: ''; position: absolute; left: 0; right: 0; top: 0.38em; height: 0.25em; min-height: 2px; border-radius: 4px; }
+.ap-seg::before { background: rgba(255, 244, 224, 0.22); }
+.ap-seg i { background: var(--amber); transform-origin: 0 50%; transform: scaleX(0); }
+.ap-controls { display: flex; gap: 0.5em; pointer-events: auto; }
+.ap-btn, .ap-hint { height: 2.4em; border-radius: 999px; border: 1px solid rgba(255, 244, 224, 0.18); background: rgba(18, 10, 3, 0.55); color: var(--cream); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); cursor: pointer; font-size: 1em; }
+.ap-btn { width: 2.4em; display: grid; place-items: center; padding: 0; }
+.ap-btn svg { width: 1.1em; height: 1.1em; fill: currentColor; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ap-hint { padding: 0 1em; font: 600 0.875em var(--font); height: 2.75em; background: var(--amber); color: #2b1503; border-color: transparent; }
+.ap-hint[hidden], .ap-btn[hidden] { display: none; }
+
+.ap-label { position: absolute; left: 1.25em; top: 3.4em; font: 600 0.75em var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--honey); opacity: 0.8; pointer-events: none; }
+
+.ap-caption { position: absolute; left: 50%; bottom: 1.1em; transform: translate(-50%, 0.5em); max-width: calc(100% - 2em); display: flex; align-items: center; gap: 0.6em; padding: 0.5em 1.1em 0.5em 0.5em; border-radius: 999px;
+  background: rgba(18, 10, 3, 0.72); border: 1px solid rgba(255, 210, 122, 0.18); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
+.ap-caption.on { opacity: 1; transform: translate(-50%, 0); }
+.ap-avatar { width: 2.25em; height: 2.25em; flex: none; }
+.ap-avatar svg { width: 100%; height: 100%; overflow: visible; }
+.ap-speaker { font: 700 0.95em var(--font); color: var(--amber); }
+.ap-words { font: 500 1em/1.35 var(--font); }
+.ap-words i { font-style: normal; color: rgba(255, 244, 224, 0.42); transition: color 0.15s; }
+.ap-words i.said { color: var(--cream); }
+
+@media (prefers-reduced-motion: reduce) { .ap-caption, .ap-words i { transition: none; } }
