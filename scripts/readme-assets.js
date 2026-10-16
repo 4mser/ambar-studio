@@ -12,6 +12,7 @@ import { capture } from '../src/commands/capture.js'
 import { check } from '../src/commands/check.js'
 import { stills } from '../src/commands/stills.js'
 import { copyFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { serve, ROOT } from '../src/lib/server.js'
 import { run } from '../src/lib/ffmpeg.js'
 import { done, step } from '../src/lib/log.js'
@@ -110,5 +111,13 @@ await new Promise((r) => setTimeout(r, 400))
 await tab.screenshot({ path: join(ASSETS, 'studio.png') })
 await browser.close()
 await server.close()
+
+// 10 · the family banner at the end of the README (gifsicle, when installed, makes it smaller)
+step('Family')
+const banner = join(ASSETS, 'family.gif')
+await renderGif(loadProject(join(ROOT, 'docs', 'family')), banner, { fps: 12, width: 960 })
+try {
+  execFileSync('gifsicle', ['-b', '-O3', '--lossy=60', '--colors', '160', banner])
+} catch {}
 
 done('README assets', 'docs/assets/')

@@ -299,3 +299,9 @@ Expresiones: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`,
 npm test                # runtime, movimiento, subtítulos, mascota, audio, mezcla, imágenes fijas, PDF, captura, revisión y skill
 npm run readme-assets   # vuelve a renderizar todas las imágenes de este README
 ```
+
+---
+
+<p align="center">
+</p>
+
