@@ -121,11 +121,13 @@ function auditLayout ({ rootSelector, index, minFont, balance = false }) {
       const a = texts[i]
       const b = texts[j]
       if (a.el.contains(b.el) || b.el.contains(a.el)) continue
-      const w = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left)
-      const h = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top)
-      if (w <= 0 || h <= 0) continue
-      const small = Math.min(a.r.width * a.r.height, b.r.width * b.r.height)
-      if (w * h > small * 0.2) issues.push({ level: 'warn', message: `${label(a.el)} overlaps ${label(b.el)}` })
+      // line by line: an inline element that wraps has one box per line
+      const hit = [...a.el.getClientRects()].some((ra) => [...b.el.getClientRects()].some((rb) => {
+        const w = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left)
+        const h = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)
+        return w > 0 && h > 0 && w * h > Math.min(ra.width * ra.height, rb.width * rb.height) * 0.2
+      }))
+      if (hit) issues.push({ level: 'warn', message: `${label(a.el)} overlaps ${label(b.el)}` })
     }
   }
   return issues
