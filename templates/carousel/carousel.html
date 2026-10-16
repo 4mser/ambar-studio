@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Carousel</title>
+  <!-- ambar stills carousel.html → out/carousel/post/01-cover.png … 06-close.png -->
+  <meta name="ambar:sizes" content="post">
+  <meta name="ambar:data" content="items.json">
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="/@ambar/runtime/fonts.css">
+  <link rel="stylesheet" href="/@ambar/runtime/stills.css">
+  <style>
+    body { background: var(--ink); color: var(--cream); font-family: var(--font); }
+
+    /* One background for the whole set: the six frames are cut from it */
+    .bg { position: absolute; inset: 0; }
+    .bg svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    /* The fixed grid: top bar, title, content filling the height, footer */
+    .frame { display: grid; grid-template-rows: auto auto 1fr auto; gap: 44px; padding: 96px 88px 84px; }
+    .top { display: flex; justify-content: space-between; align-items: center; font: 500 26px/1 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--honey); }
+    .top .count { color: var(--muted); }
+    h2 { font-weight: 800; font-size: 84px; line-height: 1.02; letter-spacing: -0.035em; max-width: 880px; }
+    .cover h2 { font-size: 112px; line-height: 0.98; letter-spacing: -0.045em; }
+
+    /* Content card: fixed padding, radius = icon radius + padding */
+    .card {
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 56px; border-radius: 80px; min-height: 0;
+      background: linear-gradient(160deg, #2b1907, #160c04);
+      border: 2px solid var(--line);
+    }
+    .card .head { display: flex; justify-content: space-between; align-items: flex-start; }
+    .card .num { font-size: 200px; line-height: 0.8; font-weight: 800; letter-spacing: -0.06em; color: rgba(255, 210, 122, 0.16); }
+    .icon { width: 120px; height: 120px; border-radius: 24px; display: grid; place-items: center; background: var(--amber); color: var(--ink); }
+    .icon svg { width: 64px; height: 64px; }
+    .card p { font-size: 46px; line-height: 1.3; font-weight: 500; color: var(--cream); letter-spacing: -0.01em; }
+    .cover .card { background: none; border: 0; padding: 0; justify-content: flex-end; }
+    .cover .card p { font-size: 50px; color: var(--muted); }
+
+    .foot { display: flex; justify-content: space-between; align-items: center; gap: 32px; min-height: 64px; font-size: 36px; font-weight: 600; color: var(--honey); }
+    .foot .next { display: flex; align-items: center; gap: 20px; }
+    .foot svg { width: 44px; height: 44px; flex: none; }
+    .mark { display: flex; align-items: center; gap: 18px; font: 500 26px/1 var(--mono); letter-spacing: 0.3em; color: var(--honey); }
+    .mark i { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, var(--honey), var(--amber) 55%, var(--resin)); }
+
+    /* Closer: the only place for the large logo */
+    .closer .card { background: none; border: 0; padding: 0; justify-content: flex-end; gap: 56px; }
+    .closer .mark { font-size: 72px; gap: 40px; }
+    .closer .mark i { width: 140px; height: 140px; }
+    .closer .card p { color: var(--muted); }
+    .cta { align-self: flex-start; padding: 26px 40px; border-radius: 999px; background: var(--amber); color: var(--ink); font: 500 30px/1 var(--mono); }
+  </style>
+</head>
+<body>
+  <div class="bg" data-bleed></div>
+  <script type="module">
+    import { still } from '/@ambar/runtime/stills.js'
+
+    // Lucide icons (lucide.dev, ISC), 24×24 outlines
+    const ICONS = {
+      'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+      bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+      type: '<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/>',
+      'circle-help': '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+      'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>'
+    }
+    const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] ?? ''}</svg>`
+    const esc = (s = '') => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+
+    // An amber thread that runs across every frame, so the swipe reads as one
+    // image, and ends in the logo on the closer
+    function background ({ width: W, height: H, items }) {
+      const total = W * items.length
+      const at = (x) => H * 0.64 + Math.sin(x / 760) * H * 0.07 + Math.sin(x / 260) * H * 0.012
+      const end = document.querySelector('.closer .mark i')?.getBoundingClientRect()
+      const stop = end ? total - W - 40 : total
+      let d = `M 0 ${at(0).toFixed(1)}`
+      for (let x = 40; x <= stop; x += 40) d += ` L ${x} ${at(x).toFixed(1)}`
+      if (end) {
+        const [ex, ey] = [end.left, end.top + end.height / 2]
+        d += ` C ${stop + 70} ${at(stop).toFixed(1)} ${ex - 70} ${ey} ${ex} ${ey}`
+      }
+      const glows = items.map((_, i) => `<circle cx="${(i + 0.8) * W}" cy="${at((i + 0.8) * W)}" r="${W * 0.55}" fill="url(#glow)"/>`).join('')
+      return `<svg viewBox="0 0 ${total} ${H}" preserveAspectRatio="none">
+        <defs><radialGradient id="glow"><stop offset="0" stop-color="#f2a324" stop-opacity="0.22"/><stop offset="1" stop-color="#f2a324" stop-opacity="0"/></radialGradient></defs>
+        ${glows}
+        <path d="${d}" fill="none" stroke="#f2a324" stroke-width="4" stroke-opacity="0.6"/>
+      </svg>`
+    }
+
+    function frame (item, i, count) {
+      const counter = `${String(i + 1).padStart(2, '0')}/${String(count).padStart(2, '0')}`
+      const mark = '<div class="mark"><i></i>AMBAR</div>'
+      if (item.kind === 'cover') {
+        return `<section class="frame cover">
+          <div class="top"><span>${esc(item.label)}</span><span class="count">${counter}</span></div>
+          <h2>${esc(item.title)}</h2>
+          <div class="card"><p>${esc(item.text)}</p></div>
+          <div class="foot">${mark}<span class="next">Swipe ${icon('arrow-right')}</span></div>
+        </section>`
+      }
+      if (item.kind === 'closer') {
+        return `<section class="frame closer">
+          <div class="top"><span>${esc(item.label)}</span><span class="count">${counter}</span></div>
+          <h2>${esc(item.title)}</h2>
+          <div class="card">${mark}<p>${esc(item.text)}</p>${item.cta ? `<span class="cta">${esc(item.cta)}</span>` : ''}</div>
+          <div class="foot"></div>
+        </section>`
+      }
+      return `<section class="frame">
+        <div class="top"><span>${esc(item.label)}</span><span class="count">${counter}</span></div>
+        <h2>${esc(item.title)}</h2>
+        <div class="card"><div class="head"><div class="icon">${icon(item.icon)}</div><span class="num">${String(i + 1).padStart(2, '0')}</span></div><p>${esc(item.text)}</p></div>
+        <div class="foot"><span class="next">${esc(item.next)}</span></div>
+      </section>`
+    }
+
+    still({
+      fonts: ['800 112px Inter', '600 36px Inter', '500 46px Inter', '500 26px "Plex Mono"'],
+      // every item is one frame of one wide picture, sliced by `ambar stills`
+      panorama: {},
+      setup (ctx) {
+        document.body.insertAdjacentHTML('beforeend', ctx.items.map((item, i) => frame(item, i, ctx.items.length)).join(''))
+        document.querySelector('.bg').innerHTML = background(ctx)
+      }
+    })
+  </script>
+</body>
+</html>

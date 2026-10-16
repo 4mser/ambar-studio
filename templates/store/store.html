@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Store screenshots</title>
+  <!-- ambar stills store.html → out/store/ios/*.png (1320×2868) and out/store/play/*.png (1080×1920) -->
+  <meta name="ambar:sizes" content="ios,play">
+  <meta name="ambar:data" content="items.json">
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="/@ambar/runtime/fonts.css">
+  <link rel="stylesheet" href="/@ambar/runtime/stills.css">
+  <style>
+    /* Layout drawn at 1080 wide; --k scales it to the size being rendered */
+    :root { --u: calc(1px * var(--k, 1)); --brand: #2f6bff; }
+    body { background: var(--ink); color: var(--cream); font-family: var(--font); }
+
+    /* Panned background: one picture across the set, moved by the item's index */
+    .pan { --pan-count: 5; }
+    .pan svg { width: 100%; height: 100%; display: block; }
+
+    .head { position: absolute; top: calc(var(--safe-top) + 10 * var(--u)); left: var(--safe-left); right: var(--safe-right); text-align: center; }
+    .kicker { font: 500 calc(28 * var(--u))/1 var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--honey); }
+    h1 { margin-top: calc(26 * var(--u)); font-size: calc(84 * var(--u)); line-height: 1.04; letter-spacing: -0.035em; font-weight: 800; }
+    h1 span { display: block; }
+    h1 span + span { color: var(--amber); }
+
+    /* Phone: bezel + screen, radius of the bezel = screen radius + bezel */
+    .phone {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      top: calc(var(--safe-top) + 380 * var(--u)); bottom: var(--safe-bottom);
+      aspect-ratio: 9 / 19.5; padding: calc(14 * var(--u)); border-radius: calc(78 * var(--u));
+      background: #0b0703; border: calc(2 * var(--u)) solid rgba(255, 210, 122, 0.22);
+    }
+    .screen {
+      position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: calc(64 * var(--u));
+      background: #f4f3ef; color: #1c1917; container-type: inline-size; --p: calc(100cqw / 390);
+    }
+    .screen > img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+
+    /* Rebuilt app view (Harbor, the demo app in examples/tutorial) */
+    .app { padding: calc(64 * var(--p)) calc(20 * var(--p)) 0; }
+    .bar { display: flex; justify-content: space-between; align-items: center; }
+    .bar b { font-size: calc(30 * var(--p)); letter-spacing: -0.02em; font-weight: 800; }
+    .avatar { width: calc(34 * var(--p)); height: calc(34 * var(--p)); border-radius: 50%; background: linear-gradient(135deg, #ffd27a, #f59e0b); }
+    .chips { display: flex; gap: calc(8 * var(--p)); margin: calc(20 * var(--p)) 0; }
+    .chip { white-space: nowrap; padding: calc(8 * var(--p)) calc(11 * var(--p)); border-radius: calc(10 * var(--p)); border: 1px solid #e3e0da; background: #fff; font-size: calc(13 * var(--p)); font-weight: 500; color: #57534e; }
+    .chip.primary { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 700; }
+    .task { display: flex; align-items: center; gap: calc(12 * var(--p)); padding: calc(16 * var(--p)); margin-bottom: calc(10 * var(--p)); border-radius: calc(14 * var(--p)); background: #fff; }
+    .task.on { outline: calc(3 * var(--p)) solid var(--amber); }
+    .box { flex: none; width: calc(20 * var(--p)); height: calc(20 * var(--p)); border-radius: calc(6 * var(--p)); border: calc(2 * var(--p)) solid #d6d3cd; }
+    .task.done .box { background: var(--brand); border-color: var(--brand); }
+    .task p { flex: 1; font-size: calc(15 * var(--p)); font-weight: 700; line-height: 1.25; }
+    .tag { flex: none; padding: calc(4 * var(--p)) calc(9 * var(--p)); border-radius: calc(8 * var(--p)); background: #eaf0ff; color: #2846c4; font-size: calc(12 * var(--p)); font-weight: 500; }
+    .due { flex: none; font-size: calc(12 * var(--p)); color: #8a857d; }
+    .tabs { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-around; padding: calc(12 * var(--p)) calc(8 * var(--p)) calc(30 * var(--p)); background: #fff; border-top: 1px solid #e3e0da; }
+    .tabs span { display: flex; flex-direction: column; align-items: center; gap: calc(4 * var(--p)); font-size: calc(11 * var(--p)); font-weight: 500; color: #8a857d; }
+    .tabs span.on { color: var(--brand); }
+    .tabs svg { width: calc(22 * var(--p)); height: calc(22 * var(--p)); }
+    .sheet { position: absolute; left: 0; right: 0; bottom: 0; padding: calc(24 * var(--p)) calc(20 * var(--p)) calc(40 * var(--p)); border-radius: calc(24 * var(--p)) calc(24 * var(--p)) 0 0; background: #fff; }
+    .scrim { position: absolute; inset: 0; background: rgba(28, 25, 23, 0.35); }
+    .sheet b { font-size: calc(20 * var(--p)); font-weight: 800; }
+    .field { margin: calc(16 * var(--p)) 0; padding: calc(14 * var(--p)); border-radius: calc(12 * var(--p)); border: calc(2 * var(--p)) solid var(--brand); font-size: calc(15 * var(--p)); font-weight: 500; }
+    .save { padding: calc(14 * var(--p)); border-radius: calc(12 * var(--p)); background: var(--brand); color: #fff; text-align: center; font-size: calc(15 * var(--p)); font-weight: 700; }
+
+    /* Floating card: a rebuilt component, never a crop. Radius = icon radius + padding */
+    .float {
+      position: absolute; width: calc(500 * var(--u)); padding: calc(30 * var(--u)); border-radius: calc(48 * var(--u));
+      display: flex; gap: calc(24 * var(--u)); align-items: center;
+      background: #fff; color: #1c1917; box-shadow: 0 calc(30 * var(--u)) calc(80 * var(--u)) rgba(0, 0, 0, 0.45);
+    }
+    .float .ic { flex: none; width: calc(84 * var(--u)); height: calc(84 * var(--u)); border-radius: calc(18 * var(--u)); display: grid; place-items: center; background: var(--amber); color: var(--ink); }
+    .float .ic svg { width: 55%; height: 55%; }
+    .float small { display: block; font: 500 calc(22 * var(--u))/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: #8a4a0c; }
+    .float strong { display: block; margin-top: calc(6 * var(--u)); font-size: calc(36 * var(--u)); line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; }
+    .float em { display: block; margin-top: calc(6 * var(--u)); font-style: normal; font-size: calc(24 * var(--u)); color: #57534e; }
+  </style>
+</head>
+<body>
+  <div class="pan" data-bleed></div>
+  <div class="head"><div class="kicker"></div><h1></h1></div>
+  <div class="phone"><div class="screen"></div></div>
+  <div class="float" hidden></div>
+  <script type="module">
+    import { still } from '/@ambar/runtime/stills.js'
+
+    // Lucide icons (lucide.dev, ISC)
+    const ICONS = {
+      check: '<path d="M20 6 9 17l-5-5"/>',
+      plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+      tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+      lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+      'layout-list': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 4h7"/><path d="M14 9h7"/><path d="M14 15h7"/><path d="M14 20h7"/>',
+      users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+      'bar-chart': '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+      calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>'
+    }
+    const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] ?? ''}</svg>`
+    const esc = (s = '') => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+
+    // The demo app's own tasks (examples/tutorial/app)
+    const TASKS = [
+      { title: 'Review the onboarding flow', tag: 'Design', due: 'Today' },
+      { title: 'Prepare the quarterly numbers', tag: 'Finance', due: 'Thu' },
+      { title: 'Reply to the supplier quote', tag: 'Ops', due: 'Fri' }
+    ]
+
+    function view (item) {
+      if (item.screen) return `<img src="${esc(item.screen)}" alt="">`
+      const tasks = [...(item.added ? [{ title: item.added, tag: 'New', due: 'Today' }] : []), ...TASKS]
+      const rows = tasks.map((t, i) => `<div class="task${i === item.highlight ? ' on' : ''}${item.done?.includes(i) ? ' done' : ''}"><i class="box"></i><p>${esc(t.title)}</p><span class="tag">${esc(t.tag)}</span><span class="due">${esc(t.due)}</span></div>`).join('')
+      const board = `<div class="app"><div class="bar"><b>My board</b><i class="avatar"></i></div>
+        <div class="chips"><span class="chip primary">+ New task</span><span class="chip">This week</span><span class="chip">Assigned to me</span></div>${rows}</div>
+        <nav class="tabs"><span class="on">${icon('layout-list')}My board</span><span>${icon('users')}Team</span><span>${icon('calendar')}Calendar</span><span>${icon('bar-chart')}Reports</span></nav>`
+      if (item.view !== 'new') return board
+      return `${board}<div class="scrim"></div><div class="sheet"><b>New task</b><div class="field">${esc(item.typing ?? '')}</div><div class="save">Save task</div></div>`
+    }
+
+    function background (count) {
+      return `<svg viewBox="0 0 ${count * 1000} 1000" preserveAspectRatio="none">
+        <defs><linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="#f2a324" stop-opacity="0.05"/><stop offset="0.5" stop-color="#f2a324" stop-opacity="0.32"/><stop offset="1" stop-color="#f2a324" stop-opacity="0.05"/></linearGradient></defs>
+        <path d="M 0 760 C ${count * 250} 420, ${count * 750} 1080, ${count * 1000} 640 L ${count * 1000} 1000 L 0 1000 Z" fill="url(#arc)"/>
+        <path d="M 0 760 C ${count * 250} 420, ${count * 750} 1080, ${count * 1000} 640" fill="none" stroke="#f2a324" stroke-opacity="0.6" stroke-width="3" vector-effect="non-scaling-stroke"/>
+      </svg>`
+    }
+
+    // Keep the floating card inside the safe zone, whatever the size
+    function clamp (el, ctx) {
+      const r = el.getBoundingClientRect()
+      const dx = Math.max(0, ctx.safe.left - r.left) - Math.max(0, r.right - (ctx.width - ctx.safe.right))
+      const dy = Math.max(0, ctx.safe.top - r.top) - Math.max(0, r.bottom - (ctx.height - ctx.safe.bottom))
+      el.style.left = `${r.left + dx}px`
+      el.style.top = `${r.top + dy}px`
+    }
+
+    still({
+      fonts: ['800 84px Inter', '700 15px Inter', '500 15px Inter', '500 28px "Plex Mono"'],
+      setup (ctx) {
+        const { item } = ctx
+        document.querySelector('.pan').style.setProperty('--pan-count', ctx.count)
+        document.querySelector('.pan').innerHTML = background(ctx.count)
+        document.querySelector('.kicker').textContent = item.kicker ?? ''
+        document.querySelector('h1').innerHTML = (item.headline ?? []).slice(0, 2).map((l) => `<span>${esc(l)}</span>`).join('')
+        document.querySelector('.screen').innerHTML = view(item)
+        const card = item.card
+        if (!card) return
+        const el = document.querySelector('.float')
+        el.hidden = false
+        el.innerHTML = `<span class="ic">${icon(card.icon)}</span><div><small>${esc(card.label)}</small><strong>${esc(card.value)}</strong>${card.note ? `<em>${esc(card.note)}</em>` : ''}</div>`
+        // beside the phone, at a fraction of its height, overhanging its edge
+        const phone = document.querySelector('.phone').getBoundingClientRect()
+        const box = el.getBoundingClientRect()
+        const right = card.side !== 'left'
+        el.style.left = `${right ? phone.right - box.width * 0.55 : phone.left - box.width * 0.45}px`
+        el.style.top = `${phone.top + phone.height * (card.y ?? 0.55)}px`
+        clamp(el, ctx)
+      }
+    })
+  </script>
+</body>
+</html>

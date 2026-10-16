@@ -1,0 +1,42 @@
+[
+  {
+    "id": "board",
+    "kicker": "Harbor",
+    "headline": ["Your week", "on one board"],
+    "view": "board",
+    "highlight": 0,
+    "card": { "icon": "calendar", "label": "Due today", "value": "Review the onboarding flow", "y": 0.5 }
+  },
+  {
+    "id": "new-task",
+    "kicker": "New task",
+    "headline": ["Write it down", "in two taps"],
+    "view": "new",
+    "typing": "Ship the new landing page",
+    "card": { "icon": "plus", "label": "New task", "value": "Title, save, done", "side": "left", "y": 0.3 }
+  },
+  {
+    "id": "saved",
+    "kicker": "Board",
+    "headline": ["New work lands", "at the top"],
+    "view": "board",
+    "added": "Ship the new landing page",
+    "highlight": 0,
+    "card": { "icon": "check", "label": "Saved", "value": "Ship the new landing page", "y": 0.62 }
+  },
+  {
+    "id": "tags",
+    "kicker": "Tags",
+    "headline": ["Every task", "has a team"],
+    "view": "board",
+    "highlight": 1,
+    "card": { "icon": "tag", "label": "Finance", "value": "Prepare the quarterly numbers", "note": "Due Thursday", "side": "left", "y": 0.42 }
+  },
+  {
+    "id": "privacy",
+    "kicker": "Privacy",
+    "headline": ["Your email", "stays private"],
+    "view": "board",
+    "card": { "icon": "lock", "label": "Account", "value": "Only you see your email", "y": 0.7 }
+  }
+]

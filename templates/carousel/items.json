@@ -1,0 +1,49 @@
+[
+  {
+    "id": "cover",
+    "kind": "cover",
+    "label": "Carousel guide",
+    "title": "Five rules for a carousel people finish",
+    "text": "One grid, one idea per slide, and a question that earns the next swipe."
+  },
+  {
+    "id": "grid",
+    "label": "Grid",
+    "icon": "layout-grid",
+    "title": "Every slide shares one grid",
+    "text": "Label and counter on top, then the title, content that fills the height, and a footer.",
+    "next": "So where does the logo go?"
+  },
+  {
+    "id": "brand",
+    "label": "Brand",
+    "icon": "bookmark",
+    "title": "The logo stays small until the end",
+    "text": "A small mark on the cover, the full logo on the closer, and nothing in between.",
+    "next": "And how much text fits?"
+  },
+  {
+    "id": "words",
+    "label": "Words",
+    "icon": "type",
+    "title": "Fifteen to twenty words per slide",
+    "text": "Name the topic, make one point, and cut every word that repeats the title.",
+    "next": "Then what makes people swipe?"
+  },
+  {
+    "id": "pull",
+    "label": "Pull",
+    "icon": "circle-help",
+    "title": "End on the question the next slide answers",
+    "text": "Curiosity carries the swipe. Only the cover asks for it out loud.",
+    "next": "Ready to make your own?"
+  },
+  {
+    "id": "close",
+    "kind": "closer",
+    "label": "Your turn",
+    "title": "Save this for your next carousel",
+    "text": "One template, six slides, one command.",
+    "cta": "ambar stills carousel.html"
+  }
+]

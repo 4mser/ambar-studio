@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Link preview</title>
+  <!-- ambar stills og.html --webp → out/og/og/01-home.png (2400×1260, @2x) + a 1200-wide WebP -->
+  <meta name="ambar:sizes" content="og">
+  <meta name="ambar:data" content="items.json">
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="/@ambar/runtime/fonts.css">
+  <link rel="stylesheet" href="/@ambar/runtime/stills.css">
+  <style>
+    body { background: var(--ink); color: var(--cream); font-family: var(--font); }
+
+    /* The motif: amber rings and a dot field, faded into every edge by a mask */
+    .motif {
+      position: absolute; inset: 0;
+      -webkit-mask-image: radial-gradient(75% 95% at 78% 50%, #000 30%, transparent 78%);
+      mask-image: radial-gradient(75% 95% at 78% 50%, #000 30%, transparent 78%);
+    }
+    .motif svg { width: 100%; height: 100%; display: block; }
+
+    /* Content stays in the middle band: WhatsApp crops the sides of the preview */
+    .copy { position: absolute; left: 96px; top: 0; bottom: 0; width: 640px; display: flex; flex-direction: column; justify-content: center; gap: 26px; }
+    .kicker { font: 500 20px/1 var(--mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--honey); }
+    h1 { font-size: 68px; line-height: 1.02; letter-spacing: -0.04em; font-weight: 800; }
+    h1 em { font-style: normal; color: var(--amber); }
+    .url { display: flex; align-items: center; gap: 14px; font: 500 22px/1 var(--mono); color: var(--muted); }
+    .url i { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, var(--honey), var(--amber) 55%, var(--resin)); }
+  </style>
+</head>
+<body>
+  <div class="motif" data-bleed></div>
+  <div class="copy"><div class="kicker"></div><h1></h1><div class="url"><i></i><span></span></div></div>
+  <script type="module">
+    import { still } from '/@ambar/runtime/stills.js'
+
+    // Thin lines on near-black: export the web copy as a 256-colour PNG or a
+    // WebP, never JPEG (it rings around 1 px strokes)
+    function motif ({ width: W, height: H }) {
+      const cx = W * 0.8
+      const cy = H * 0.5
+      const rings = Array.from({ length: 9 }, (_, i) => `<circle cx="${cx}" cy="${cy}" r="${70 + i * 46}" fill="none" stroke="#f2a324" stroke-width="${i === 2 ? 3 : 1.25}" stroke-opacity="${i === 2 ? 0.9 : 0.42}"/>`).join('')
+      let dots = ''
+      for (let x = 24; x < W; x += 32) {
+        for (let y = 24; y < H; y += 32) dots += `<circle cx="${x}" cy="${y}" r="1.6" fill="#ffd27a" fill-opacity="0.22"/>`
+      }
+      return `<svg viewBox="0 0 ${W} ${H}">${dots}${rings}<circle cx="${cx}" cy="${cy}" r="34" fill="#f2a324"/></svg>`
+    }
+
+    still({
+      fonts: ['800 68px Inter', '500 22px "Plex Mono"'],
+      setup (ctx) {
+        const { item } = ctx
+        document.querySelector('.motif').innerHTML = motif(ctx)
+        document.querySelector('.kicker').textContent = item.kicker ?? ''
+        // {word} marks the highlighted words of the title
+        document.querySelector('h1').innerHTML = String(item.title ?? '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]).replace(/\{(.+?)\}/g, '<em>$1</em>')
+        document.querySelector('.url span').textContent = item.url ?? ''
+      }
+    })
+  </script>
+</body>
+</html>

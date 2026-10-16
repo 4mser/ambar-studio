@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Infographic</title>
+  <!-- ambar doc infographic.html --long --png → out/infographic.pdf (one page) + out/infographic.png -->
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="/@ambar/runtime/fonts.css">
+  <link rel="stylesheet" href="/@ambar/runtime/doc.css">
+  <style>
+    /* Light, static fonts, no shadows: it prints as one long PDF page */
+    .page.long { padding: 140px 140px 120px; font-family: var(--font); }
+    .page.long p { font-size: 26px; line-height: 1.5; color: var(--paper-text); }
+
+    header { padding-bottom: 96px; border-bottom: 3px solid var(--paper-ink); }
+    .page header .kicker { font: 500 22px/1 var(--mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--resin); }
+    .page header h1 { margin-top: 32px; font-size: 120px; line-height: 0.98; letter-spacing: -0.045em; font-weight: 800; max-width: 1150px; }
+    .page header h1 em { font-style: normal; color: #c97a0a; }
+    .page header p.lead { margin-top: 40px; max-width: 980px; font-size: 32px; }
+
+    section { padding: 110px 0 40px; }
+    .num { display: flex; align-items: baseline; gap: 28px; }
+    .num b { font: 500 26px/1 var(--mono); letter-spacing: 0.12em; color: #c97a0a; }
+    .page .num h2 { margin: 0; font-size: 64px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 800; }
+    section > p { margin-top: 24px; max-width: 1000px; }
+
+    /* Diagram slots: inline SVG drawn to the page width */
+    figure { margin-top: 56px; }
+    figure svg { display: block; width: 100%; height: auto; overflow: visible; }
+    svg text { font-family: var(--font); fill: var(--paper-ink); }
+    svg .mono { font-family: var(--mono); }
+    svg .muted { fill: #8a6a4a; }
+    /* Halo: the label paints a paper-coloured stroke under its letters, so a
+       line drawn behind it never crosses the text */
+    svg .halo { paint-order: stroke; stroke: var(--paper); stroke-width: 10px; stroke-linejoin: round; }
+    svg .backing { fill: var(--paper); }
+    figcaption { margin-top: 20px; font: 500 18px/1.4 var(--mono); letter-spacing: 0.06em; color: #a08060; }
+
+    .checks { margin-top: 48px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .check { display: flex; gap: 24px; align-items: flex-start; padding: 32px; border-radius: 28px; border: 2px solid var(--paper-line); background: #fff; }
+    .check svg { flex: none; width: 44px; height: 44px; padding: 10px; border-radius: 12px; background: #fde9c4; color: #8a4a0c; box-sizing: content-box; }
+    .page .check h3 { font-size: 28px; letter-spacing: -0.01em; }
+    .check p { margin-top: 8px; font-size: 22px !important; }
+
+    footer { margin-top: 110px; padding-top: 32px; border-top: 3px solid var(--paper-ink); display: flex; justify-content: space-between; font: 500 20px/1 var(--mono); letter-spacing: 0.12em; color: #a08060; }
+  </style>
+</head>
+<body>
+  <article class="page long">
+    <header>
+      <div class="kicker">AMBAR Studio · how it works</div>
+      <h1>One page in, <em>every format</em> out.</h1>
+      <p class="lead">A piece starts as a web page. Chrome draws it, AMBAR records what it draws, and the same page leaves as a video, a deck, a document or a set of images.</p>
+    </header>
+
+    <section>
+      <div class="num"><b>01</b><h2>Write a page</h2></div>
+      <p>HTML and CSS for the picture, JavaScript for the motion. A video exposes render(t), and the picture depends on t alone.</p>
+      <figure>
+        <svg viewBox="0 0 1320 360" role="img" aria-label="Three source files feed one page">
+          <g fill="#fff" stroke="#e2cfb2" stroke-width="2">
+            <rect x="0" y="20" width="360" height="90" rx="20"/><rect x="0" y="135" width="360" height="90" rx="20"/><rect x="0" y="250" width="360" height="90" rx="20"/>
+          </g>
+          <text x="40" y="74" font-size="28" font-weight="500" class="mono">index.html</text>
+          <text x="40" y="189" font-size="28" font-weight="500" class="mono">ambar.json</text>
+          <text x="40" y="304" font-size="28" font-weight="500" class="mono">voice/</text>
+          <g fill="none" stroke="#c97a0a" stroke-width="3">
+            <path d="M360 65 C 560 65, 600 180, 820 180"/><path d="M360 180 L 820 180"/><path d="M360 295 C 560 295, 600 180, 820 180"/>
+          </g>
+          <text x="590" y="180" font-size="24" text-anchor="middle" dominant-baseline="central" class="halo">loaded together</text>
+          <rect x="820" y="100" width="500" height="160" rx="32" fill="#f2a324"/>
+          <text x="1070" y="165" font-size="40" font-weight="800" text-anchor="middle">The page</text>
+          <text x="1070" y="212" font-size="24" text-anchor="middle" class="mono">render(t)</text>
+        </svg>
+        <figcaption>Fig. 1 · The project folder: the page, its narration lines and the recorded voice.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="num"><b>02</b><h2>Chrome draws it, frame by frame</h2></div>
+      <p>Headless Chrome opens the page and asks for one moment at a time. Any frame can be drawn again, in any order, with the same result.</p>
+      <figure>
+        <svg viewBox="0 0 1320 300" role="img" aria-label="A timeline of frames">
+          <line x1="0" y1="150" x2="1320" y2="150" stroke="#2b1a0b" stroke-width="3"/>
+          <g fill="#fff" stroke="#e2cfb2" stroke-width="2">
+            <rect x="40" y="40" width="180" height="220" rx="18"/><rect x="300" y="40" width="180" height="220" rx="18"/><rect x="560" y="40" width="180" height="220" rx="18"/><rect x="1100" y="40" width="180" height="220" rx="18"/>
+          </g>
+          <circle cx="130" cy="150" r="14" fill="#f2a324"/><circle cx="390" cy="150" r="14" fill="#f2a324"/><circle cx="650" cy="150" r="14" fill="#f2a324"/><circle cx="1190" cy="150" r="14" fill="#f2a324"/>
+          <text x="130" y="96" font-size="26" font-weight="500" text-anchor="middle" class="mono">t = 0</text>
+          <text x="390" y="96" font-size="26" font-weight="500" text-anchor="middle" class="mono">t = 1/30</text>
+          <text x="650" y="96" font-size="26" font-weight="500" text-anchor="middle" class="mono">t = 2/30</text>
+          <text x="1190" y="96" font-size="26" font-weight="500" text-anchor="middle" class="mono">t = end</text>
+          <text x="920" y="150" font-size="26" text-anchor="middle" dominant-baseline="central" class="halo">one screenshot per frame</text>
+          <text x="130" y="214" font-size="22" text-anchor="middle" class="muted">frame 1</text>
+          <text x="390" y="214" font-size="22" text-anchor="middle" class="muted">frame 2</text>
+          <text x="650" y="214" font-size="22" text-anchor="middle" class="muted">frame 3</text>
+          <text x="1190" y="214" font-size="22" text-anchor="middle" class="muted">last frame</text>
+        </svg>
+        <figcaption>Fig. 2 · Time is an input: the renderer sets t, the page draws, Chrome takes the shot.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="num"><b>03</b><h2>The same page, four formats</h2></div>
+      <p>How the page leaves the browser is the only difference between a video, a deck, a document and a set of images.</p>
+      <figure>
+        <svg viewBox="0 0 1320 560" role="img" aria-label="One page fans out to four formats">
+          <rect x="0" y="200" width="320" height="160" rx="32" fill="#f2a324"/>
+          <text x="160" y="290" font-size="40" font-weight="800" text-anchor="middle">The page</text>
+          <g fill="none" stroke="#c97a0a" stroke-width="3">
+            <path d="M320 280 C 560 280, 620 70, 900 70"/><path d="M320 280 C 560 280, 620 210, 900 210"/>
+            <path d="M320 280 C 560 280, 620 350, 900 350"/><path d="M320 280 C 560 280, 620 490, 900 490"/>
+          </g>
+          <g fill="#fff" stroke="#e2cfb2" stroke-width="2">
+            <rect x="900" y="20" width="420" height="100" rx="20"/><rect x="900" y="160" width="420" height="100" rx="20"/>
+            <rect x="900" y="300" width="420" height="100" rx="20"/><rect x="900" y="440" width="420" height="100" rx="20"/>
+          </g>
+          <text x="940" y="64" font-size="30" font-weight="800">Video</text><text x="940" y="98" font-size="22" class="mono muted">ambar render → MP4</text>
+          <text x="940" y="204" font-size="30" font-weight="800">Deck</text><text x="940" y="238" font-size="22" class="mono muted">ambar slides → PDF + PNG</text>
+          <text x="940" y="344" font-size="30" font-weight="800">Document</text><text x="940" y="378" font-size="22" class="mono muted">ambar doc → PDF</text>
+          <text x="940" y="484" font-size="30" font-weight="800">Images</text><text x="940" y="518" font-size="22" class="mono muted">ambar stills → PNG, WebP</text>
+          <text x="800" y="70" font-size="22" text-anchor="middle" dominant-baseline="central" class="halo mono">ffmpeg</text>
+          <text x="800" y="210" font-size="22" text-anchor="middle" dominant-baseline="central" class="halo mono">page.pdf</text>
+          <text x="800" y="350" font-size="22" text-anchor="middle" dominant-baseline="central" class="halo mono">@page</text>
+          <text x="800" y="490" font-size="22" text-anchor="middle" dominant-baseline="central" class="halo mono">sizes</text>
+        </svg>
+        <figcaption>Fig. 3 · One source, four exits. Labels sit on the lines with a halo.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="num"><b>04</b><h2>Checked before it ships</h2></div>
+      <p>Every export is checked by machine first. A person still looks at the result, with the contact sheet in front of them.</p>
+      <div class="checks">
+        <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><div><h3>Nothing leaves the frame</h3><p>Text and images that cross the edge are errors, not warnings.</p></div></div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg><div><h3>Every box holds its content</h3><p>overflow: hidden clips silently, so a clipped box is reported.</p></div></div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg><div><h3>Static fonts only</h3><p>A variable or faked font prints as Type 3 glyphs: the PDF scan finds them.</p></div></div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><div><h3>No shadows on paper</h3><p>Shadows stay on screen; Preview prints them as grey blocks.</p></div></div>
+      </div>
+    </section>
+
+    <footer><span>AMBAR STUDIO</span><span>ambar doc infographic.html --long</span></footer>
+  </article>
+  <script>
+    // In a PDF, stroked text becomes Type 3 glyphs. When printing (?print,
+    // which `ambar doc` adds), each halo becomes a paper-coloured shape behind
+    // its label: the same look, with real text.
+    // Measured once the fonts are in, so each shape fits its label.
+    if (new URLSearchParams(location.search).has('print')) document.fonts.ready.then(() => {
+      for (const label of document.querySelectorAll('svg text.halo')) {
+        const b = label.getBBox()
+        const pad = 8
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+        Object.entries({ x: b.x - pad, y: b.y - pad / 2, width: b.width + pad * 2, height: b.height + pad, rx: 6, class: 'backing' }).forEach(([k, v]) => rect.setAttribute(k, v))
+        label.before(rect)
+        label.classList.remove('halo')
+      }
+    })
+  </script>
+</body>
+</html>

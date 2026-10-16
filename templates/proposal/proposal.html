@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en" data-paper="a4">
+<head>
+  <meta charset="utf-8">
+  <title>Proposal</title>
+  <!-- ambar doc proposal.html [--paper letter] → out/proposal.pdf -->
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="/@ambar/runtime/fonts.css">
+  <link rel="stylesheet" href="/@ambar/runtime/doc.css">
+  <style>
+    /* Flowing pages: margins, running footer and page counter live here.
+       The cover is a sheet (.page) and prints edge to edge, without them. */
+    @page {
+      margin: 22mm 20mm 24mm;
+      background: #fffaf2;
+      @bottom-left { content: "Proposal · Harbor launch pieces"; font: 500 7.5pt 'Plex Mono', monospace; letter-spacing: 0.1em; color: #a08060; }
+      @bottom-right { content: counter(page) " / " counter(pages); font: 500 7.5pt 'Plex Mono', monospace; letter-spacing: 0.1em; color: #a08060; }
+    }
+    @page sheet { margin: 0; }
+
+    /* Cover */
+    .cover { display: flex; flex-direction: column; padding: 30mm 22mm 24mm; }
+    .cover .band { position: absolute; left: 0; right: 0; top: 0; height: 9mm; background: var(--amber); }
+    .cover .kicker { margin-top: 18mm; }
+    .cover h1 { font-size: 40pt; max-width: 150mm; }
+    .cover .lead { margin-top: 8mm; max-width: 135mm; font-size: 13pt; line-height: 1.5; color: var(--paper-text); }
+    .cover .meta { margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; padding-top: 6mm; border-top: 0.4mm solid var(--paper-ink); }
+    .cover .meta span { display: block; font: 500 7pt var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: #a08060; }
+    .cover .meta b { display: block; margin-top: 2mm; font-size: 11pt; font-weight: 600; }
+
+    /* Flowing body: no screen padding in print, the @page margins hold it */
+    @media print { .flow { padding: 0; } }
+    .flow h2 { display: flex; align-items: baseline; gap: 4mm; margin: 0 0 4mm; padding-top: 8mm; }
+    .flow h2 b { font: 500 9pt var(--mono); letter-spacing: 0.12em; color: var(--resin); }
+    .flow section:first-child h2 { padding-top: 0; }
+    .flow p + p { margin-top: 3mm; }
+    .flow ul { margin: 3mm 0 0 5mm; }
+    .flow th, .flow td { padding-right: 4mm; }
+    .flow td.num, .flow th.num { text-align: right; padding-right: 0; }
+    .flow tfoot td { border-bottom: 0; padding-top: 4mm; font-weight: 700; color: var(--paper-ink); }
+    .note { margin-top: 3mm; font-size: 8.5pt !important; color: #8a6a4a !important; }
+    .sign { margin-top: 18mm; display: grid; grid-template-columns: 1fr 1fr; gap: 16mm; break-inside: avoid; }
+    .sign div { padding-top: 3mm; border-top: 0.3mm solid var(--paper-ink); font: 500 8pt var(--mono); letter-spacing: 0.1em; color: #8a6a4a; }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="band"></div>
+    <div class="kicker">Proposal · October 2026</div>
+    <h1>Launch pieces for Harbor</h1>
+    <p class="lead">A launch video, an Instagram carousel and the App Store and Google Play screenshots, made from one source so every piece says the same thing.</p>
+    <div class="meta">
+      <div><span>Prepared for</span><b>[Client name]</b></div>
+      <div><span>Prepared by</span><b>[Your studio]</b></div>
+      <div><span>Valid until</span><b>[Date]</b></div>
+    </div>
+  </section>
+
+  <main class="flow">
+    <section>
+      <h2><b>01</b>Context</h2>
+      <p>Harbor is a task board for small teams. The new release adds a faster way to create tasks, and the launch needs the same message in every channel: the site, social media and both app stores.</p>
+      <p>Every piece in this proposal is built from HTML with AMBAR Studio. One edit to a line of copy updates the video, the carousel and the screenshots together, and each export is checked before delivery.</p>
+    </section>
+
+    <section>
+      <h2><b>02</b>Scope</h2>
+      <table>
+        <thead><tr><th>Piece</th><th>Format</th><th>Size</th><th class="num">Fee</th></tr></thead>
+        <tbody>
+          <tr><td>Launch video with narration</td><td>MP4, 30 s</td><td>1920 × 1080</td><td class="num">[amount]</td></tr>
+          <tr><td>Instagram carousel, six slides</td><td>PNG</td><td>1080 × 1350</td><td class="num">[amount]</td></tr>
+          <tr><td>App Store screenshots, five</td><td>PNG</td><td>1320 × 2868</td><td class="num">[amount]</td></tr>
+          <tr><td>Google Play screenshots, five</td><td>PNG</td><td>1080 × 1920</td><td class="num">[amount]</td></tr>
+          <tr><td>Link preview card</td><td>PNG and WebP</td><td>1200 × 630</td><td class="num">[amount]</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">Total</td><td class="num">[amount]</td></tr></tfoot>
+      </table>
+      <p class="note">Fees exclude taxes. Two rounds of changes per piece are included.</p>
+    </section>
+
+    <section>
+      <h2><b>03</b>Timeline</h2>
+      <table>
+        <thead><tr><th>Week</th><th>Work</th><th>You receive</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Script, carousel outline and screenshot headlines</td><td>A written plan to approve</td></tr>
+          <tr><td>2</td><td>Video, carousel and store screenshots</td><td>First versions with contact sheets</td></tr>
+          <tr><td>3</td><td>Changes from your review</td><td>Final files, ready to publish</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2><b>04</b>What we need from you</h2>
+      <ul>
+        <li>Access to a staging version of the app, never production.</li>
+        <li>The logo as SVG and the brand colours.</li>
+        <li>One person who approves copy, within two working days of each delivery.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><b>05</b>Terms</h2>
+      <p>Half of the total on approval and half on delivery of the final files. You own the delivered files and their HTML sources. Work starts the week after this proposal is signed.</p>
+      <div class="sign"><div>Signature and date · [Client name]</div><div>Signature and date · [Your studio]</div></div>
+    </section>
+  </main>
+</body>
+</html>
