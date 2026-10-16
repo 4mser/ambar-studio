@@ -334,13 +334,11 @@ export function type (el, text, t, a, rate = 28, { cursor = false, blink = 0.53 
 }
 
 /** ÁMBAR, the mascot. Needs <script src="/@ambar/mascot/ambar.js">. */
-/** The character kit from /@ambar/mascot/ambar.js (window.AmbarKit) */
+/** The mascot helpers from /@ambar/mascot/ambar.js (window.AmbarKit) */
 const kit = () => {
   if (!window.AmbarKit) throw new Error('Load the mascot first: <script src="/@ambar/mascot/ambar.js"></script>')
   return window.AmbarKit
 }
-/** A new member of the mascot family: same gel and eyes, its own palette and features. See references/mascots.md */
-export const character = (spec) => kit().character(spec)
 /** Irregular blink schedule and the blink amount at t */
 export const blinks = (seed, duration) => kit().blinks(seed, duration)
 export const blinkAt = (t, schedule) => kit().blinkAt(t, schedule)

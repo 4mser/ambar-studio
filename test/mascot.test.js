@@ -1,14 +1,13 @@
-// The character kit in mascot/ambar.js: expression blending, voice, ids, accessories and the
-// pure helpers that drive a mascot from time (blinks, moods, gaze, paths, trails, envelopes).
+// ÁMBAR in mascot/ambar.js: expression blending, voice, ids and the
+// pure helpers that drive the mascot from time (blinks, moods, gaze, paths, trails, envelopes).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 
 await import('../mascot/ambar.js')
 const kit = globalThis.AmbarKit
-const { character, ambar, blinks, blinkAt, moods, gazeAt, smoothPath, arrive, trail, envelopeAt } = kit
+const { ambar, blinks, blinkAt, moods, gazeAt, smoothPath, arrive, trail, envelopeAt } = kit
 
-const PALETTE = { edge: '#7CF0E4', mid: '#1FB8A8', deep: '#0B5A55', core: '#03221F', eye: '#C8FFF8', halo: '#2CC9B8', light: '#D2FFF9' }
 const ids = (svg) => [...svg.matchAll(/id="([^"]+)"/g)].map((m) => m[1])
 const meanRadius = (points, cx, cy) => points.reduce((s, [x, y]) => s + Math.hypot(x - cx, y - cy), 0) / points.length
 
@@ -55,17 +54,11 @@ test('ÁMBAR output is stable: same options, same string, ids included', () => {
   assert.equal(digest(ambar({ x: 200, y: 200, R: 80, t: 2, expression: 'sad', talk: 0.7 })), 'f883e9625a24')
 })
 
-test('every character gets its own id prefix, and ids name their content', () => {
-  const a = character({ name: 'Sol', palette: PALETTE })
-  const b = character({ name: 'Sol', palette: PALETTE })
-  assert.notEqual(a.prefix, b.prefix)
-  assert.notEqual(a.prefix, ambar.prefix)
+test('ids carry the prefix and name their content', () => {
   const o = { x: 100, y: 100, R: 60, t: 1 }
-  const sa = a(o)
-  const sb = b(o)
-  for (const id of ids(sa)) assert.ok(id.startsWith(a.prefix + '_'), id)
-  for (const id of ids(sb)) assert.ok(!ids(sa).includes(id), `${id} is shared`)
-  assert.notEqual(ids(a({ ...o, t: 2 }))[0], ids(sa)[0], 'different frames, different ids')
+  const svg = ambar(o)
+  for (const id of ids(svg)) assert.ok(id.startsWith(ambar.prefix + '_'), id)
+  assert.notEqual(ids(ambar({ ...o, t: 2 }))[0], ids(svg)[0], 'different frames, different ids')
 })
 
 test('English and Spanish options draw the same mascot', () => {
@@ -81,60 +74,6 @@ test('sadness tints toward blue by at most 0.18, and keeps a tear', () => {
   assert.ok(r > b, `the body stays amber (${fill})`)
   assert.match(sad, /fill="#CFE3FF"/)
   assert.throws(() => ambar({ x: 0, y: 0, R: 10, expression: 'grumpy' }), /unknown expression/)
-})
-
-test('a character from the kit: palette, ears, blush, no lashes', () => {
-  const mint = character({ name: 'Mint', palette: PALETTE, lobes: [[-62, 0.16, 0.18], [-118, 0.16, 0.18]], lashes: false, blush: true })
-  const svg = mint({ x: 200, y: 200, R: 100, t: 1 })
-  assert.match(svg, /#1fb8a8/)
-  assert.doesNotMatch(svg, /#f2a324/i, 'no ÁMBAR colour leaks in')
-  assert.match(svg, /#FFB8A8/)
-  assert.doesNotMatch(svg, /NaN|undefined/)
-  const plain = character({ name: 'Plain', palette: PALETTE })
-  const top = (P) => Math.min(...P.map((p) => p[1]))
-  assert.ok(top(mint.outline({ x: 0, y: 0, R: 100, t: 1 })) < top(plain.outline({ x: 0, y: 0, R: 100, t: 1 })), 'ears raise the outline')
-  assert.throws(() => character({ palette: { ...PALETTE, edge: 'teal' } }), /#rrggbb/)
-})
-
-test('orbs grow in, split by depth, fuse with a goo mask and stay off the face', () => {
-  const sol = character({ name: 'Orbs', palette: PALETTE, accessory: 'orbs' })
-  const none = sol({ x: 300, y: 300, R: 100, t: 2, orbs: 0 })
-  const some = sol({ x: 300, y: 300, R: 100, t: 2, orbs: 2.5 })
-  const all = sol({ x: 300, y: 300, R: 100, t: 2, orbs: 6 })
-  assert.match(all, /0 0 0 22 -9/)
-  assert.match(all, /<mask /)
-  const circles = (s) => (s.match(/<circle /g) ?? []).length
-  assert.ok(circles(none) < circles(some) && circles(some) < circles(all))
-  for (let t = 0; t < 12; t += 0.25) {
-    const svg = sol({ x: 300, y: 300, R: 100, t, orbs: 6, aperture: 0.3 })
-    const mask = svg.match(/<mask [^>]*>([\s\S]*?)<\/mask>/)[1]
-    const cy = 300 + Math.sin(t * 1.6) * 3
-    for (const [, cx, ccy] of mask.matchAll(/<circle cx="([-\d.]+)" cy="([-\d.]+)"/g)) {
-      assert.ok(Math.hypot(cx - 300, ccy - cy) >= 104, `an orb crosses the face at t=${t}`)
-    }
-  }
-})
-
-test('the coin spins above the head: width follows |cos|, and it can be hidden or scaled', () => {
-  const luck = character({ name: 'Coin', palette: PALETTE, accessory: 'coin' })
-  const face = (svg) => Number(svg.match(/rx="([\d.]+)" ry="([\d.]+)" fill="url\(#[^"]+k\)"/)[1])
-  const R = 100
-  assert.ok(Math.abs(face(luck({ x: 0, y: 0, R, t: 0, coin: { spin: 0 } })) - 20) < 0.11)
-  assert.ok(Math.abs(face(luck({ x: 0, y: 0, R, t: 0, coin: { spin: Math.PI / 3 } })) - 10) < 0.11)
-  assert.ok(Math.abs(face(luck({ x: 0, y: 0, R, t: 0, coin: { spin: 0, scale: 0.5 } })) - 10) < 0.11)
-  assert.doesNotMatch(luck({ x: 0, y: 0, R, t: 0, coin: false }), /k\)"/)
-  const coinY = Number(luck({ x: 0, y: 0, R, t: 0 }).match(/cy="([-\d.]+)" rx="[\d.]+" ry="[\d.]+" fill="url\(#[^"]+k\)"/)[1])
-  assert.ok(coinY + 20 < -R * 0.95, 'the coin clears the top of the head')
-})
-
-test('a custom accessory draws in layers and can fuse blobs into the body', () => {
-  const hat = character({ name: 'Hat', palette: PALETTE, accessory: ({ x, y, R, id }) => `<rect id="${id}hat" x="${x - R * 0.3}" y="${y - R * 1.4}" width="${R * 0.6}" height="${R * 0.2}"/>` })
-  const svg = hat({ x: 100, y: 100, R: 50, t: 0 })
-  assert.match(svg, /<rect id="hat_[0-9a-z]+_hat" x="85" y="30"/)
-  const bud = character({ name: 'Bud', palette: PALETTE, accessory: ({ x, y, R }) => ({ blobs: [{ x: x + R * 1.1, y, r: R * 0.2 }], back: '<g id="behind"/>' }) })
-  const out = bud({ x: 100, y: 100, R: 50, t: 0 })
-  assert.match(out, /<mask [\s\S]*<circle cx="155.0" cy="100.0" r="10.00"\/>/)
-  assert.ok(out.indexOf('id="behind"') < out.indexOf('<mask '))
 })
 
 test('a head turn slides the eyes around a sphere and hides the far one', () => {

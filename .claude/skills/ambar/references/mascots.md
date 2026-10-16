@@ -1,6 +1,6 @@
-# Mascots
+# The mascot
 
-ÁMBAR is one member of a family: a translucent gel body with two capsule eyes. The character kit in `/@ambar/mascot/ambar.js` draws ÁMBAR and lets you make other members with their own palette, small features and an accessory. Example: `examples/family` (ÁMBAR, Sol with orbs, Mint with a coin).
+ÁMBAR is a translucent gel body with two capsule eyes. `/@ambar/mascot/ambar.js` draws it. ÁMBAR is the only mascot in AMBAR: do not invent other characters or recolour it into new ones.
 
 ```html
 <script src="/@ambar/mascot/ambar.js"></script>   <!-- defines window.AmbarKit and window.mascotaAmbar -->
@@ -8,7 +8,7 @@
 ```
 
 ```js
-const { character, ambar, blinks, blinkAt, moods, dominant, gazeAt, arrive, trail, envelopeAt } = window.AmbarKit
+const { ambar, blinks, blinkAt, moods, dominant, gazeAt, arrive, trail, envelopeAt } = window.AmbarKit
 $('#cast').innerHTML = ambar({ x: 960, y: 540, R: 140, t, expression: 'feliz' })
 ```
 
@@ -16,18 +16,16 @@ $('#cast').innerHTML = ambar({ x: 960, y: 540, R: 140, t, expression: 'feliz' })
 
 ## Rules
 
-These come from production. Follow them for ÁMBAR and for every character you make.
+These come from production.
 
-- **One family, one body.** Every member shares the gel body and the capsule eyes. Tell them apart by palette and by small features: ear lobes, two lashes, blush, one accessory.
 - **One material.** The colour darkens with depth toward the centre (the gradient does it). Never a black ball with a coloured rim, never a second fill on top.
-- **One colour identity per mascot.** Never borrow another member's tint. Sadness tints toward blue by at most ×0.18 (the kit caps it), so the character still reads as itself.
-- **Limbs are silhouette lobes**, only during an action, never sticks or tubes. Add them as a temporary expression in `shapes`.
+- **One colour identity.** Never recolour ÁMBAR. Sadness tints toward blue by at most ×0.18 (the kit caps it), so ÁMBAR still reads as itself.
+- **Limbs are silhouette lobes**, only during an action, never sticks or tubes.
 - **Expressions are silhouettes** blended over about 0.55 s with weights. The kit sums weighted lobes; never average angles. Use `moods()` for the weights.
 - **Negative states stay endearing.** Sad is blue-ish with a tear, angry gets a little steam. No harsh faces.
 - **Talking follows the real voice.** Pass the voice envelope as `talk`: the interior brightens, three waves travel the rim and a small bulge swells as the mouth. Never `Math.sin(t * 15)`, never a whole-body tremble or a size pulse.
 - **Exaggerate gaze ×2.4** or it does not read at video size (`gazeAt` does it). Look to camera about 0.9 s before speaking; whoever listens looks at the speaker.
-- **Accessories never cover the face**, and not everything moves at once: let one thing move (orbs grow in, the coin pops) while the rest holds.
-- **Never overlay two mascot bodies.** Keep bodies apart; halos may overlap.
+- **Not everything moves at once**: let one thing move while the rest holds.
 - **Give the halo room.** It reaches 2.2 R; leave about 2.3 R to the edge of the SVG, or pass `halo: false`, or it gets clipped square.
 - **No bounce.** Motion is critically damped: `ease.out`, `ease.inOut`, or `1 - e^(-7k)(1 + 7k)`. Never `ease.outBack` or `ease.spring` on a mascot.
 
@@ -38,7 +36,7 @@ Spanish and English names are the same option.
 | Option | Alias | Meaning |
 |---|---|---|
 | `x`, `y`, `R`, `t` | | centre, radius (px) and time (s). `R < 1` draws nothing |
-| `expression` | `expr` | `normal`, `feliz`/`happy`, `pensativa`/`thinking`, `sorprendida`/`surprised`, `enojada`/`angry`, `triste`/`sad`, `dormida`/`sleepy`, `gota`/`drop` (flying), or a character's own |
+| `expression` | `expr` | `normal`, `feliz`/`happy`, `pensativa`/`thinking`, `sorprendida`/`surprised`, `enojada`/`angry`, `triste`/`sad`, `dormida`/`sleepy`, `gota`/`drop` (flying) |
 | `weights` | `pesos` | `{ normal: .4, feliz: .6 }` blends silhouettes; the eyes follow `expression`, or the largest weight if `expression` is missing |
 | `gaze` | `mira` | `[dx, dy]`, about -2.4..2.4 after exaggeration |
 | `blink` | `parpadeo` | 0..1 |
@@ -53,57 +51,8 @@ Spanish and English names are the same option.
 | `halo` | `sinHalo: true` | `false` removes the halo (light backgrounds, small sizes) |
 | `shadow` | | `false` removes the floor shadow |
 | `eyes` | `sinOjos: true` | `false` hides the eyes |
-| `orbs`, `aperture` | `apertura` | orbs accessory: how many (0..6, fractional grows the next one in) and orbit size (1 = full) |
-| `coin` | | coin accessory: `{ scale, spin }` (spin in radians, default `t * 2.6`) or `false` |
 
-`draw.outline(options)` returns the 72 outline points (tests, layout). `draw.figure(options)` returns a standalone `<svg>` (see Figures). `draw.prefix` is the character's id prefix and `draw.expressions` its expressions.
-
-## Making a character
-
-```js
-const sol = character({
-  name: 'Sol',                       // id prefix; unique per character
-  palette: { edge: '#8CF5E6', mid: '#22B8A7', deep: '#0B5E57', core: '#032623', eye: '#C9FFF6', halo: '#2FD3BF', light: '#D4FFF8', accent: '#7FE9FF' },
-  accessory: 'orbs'
-})
-const mint = character({
-  name: 'Mint',
-  palette: { edge: '#B6F59A', mid: '#4CC25A', deep: '#1C6A2A', core: '#08290F', eye: '#E2FFD2', halo: '#5BDB6A', light: '#E6FFDB', accent: '#C8F57F' },
-  lobes: [[-62, 0.15, 0.2], [-118, 0.15, 0.2]],   // two round ears on every expression
-  lashes: false,
-  blush: true,
-  accessory: 'coin'
-})
-$('#cast').innerHTML = sol({ x: 400, y: 600, R: 100, t, orbs: 6 }) + mint({ x: 1000, y: 600, R: 100, t })
-```
-
-| Spec | Meaning |
-|---|---|
-| `palette` | required: `edge` (bright rim), `mid` (body), `deep`, `core` (depth toward the centre), `eye` (eye glow), `halo`, `light` (inner rim and reflections); optional `accent` (soft inner glow, defaults to `light`), `sparkle`, `tear` |
-| `lobes` | `[[angle°, length, width], …]` added to every expression: ears, a tuft. Angles: 0 right, 90 down, -90 up; length and width in R |
-| `shapes` | `{ name: { base, lob: [[angle°, length, width], …] } }`: new expressions or replacements. Base about 0.7, five lobes, lengths up to 0.5 |
-| `looks` | `{ name: 'feliz' }`: which eyes a new expression uses (default `normal` capsules) |
-| `lashes` | two fine lashes per eye (default `true`) |
-| `blush` | `true` or a colour: soft cheeks under the eyes |
-| `accessory` | `'none'`, `'orbs'`, `'coin'`, or a function (see below) |
-| `coin` | coin colours `{ face, mid, rim, edge, glow }` (gold by default) |
-| `sadTint` | how far sad tints to blue, capped at 0.18 |
-| `fluid` | how much the lobes drift on their own (1 = ÁMBAR) |
-| `sheen` | the highlight that circles the rim (off with orbs, so less moves at once) |
-
-### Designing a new member
-
-1. **Pick one hue** and build the palette inside it: `edge` light and saturated, `mid` the body colour, `deep` a dark shade, `core` almost black but still that hue, `eye` and `light` pale tints, `halo` the most saturated. `accent` may lean one step toward a neighbour hue. No colour from another member.
-2. **One or two features.** Ears are two lobes around -62° and -118° (length 0.12–0.2, width 0.18–0.22). A tuft is one lobe at -90°. Choose lashes on or off. Blush for a softer character.
-3. **One accessory at most**, and it stays off the face: orbs orbit outside the body, the coin floats above the head and slides aside when the character is surprised.
-4. **Own expressions** go in `shapes` (a limb is a lobe that only that expression has) with `looks` for their eyes.
-5. **Check it small and big**: `draw.figure({ R: 28 })` in a caption and `R` 120+ on stage, every expression, `talk` on and off, next to ÁMBAR.
-
-### Accessories
-
-- **`orbs`**: six orbs on tilted 3D orbits. Behind the body they are dimmer and blurred; in front they melt into the body through a goo mask (blur, then the alpha threshold `0 0 0 22 -9`) that masks one gradient, so body and orbs read as one material. Grow them in with a fractional `orbs` (`6 * ease.out(progress(t, a, 1.6))`) and open them with `aperture` (0.4 → 0.85). An orb never crosses the face. Orbs reach about 2.1 R × aperture.
-- **`coin`**: a coin spins above the head; its face width is `r·|cos(spin)|` and an edge strip gives it thickness. `coin: { scale }` pops it in (use a critically damped 0 → 1), `coin: { spin }` fixes the angle, `coin: false` hides it.
-- **A function** `(ctx) => svg` draws on top of everything. Return `{ back, blobs, over, front }` to draw behind the body (`back`), fuse circles into the body (`blobs: [{ x, y, r }]`), draw over the body under the eyes (`over`) or on top (`front`). `ctx` has `x, y` (the body centre this frame), `R, t, id` (prefix for your own ids: `${id}k`), `colors` (tinted palette), `options`, `expression`, `weights`, `talk`, `turn` and `spec`. Keep it off the face.
+`draw.outline(options)` returns the 72 outline points (tests, layout). `draw.figure(options)` returns a standalone `<svg>` (see Figures). `draw.prefix` is the id prefix and `draw.expressions` the expressions.
 
 ## Motion helpers
 
@@ -111,7 +60,7 @@ All pure: the same `t` gives the same result.
 
 ```js
 // setup
-const schedule = blinks(1, duration)                    // per character seed
+const schedule = blinks(1, duration)                    // seed
 const envelope = await (await fetch('voice/envelope.json')).json()
 
 // render(t)
@@ -120,8 +69,8 @@ const weights = moods(t, [[0, 'normal'], [line.start - 0.3, 'feliz'], [line.end 
 const gaze = gazeAt(t, [[0, 0.8, 0], [line.start - 0.9, 0.8, 0], [line.start - 0.55, 0, 0]])   // to camera 0.9 s before
 const path = (u) => arrive(u, [-200, 700], [480, 640], 0.3, 1.5)
 const p = path(t)
-$('#trail').innerHTML = trail(path, t, { from: 0.3, to: 1.8, color: '#D4FFF8' })
-$('#cast').innerHTML = sol({
+$('#trail').innerHTML = trail(path, t, { from: 0.3, to: 1.8, color: '#FFE7B3' })
+$('#cast').innerHTML = ambar({
   x: p.x, y: p.y, R: 100, t, velocity: p.velocity,
   weights, expression: dominant(weights), gaze, turn: [gaze[0] * 0.12, 0],
   blink: blinkAt(t, schedule), talk: envelopeAt(t, envelope, 'hello', line.start)
@@ -152,14 +101,14 @@ Compute it from the line WAVs that `ambar voice` writes: the RMS of each 1/30 s 
 
 ## Figures
 
-`draw.figure({ R: 28, t, expression, blink, talk })` returns a small standalone `<svg>` without halo or shadow, sized to fit the character and its accessory: put the speaker in a caption pill.
+`draw.figure({ R: 28, t, expression, blink, talk })` returns a small standalone `<svg>` without halo or shadow, sized to fit ÁMBAR: put the speaker in a caption pill.
 
 ```js
-$('#figure').innerHTML = mint.figure({ R: 26, t, expression: 'feliz', talk })
+$('#figure').innerHTML = ambar.figure({ R: 26, t, expression: 'feliz', talk })
 ```
 
 ## Layout
 
-- A body reaches about 1.25 R from its centre; surprise lines and the coin reach 1.5–1.75 R up; orbs about 2.1 R × aperture; the halo 2.2 R.
-- In a 1080×1350 post three members fit as one above and two below (R 90–120). In 1920×1080 keep the mascot to one side of the content.
+- A body reaches about 1.25 R from its centre; surprise lines reach 1.5 R up; the halo 2.2 R.
+- In a 1080×1350 post use R 90–140. In 1920×1080 keep the mascot to one side of the content.
 - Text never sits on a mascot. Captions go below, in a pill.

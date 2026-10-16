@@ -9,11 +9,11 @@ Everything a viewer hears. The narration drives the timeline (`voice/timings.jso
   "voice": { "provider": "gemini", "name": "Sulafat", "language": "es-US", "mode": "take",
              "style": "A warm product presenter, confident and close", "maxPause": 0.32 },
   "voices": {
-    "sol": { "name": "Leda", "style": "A cheerful little mascot, bright and playful" }
+    "ambar": { "name": "Leda", "style": "A cheerful little mascot, bright and playful" }
   },
   "lines": [
     { "id": "intro", "text": "Te presento a NGINX.", "say": "Te presento a Engine X." },
-    { "id": "hola", "speaker": "sol", "text": "¡Hola! Yo te acompaño.", "tone": "an excited, happy greeting" },
+    { "id": "hola", "speaker": "ambar", "text": "¡Hola! Yo te acompaño.", "tone": "an excited, happy greeting" },
     { "id": "cierre", "text": "Pruébalo hoy.", "caption": "Pruébalo hoy →" }
   ]
 }

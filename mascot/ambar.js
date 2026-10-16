@@ -1,12 +1,12 @@
-/* ÁMBAR and the character kit.
+/* ÁMBAR, the mascot.
 
-   A mascot is one translucent gel body with two capsule eyes. Its outline is a base radius plus a
+   ÁMBAR is one translucent gel body with two capsule eyes. Its outline is a base radius plus a
    sum of soft lobes, so an expression is a silhouette, and blending expressions means summing their
    lobes scaled by weight (never averaging lobe angles: that jumped ~40 px between opposite lobes).
-   character(spec) turns a palette, optional lobe tweaks and an accessory into a draw function
-   (options) => SVG string. ÁMBAR is character(AMBAR) and is still window.mascotaAmbar.
+   character(spec) turns a palette into a draw function (options) => SVG string; ÁMBAR is
+   character(AMBAR) and is window.mascotaAmbar.
 
-   The helpers below the characters are pure functions of time: blink schedules, mood crossfades,
+   The helpers below the mascot are pure functions of time: blink schedules, mood crossfades,
    gaze keys, gaussian path smoothing, arrivals, departure trails and voice envelopes.
 
    Classic script with no build step: <script src="/@ambar/mascot/ambar.js"> defines
@@ -127,103 +127,10 @@
     return d + 'Z'
   }
 
-  // ── accessories ─────────────────────────────────────────────────────────
-  // An accessory returns layers: back (behind the body), blobs (circles fused into the body
-  // as one material), over (on the body, under the eyes) and front (on top of everything).
+  // How far the mascot reaches, in R, for figures and layout: side, top, bottom
+  const EXTENT = [1.5, 1.6, 1.2]
 
-  // Orbits: radius (×R), inclination, plane rotation, speed, phase, size (×R)
-  const ORBITS = [
-    [1.55, 1.25, 0.25, 0.55, 0.0, 0.14], [1.78, 1.1, 1.25, -0.42, 2.1, 0.1], [1.62, 1.35, -0.7, 0.7, 4.0, 0.095],
-    [1.95, 1.18, 2.2, 0.33, 1.2, 0.08], [1.7, 1.3, -1.6, -0.6, 5.1, 0.11], [2.1, 1.22, 0.75, 0.26, 3.3, 0.065]
-  ]
-
-  /** Where orb k is: a circle on a tilted 3D orbit, projected; z < 0 is behind the body */
-  function orbAt (x, y, R, t, k, aperture) {
-    const [r, inc, spin, speed, phase, size] = ORBITS[k]
-    const a = t * speed + phase
-    const rr = r * R * aperture
-    const px = Math.cos(a) * rr
-    const py = -Math.sin(a) * rr * Math.sin(inc)
-    const z = Math.sin(a) * Math.cos(inc)
-    let X = px * Math.cos(spin) - py * Math.sin(spin)
-    let Y = (px * Math.sin(spin) + py * Math.cos(spin)) * 0.9
-    // never in front of the face: an orb that would cross it is kept at the rim
-    const d = Math.hypot(X, Y)
-    const min = R * 1.05
-    if (d < min && z >= -0.15) {
-      X = d ? X * min / d : 0
-      Y = d ? Y * min / d : -min
-    }
-    return { x: x + X, y: y + Y, z, r: size * R * (1 + 0.22 * z) }
-  }
-
-  function orbs (ctx) {
-    const { x, y, R, t, id, colors: C, options: o, talk } = ctx
-    const count = clamp(o.orbs ?? 6, 0, 6)
-    const aperture = (o.aperture ?? 1) * (1 + talk * 0.08)
-    const list = []
-    for (let k = 0; k < Math.ceil(count); k++) {
-      const p = orbAt(x, y, R, t, k, aperture)
-      p.vis = Math.min(1, count - k)
-      p.r *= p.vis
-      list.push(p)
-    }
-    const front = list.filter((p) => p.z >= -0.15 && p.r > 0.5)
-    const back = list.filter((p) => p.z < -0.15 && p.r > 0.5)
-    let behind = ''
-    for (const p of back) behind += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(p.r * 0.9).toFixed(2)}" fill="${C.mid}" opacity="${((0.45 + 0.3 * (1 + p.z)) * p.vis).toFixed(3)}" filter="url(#${id}b)"/>`
-    let over = front.length ? `<defs><radialGradient id="${id}o"><stop offset="0" stop-color="${C.light}"/><stop offset=".45" stop-color="${C.edge}"/><stop offset="1" stop-color="${C.mid}"/></radialGradient></defs>` : ''
-    for (const p of front) {
-      const hx = p.x - p.r * 0.32
-      const hy = p.y - p.r * 0.38
-      over += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(p.r * 0.92).toFixed(2)}" fill="url(#${id}o)" opacity=".55"/>`
-      over += `<ellipse cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" rx="${(p.r * 0.32).toFixed(2)}" ry="${(p.r * 0.16).toFixed(2)}" transform="rotate(-30 ${hx.toFixed(1)} ${hy.toFixed(1)})" fill="#fff" opacity=".75"/>`
-    }
-    return { back: behind, blobs: front, over }
-  }
-
-  const GOLD = { face: '#FFF1B8', mid: '#F7C443', rim: '#B9790B', edge: '#9A6305', glow: '#FFD166' }
-
-  function coin (ctx) {
-    const { x, y, R, t, id, options: o, weights, spec } = ctx
-    const opt = o.coin === false ? { scale: 0 } : (o.coin ?? {})
-    const k = opt.scale ?? 1
-    if (k <= 0.01) return {}
-    const G = { ...GOLD, ...spec.coin }
-    // surprised: the coin slips aside so the surprise lines stay clear
-    const aside = weights.sorprendida ?? 0
-    const r = R * 0.2 * k * (1 - 0.15 * aside)
-    const cx = x + R * 1.05 * aside
-    const cy = y - R * (1.25 - 0.2 * aside) + Math.sin(t * 2) * R * 0.04
-    const a = opt.spin ?? t * 2.6
-    const c = Math.cos(a)
-    const rx = Math.max(r * 0.06, r * Math.abs(c))
-    const side = R * 0.045 * k * Math.sin(a)
-    const f = (v) => v.toFixed(1)
-    let h = `<defs><linearGradient id="${id}k" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${G.face}"/><stop offset=".5" stop-color="${G.mid}"/><stop offset="1" stop-color="${G.rim}"/></linearGradient>`
-    h += `<radialGradient id="${id}g"><stop offset="0" stop-color="${G.glow}" stop-opacity=".45"/><stop offset="1" stop-color="${G.glow}" stop-opacity="0"/></radialGradient></defs>`
-    h += `<ellipse data-glow cx="${f(cx)}" cy="${f(cy)}" rx="${f(r * 2.4)}" ry="${f(r * 2)}" fill="url(#${id}g)"/>`
-    // the edge: a darker ellipse and a strip, so the coin has thickness while it turns
-    h += `<ellipse cx="${f(cx + side)}" cy="${f(cy)}" rx="${f(rx)}" ry="${f(r)}" fill="${G.edge}"/>`
-    h += `<rect x="${f(Math.min(cx, cx + side))}" y="${f(cy - r)}" width="${f(Math.abs(side))}" height="${f(r * 2)}" fill="${G.rim}"/>`
-    h += `<ellipse cx="${f(cx)}" cy="${f(cy)}" rx="${f(rx)}" ry="${f(r)}" fill="url(#${id}k)" stroke="${G.face}" stroke-width="${f(R * 0.012)}"/>`
-    h += `<ellipse cx="${f(cx)}" cy="${f(cy)}" rx="${f(rx * 0.74)}" ry="${f(r * 0.74)}" fill="none" stroke="${G.rim}" stroke-width="${f(R * 0.01)}" opacity=".7"/>`
-    // an embossed four-point star instead of a currency sign
-    if (Math.abs(c) > 0.18) {
-      const z = r * 0.42
-      const sx = Math.abs(c)
-      h += `<path transform="translate(${f(cx)} ${f(cy)}) scale(${sx.toFixed(3)} 1)" d="M0 ${f(-z)} Q0 0 ${f(z * 0.8)} 0 Q0 0 0 ${f(z)} Q0 0 ${f(-z * 0.8)} 0 Q0 0 0 ${f(-z)}Z" fill="${G.rim}" opacity=".8"/>`
-    }
-    h += `<path d="M${f(cx - rx * 0.55)} ${f(cy - r * 0.55)} Q${f(cx - rx * 0.2)} ${f(cy - r * 0.85)} ${f(cx + rx * 0.15)} ${f(cy - r * 0.8)}" fill="none" stroke="#fff" stroke-width="${f(R * 0.014)}" stroke-linecap="round" opacity="${(0.35 + 0.5 * Math.abs(c)).toFixed(3)}"/>`
-    return { front: h }
-  }
-
-  const ACCESSORIES = { none: () => ({}), orbs, coin }
-
-  // How far a character reaches, in R, for figures and layout: side, top, bottom
-  const EXTENT = { none: [1.5, 1.6, 1.2], orbs: [2.3, 2.3, 2.3], coin: [1.5, 1.75, 1.2] }
-
-  // ── characters ──────────────────────────────────────────────────────────
+  // ── the mascot ──────────────────────────────────────────────────────────
 
   const prefixes = new Set()
 
@@ -251,19 +158,14 @@
   }
 
   /**
-   * A mascot of the family.
-   *   name       used for the SVG id prefix (unique per character)
-   *   palette    { edge, mid, deep, core, eye, halo, light, accent?, sparkle?, tear?, blush? }
+   * The mascot's draw function.
+   *   name       used for the SVG id prefix
+   *   palette    { edge, mid, deep, core, eye, halo, light, accent?, sparkle?, tear? }
    *              edge is the bright rim, mid the body, deep and core the depth toward the centre
    *   shapes     { expression: { base, lob: [[deg, length, width], …] } } added or replacing
-   *   lobes      [[deg, length, width], …] added to every expression (ears, a tuft)
    *   looks      { expression: eyeStyle } for new expressions (default 'normal')
-   *   lashes     two small lashes per eye (default true)
-   *   blush      false | true | '#color' (cheeks under the eyes)
-   *   accessory  'none' | 'orbs' | 'coin' | (ctx) => svg | (ctx) => ({ back, blobs, over, front })
    *   sadTint    how far sadness tints toward blue, at most 0.18 (default 0.18)
    *   fluid      how much the lobes drift on their own (default 1)
-   *   sheen      the highlight that circles the rim (default true, false with orbs)
    */
   function character (spec = {}) {
     if (!spec.palette) throw new Error('character() needs a palette: { edge, mid, deep, core, eye, halo, light }')
@@ -272,7 +174,6 @@
     palette.accent = hex(spec.palette.accent ?? spec.palette.light, 'palette.accent')
     palette.sparkle = hex(spec.palette.sparkle ?? spec.palette.light, 'palette.sparkle')
     palette.tear = hex(spec.palette.tear ?? '#CFE3FF', 'palette.tear')
-    const blush = spec.blush ? hex(typeof spec.blush === 'string' ? spec.blush : spec.palette.blush ?? '#FFB8A8', 'blush') : null
 
     const shapes = { ...SHAPES }
     for (const [k, s] of Object.entries(spec.shapes ?? {})) {
@@ -286,28 +187,13 @@
       looks[canon(k)] = canon(v)
     }
 
-    const kind = typeof spec.accessory === 'function' ? 'custom' : spec.accessory ?? 'none'
-    if (kind !== 'custom' && !ACCESSORIES[kind]) throw new Error(`Unknown accessory "${kind}" (use none, orbs, coin or a function)`)
-    const custom = (ctx) => {
-      const r = spec.accessory(ctx)
-      return typeof r === 'string' ? { front: r } : r ?? {}
-    }
-    const accessory = kind === 'custom' ? custom : ACCESSORIES[kind]
-
     const sheet = Object.freeze({
       name: spec.name ?? 'mascot',
       palette: Object.freeze(palette),
-      blush,
       shapes,
       looks,
-      lobes: (spec.lobes ?? []).map(([deg, l, s]) => [deg * Math.PI / 180, l, s]),
-      lashes: spec.lashes !== false,
-      accessory: kind,
-      coin: spec.coin ?? {},
       sadTint: Math.min(0.18, spec.sadTint ?? 0.18),
-      fluid: spec.fluid ?? 1,
-      sheen: spec.sheen ?? kind !== 'orbs',
-      extent: spec.extent ?? EXTENT[kind] ?? EXTENT.none
+      fluid: spec.fluid ?? 1
     })
     const prefix = prefixFor(sheet.name)
 
@@ -344,25 +230,17 @@
         turn: pick(o, 'turn', 'giro'),
         halo,
         shadow: o.shadow !== false,
-        eyes: o.eyes !== false && !o.sinOjos,
-        orbs: o.orbs,
-        aperture: pick(o, 'aperture', 'apertura'),
-        coin: o.coin
+        eyes: o.eyes !== false && !o.sinOjos
       }
     }
 
-    /** Outline lobes for these options: expression blend, drift, features, voice */
+    /** Outline lobes for these options: expression blend, drift, voice */
     function shapeOf (s) {
       const { t, talk, turn } = s
       const F = blend(shapes, s.weights, t, s.velocity)
       const f = sheet.fluid
       F.L = F.L.map(([a, l, sg, i]) => [a + 0.06 * f * Math.sin(t * 0.43 + i * 2.3), l * (1 + 0.08 * f * Math.sin(t * 0.71 + i * 1.7)), sg])
       const yaw = turn ? turn[0] : 0
-      for (const [a, l, sg] of sheet.lobes) {
-        // features sit on a sphere: turning the head slides them around the rim
-        const lon = Math.asin(clamp(Math.cos(a), -1, 1)) + yaw
-        F.L.push([turn ? Math.atan2(Math.sin(a), Math.sin(clamp(lon, -Math.PI / 2, Math.PI / 2))) : a, l, sg])
-      }
       if (talk > 0.01) {
         // three soft waves travel along the rim and the mouth swells below the eyes;
         // the base gives back what they add, so the body never grows with the voice
@@ -409,7 +287,7 @@
       } else if (look === 'sorprendida') eyes = sides.map((v) => pill(ex + v * sep, hgt * 1.15)).join('')
       else if (look === 'pensativa') eyes = sides.map((v) => pill(ex + v * sep, v < 0 ? hgt * 0.85 : hgt)).join('')
       else eyes = sides.map((v) => pill(ex + v * sep, hgt)).join('')
-      return { eyes, lashes: sheet.lashes ? sides.map((v) => lashesOf(R, look, ex + v * sep, ey, w, hgt, v)).join('') : '' }
+      return { eyes, lashes: sides.map((v) => lashesOf(R, look, ex + v * sep, ey, w, hgt, v)).join('') }
     }
 
     // two fine strokes on the outer edge of an eye
@@ -439,9 +317,6 @@
       const pitch = turn ? turn[1] : 0
       const F = shapeOf(s)
       const G = closed(outlinePoints(x, cy, R, F))
-      const ctx = { x, y: cy, R, t, id, colors: C, options: s, expression: s.expression, weights: s.weights, talk, turn, spec: sheet }
-      const layers = accessory(ctx) ?? {}
-      const masked = sheet.accessory === 'orbs' || (layers.blobs && layers.blobs.length > 0)
 
       let h = `<defs><radialGradient id="${id}h"><stop offset="0" stop-color="${C.halo}" stop-opacity=".5"/><stop offset="1" stop-color="${C.halo}" stop-opacity="0"/></radialGradient>`
       h += `<filter id="${id}b" filterUnits="userSpaceOnUse" x="${x - R * 3}" y="${y - R * 3}" width="${R * 6}" height="${R * 6}"><feGaussianBlur stdDeviation="${R * 0.06}"/></filter>`
@@ -449,7 +324,6 @@
       h += `</defs><g opacity="${s.opacity}" transform="translate(${x} ${y + R}) scale(${1 + stretch * 0.1} ${1 - stretch * 0.1}) translate(${-x} ${-y - R})">`
       if (s.halo) h += `<ellipse data-glow cx="${x}" cy="${y + dy}" rx="${R * 2.2}" ry="${R * 2.05}" fill="url(#${id}h)"/>`
       if (s.shadow) h += `<ellipse cx="${x}" cy="${y + R * 0.98}" rx="${R * 0.7}" ry="${R * 0.11}" fill="${C.halo}" opacity=".3" filter="url(#${id}b)"/>`
-      h += layers.back ?? ''
 
       // one material: the colour darkens with depth toward a core that follows the gaze
       const nx = x + gaze[0] * R * 0.06 + (turn ? Math.sin(yaw) * R * 0.1 : 0)
@@ -457,37 +331,17 @@
       // the voice lights the gel from inside (the halo stays put: a pulsing halo reads as a size pulse)
       const glow = talk > 0.01 ? (0.22 + 0.16 * talk).toFixed(3) : '.22'
       const rim = talk > 0.01 ? (0.35 + 0.12 * talk).toFixed(3) : '.35'
-      if (!masked) {
-        h += `<radialGradient id="${id}v" cx="${nx}" cy="${ny}" r="${R * (1.12 + vv * 1.6)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${C.core}"/><stop offset=".42" stop-color="${C.deep}"/><stop offset=".72" stop-color="${C.mid}"/><stop offset=".95" stop-color="${C.edge}"/><stop offset="1" stop-color="${C.edge}"/></radialGradient>`
-        h += `<path d="${G}" fill="url(#${id}v)"/>`
-        h += `<clipPath id="${id}c"><path d="${G}"/></clipPath><g clip-path="url(#${id}c)">`
-        h += `<ellipse cx="${x + R * 0.55}" cy="${y + dy + R * 0.55}" rx="${R * 0.55}" ry="${R * 0.42}" fill="${C.accent}" opacity="${glow}" filter="url(#${id}b)"/>`
-        h += `<path d="${G}" fill="none" stroke="${C.light}" stroke-width="${R * 0.16}" opacity="${rim}" filter="url(#${id}b)"/></g>`
-      } else {
-        // body and blobs melt into one shape (blur, then a hard alpha threshold) that masks
-        // a single gradient, so the orbs in front read as the same gel
-        const W = R * 7
-        const X0 = x - W / 2
-        const Y0 = cy - W / 2
-        const reach = 1.9 + vv * 1.6
-        const k = (1.12 + vv * 1.6) / reach
-        const box = `x="${X0.toFixed(1)}" y="${Y0.toFixed(1)}" width="${W.toFixed(1)}" height="${W.toFixed(1)}"`
-        h += `<defs><filter id="${id}g" filterUnits="userSpaceOnUse" ${box}><feGaussianBlur stdDeviation="${(R * 0.075).toFixed(2)}"/><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter>`
-        h += `<mask id="${id}m" maskUnits="userSpaceOnUse" ${box}><g filter="url(#${id}g)" fill="#fff"><path d="${G}"/>${(layers.blobs ?? []).map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.r.toFixed(2)}"/>`).join('')}</g></mask>`
-        h += `<radialGradient id="${id}v" cx="${nx}" cy="${ny}" r="${R * reach}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${C.core}"/><stop offset="${(0.42 * k).toFixed(4)}" stop-color="${C.deep}"/><stop offset="${(0.72 * k).toFixed(4)}" stop-color="${C.mid}"/><stop offset="${(0.95 * k).toFixed(4)}" stop-color="${C.edge}"/><stop offset="1" stop-color="${C.light}"/></radialGradient></defs>`
-        h += `<rect ${box} fill="url(#${id}v)" mask="url(#${id}m)"/>`
-        h += `<clipPath id="${id}c"><path d="${G}"/></clipPath><g clip-path="url(#${id}c)"><ellipse cx="${x + R * 0.55}" cy="${cy + R * 0.55}" rx="${R * 0.55}" ry="${R * 0.42}" fill="${C.accent}" opacity="${glow}" filter="url(#${id}b)"/></g>`
-        h += `<g mask="url(#${id}m)"><path d="${G}" fill="none" stroke="${C.light}" stroke-width="${R * 0.16}" opacity="${rim}" filter="url(#${id}b)"/></g>`
-      }
-      h += layers.over ?? ''
+      h += `<radialGradient id="${id}v" cx="${nx}" cy="${ny}" r="${R * (1.12 + vv * 1.6)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${C.core}"/><stop offset=".42" stop-color="${C.deep}"/><stop offset=".72" stop-color="${C.mid}"/><stop offset=".95" stop-color="${C.edge}"/><stop offset="1" stop-color="${C.edge}"/></radialGradient>`
+      h += `<path d="${G}" fill="url(#${id}v)"/>`
+      h += `<clipPath id="${id}c"><path d="${G}"/></clipPath><g clip-path="url(#${id}c)">`
+      h += `<ellipse cx="${x + R * 0.55}" cy="${y + dy + R * 0.55}" rx="${R * 0.55}" ry="${R * 0.42}" fill="${C.accent}" opacity="${glow}" filter="url(#${id}b)"/>`
+      h += `<path d="${G}" fill="none" stroke="${C.light}" stroke-width="${R * 0.16}" opacity="${rim}" filter="url(#${id}b)"/></g>`
 
       // light: a sheen that circles the rim, a soft reflection and a sharp one up left
-      if (sheet.sheen) {
-        const a = t * 0.9
-        const bx = x + Math.cos(a) * R * 0.62
-        const by = y + dy + Math.sin(a) * R * 0.55
-        h += `<ellipse cx="${bx}" cy="${by}" rx="${R * 0.28}" ry="${R * 0.12}" transform="rotate(${a * 57.3 + 90} ${bx} ${by})" fill="#fff" opacity=".18" filter="url(#${id}b)"/>`
-      }
+      const a = t * 0.9
+      const bx = x + Math.cos(a) * R * 0.62
+      const by = y + dy + Math.sin(a) * R * 0.55
+      h += `<ellipse cx="${bx}" cy="${by}" rx="${R * 0.28}" ry="${R * 0.12}" transform="rotate(${a * 57.3 + 90} ${bx} ${by})" fill="#fff" opacity=".18" filter="url(#${id}b)"/>`
       h += `<ellipse cx="${x - R * 0.34}" cy="${y + dy - R * 0.52}" rx="${R * 0.36}" ry="${R * 0.15}" transform="rotate(-28 ${x - R * 0.34} ${y + dy - R * 0.52})" fill="#fff" opacity=".32" filter="url(#${id}b)"/>`
       h += `<ellipse cx="${x - R * 0.4}" cy="${y + dy - R * 0.56}" rx="${R * 0.14}" ry="${R * 0.045}" transform="rotate(-30 ${x - R * 0.4} ${y + dy - R * 0.56})" fill="#fff" opacity=".8"/>`
       h += `<path d="${G}" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="${R * 0.02}"/>`
@@ -509,14 +363,6 @@
           if (c < 0.08) continue
           const e = eyesOf(s, C, ex, ey, [v])
           eyes += `<g transform="translate(${eyeX(v)} ${ey + dyp}) scale(${c} ${Math.max(0.15, cpz)}) translate(${-(ex + v * sep)} ${-ey})">${e.eyes}${e.lashes}</g>`
-        }
-      }
-      if (sheet.blush) {
-        for (const v of [-1, 1]) {
-          const a = yaw + v * 0.95
-          if (turn && Math.cos(a) * cpz <= 0.05) continue
-          const bx = turn ? ex + Math.sin(a) * R * 0.47 : ex + v * R * 0.42
-          h += `<ellipse cx="${bx}" cy="${ey + R * 0.2 + (turn ? dyp : 0)}" rx="${R * 0.12}" ry="${R * 0.06}" fill="${sheet.blush}" opacity=".38" filter="url(#${id}e)"/>`
         }
       }
       if (s.eyes) h += `<g color="${C.eye}" fill="${C.eye}" filter="url(#${id}e)" opacity=".9">${eyes}</g><g color="#fff" fill="#fff">${eyes}</g>`
@@ -553,12 +399,11 @@
           h += `<path d="M${sx} ${sy - z} Q${sx} ${sy} ${sx + z} ${sy} Q${sx} ${sy} ${sx} ${sy + z} Q${sx} ${sy} ${sx - z} ${sy} Q${sx} ${sy} ${sx} ${sy - z}Z" fill="${sheet.palette.sparkle}" opacity="${s.sparkle}"/>`
         }
       }
-      h += layers.front ?? ''
       return h + '</g>'
     }
 
     // The id names the SVG content, so identical options give identical output and two
-    // different frames or characters never share an id
+    // different frames never share an id
     const TOKEN = '\u0001'
 
     function draw (options = {}) {
@@ -580,20 +425,19 @@
   }
 
   /**
-   * A small standalone <svg> of a character, for a caption pill or a list: no halo, no
-   * shadow, sized to fit its accessory. Options are the draw options; R defaults to 28.
+   * A small standalone <svg> of the mascot, for a caption pill or a list: no halo, no
+   * shadow. Options are the draw options; R defaults to 28.
    */
   function figure (draw, o = {}) {
     const R = o.R ?? 28
     const halo = o.halo ?? (o.sinHalo === false)
-    const [side, top, bottom] = draw.spec.extent
-    const scale = draw.spec.accessory === 'orbs' ? (o.aperture ?? 0.75) : 1
-    const sx = Math.max(1.5, side * scale) * (halo ? 1.5 : 1)
-    const st = Math.max(1.6, top * scale) * (halo ? 1.4 : 1)
-    const sb = Math.max(1.2, bottom * scale) * (halo ? 1.8 : 1)
+    const [side, top, bottom] = EXTENT
+    const sx = side * (halo ? 1.5 : 1)
+    const st = top * (halo ? 1.4 : 1)
+    const sb = bottom * (halo ? 1.8 : 1)
     const w = 2 * sx * R
     const h = (st + sb) * R
-    const inner = draw({ t: 0, sparkle: 0, ...o, x: sx * R, y: st * R, R, halo, shadow: o.shadow ?? false, aperture: draw.spec.accessory === 'orbs' ? scale : o.aperture })
+    const inner = draw({ t: 0, sparkle: 0, ...o, x: sx * R, y: st * R, R, halo, shadow: o.shadow ?? false })
     return `<svg class="figure" xmlns="http://www.w3.org/2000/svg" width="${w.toFixed(1)}" height="${h.toFixed(1)}" viewBox="0 0 ${w.toFixed(1)} ${h.toFixed(1)}" overflow="visible">${inner}</svg>`
   }
 
@@ -755,13 +599,12 @@
 
   const AMBAR = Object.freeze({
     name: 'ambar',
-    palette: Object.freeze({ edge: '#FFD27A', mid: '#F2A324', deep: '#8A4A0C', core: '#341805', eye: '#FFE0A0', halo: '#F59E0B', light: '#FFE7B3', accent: '#FFB347', sparkle: '#FFE7B3' }),
-    lashes: true
+    palette: Object.freeze({ edge: '#FFD27A', mid: '#F2A324', deep: '#8A4A0C', core: '#341805', eye: '#FFE0A0', halo: '#F59E0B', light: '#FFE7B3', accent: '#FFB347', sparkle: '#FFE7B3' })
   })
   const ambar = character(AMBAR)
 
   globalThis.AmbarKit = {
-    character, figure, ambar, AMBAR, SHAPES, ALIASES,
+    figure, ambar, AMBAR, SHAPES, ALIASES,
     blinks, blinkAt, moods, dominant, gazeAt, smoothPath, arrive, trail, envelopeAt
   }
   globalThis.mascotaAmbar = ambar

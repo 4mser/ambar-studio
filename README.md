@@ -28,7 +28,7 @@ Everything in this README was rendered by AMBAR itself.
 | **Still images** | Carousels, store screenshots, link cards, stories and covers in every size from one template and a data file. |
 | **Product tutorials** | Captures of a real app with private data blurred, then camera, cursor, typing and callouts pointed at elements by name. |
 | **Made for Claude** | A Claude Code skill, an agent and a self-review command, so an AI can make a piece end to end and check it. |
-| **ÁMBAR and a family** | The mascot, drawn as SVG on every frame, and a kit to make your own characters: palette, features, orbs or a coin, talking with the real voice. |
+| **ÁMBAR** | The mascot, drawn as SVG on every frame: expressions, blinks, gaze, and talking with the real voice. |
 | **Learned from real work** | The house rules come from about seventy finished pieces: what worked, what was rejected and why. |
 
 ### `// 02` Made for Claude
@@ -114,15 +114,15 @@ The runtime ships the pieces that make motion feel right: easings (`out`, `inOut
 ```json
 {
   "voice": { "provider": "gemini", "name": "Sulafat", "language": "es-US", "mode": "take" },
-  "voices": { "sol": { "name": "Leda", "style": "A cheerful little mascot" } },
+  "voices": { "ambar": { "name": "Leda", "style": "A cheerful little mascot" } },
   "lines": [
     { "id": "hello", "text": "Te presento a NGINX.", "say": "Te presento a Engine X." },
-    { "id": "sol",   "speaker": "sol", "text": "¡Hola! Yo te acompaño.", "pause": 0.6 }
+    { "id": "hola",  "speaker": "ambar", "text": "¡Hola! Yo te acompaño.", "pause": 0.6 }
   ],
-  "music": { "file": "music.mp3", "gain": 0.6, "hit": 15.25, "at": "sol" },
+  "music": { "file": "music.mp3", "gain": 0.6, "hit": 15.25, "at": "hola" },
   "sfx": [
     { "type": "whoosh", "at": "hello-0.3", "gain": 0.14 },
-    { "file": "sfx/stamp.wav", "at": "sol+0.8" }
+    { "file": "sfx/stamp.wav", "at": "hola+0.8" }
   ]
 }
 ```
@@ -271,9 +271,9 @@ src/commands/           studio · render · voice · mix · capture · check · 
 src/lib/                local server, headless Chrome, ffmpeg, timeline, audio analysis, synthesized effects, WAV, PDF checks
 runtime/                what scenes import: ambar.js (time, easing, text, formats) · motion · fx · charts · captions · screen · player · slides · doc · stills · fonts
 studio/                 the timeline studio
-mascot/ambar.js         ÁMBAR and the character kit, an SVG per frame
+mascot/ambar.js         ÁMBAR, an SVG per frame
 .claude/               the ambar skill (SKILL.md + references) and the ambar-producer agent
-examples/               launch video · hero · tutorial · motion · family · deck · report
+examples/               launch video · hero · tutorial · motion · deck · report
 templates/              video · deck · doc · carousel · store · og · infographic · proposal · the AMBAR.md brief
 ```
 
@@ -291,14 +291,11 @@ mascot({ x: 960, y: 520, R: 180, t, expr: 'feliz', mira: [0.4, 0], chispas: 0.8 
 
 Expressions: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`, `dormida` (or `happy`, `thinking`, `surprised`, `angry`, `sad`, `sleepy`), or a blend of them with `pesos`. Blends sum the silhouettes' lobes, so a change of mood never jumps.
 
-**A family of mascots.** ÁMBAR is built with a character kit you can use for your own. `character({ name, palette, lobes, accessory })` gives a new member of the family: the same gel body and capsule eyes, its own palette, small features like ear lobes or lashes, and an accessory, either orbs that orbit and melt into the body or a coin spinning above the head. Talking follows the real voice envelope (`talk()` from `captions.js`), and `blinks`, `moods`, `gazeAt` and `smoothPath` handle blinking, mood crossfades, gaze and arrivals from time alone. `draw.figure()` puts a small version of the speaker in a caption.
-
-<p align="center">
-</p>
+**Alive from time alone.** Talking follows the real voice envelope (`talk()` from `captions.js`), and `blinks`, `moods`, `gazeAt` and `smoothPath` handle blinking, mood crossfades, gaze and arrivals. `AmbarKit.ambar.figure()` puts a small ÁMBAR in a caption.
 
 ### `// 13` Development
 
 ```bash
-npm test                # runtime, motion, captions, mascots, audio, mix, stills, PDF checks, capture, check and skill
+npm test                # runtime, motion, captions, mascot, audio, mix, stills, PDF checks, capture, check and skill
 npm run readme-assets   # re-renders every image in this README
 ```

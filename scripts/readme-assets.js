@@ -88,19 +88,7 @@ await run([
   join(ASSETS, 'motion.png')
 ])
 
-// 8 · the mascot family (4:5)
-step('Family')
-const family = loadProject(ex('family'))
-const lines = [4.72, 9.43, 14.2]
-rmSync(join(family.outDir, 'frames'), { recursive: true, force: true })
-await renderFrames(family, lines)
-await run([
-  ...lines.flatMap((t) => ['-i', join(family.outDir, 'frames', `t-${t.toFixed(2)}.png`)]),
-  '-filter_complex', '[0]scale=640:-1[a];[1]scale=640:-1[b];[2]scale=640:-1[c];[a][b][c]hstack=3',
-  join(ASSETS, 'family.png')
-])
-
-// 9 · still templates: a carousel and store screenshots, as contact sheets
+// 8 · still templates: a carousel and store screenshots, as contact sheets
 step('Stills')
 for (const [name, size] of [['carousel', 'post'], ['store', 'ios']]) {
   const tpl = loadProject(join(ROOT, 'templates', name, `${name}.html`))
@@ -108,7 +96,7 @@ for (const [name, size] of [['carousel', 'post'], ['store', 'ios']]) {
   copyFileSync(join(tpl.outDir, name, `sheet-${size}.png`), join(ASSETS, `${name}.png`))
 }
 
-// 10 · the studio, on the launch video
+// 9 · the studio, on the launch video
 step('Studio')
 const server = await serve(launch.dir)
 const browser = await puppeteer.launch({ headless: true })

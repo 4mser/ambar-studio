@@ -77,10 +77,10 @@ test('transient finds the hit and softClip keeps the master under 1', () => {
 })
 
 test('voices per character, pronunciation and prompts', () => {
-  const config = { voice: { provider: 'gemini', name: 'Sulafat', style: 'A warm narrator' }, voices: { sol: { name: 'Leda', style: 'A cheerful little mascot' } } }
+  const config = { voice: { provider: 'gemini', name: 'Sulafat', style: 'A warm narrator' }, voices: { ambar: { name: 'Leda', style: 'A cheerful little mascot' } } }
   assert.equal(voiceFor(config, { id: 'a' }).name, 'Sulafat')
-  assert.equal(voiceFor(config, { id: 'b', speaker: 'sol' }).name, 'Leda')
-  assert.equal(voiceFor(config, { id: 'b', speaker: 'sol' }).provider, 'gemini')
+  assert.equal(voiceFor(config, { id: 'b', speaker: 'ambar' }).name, 'Leda')
+  assert.equal(voiceFor(config, { id: 'b', speaker: 'ambar' }).provider, 'gemini')
   assert.throws(() => voiceFor(config, { id: 'c', speaker: 'nadie' }), /no entry in "voices"/)
   assert.equal(spoken({ text: 'NGINX te espera…', say: 'Engine X te espera...' }), 'Engine X te espera.')
   const prompt = geminiPrompt(config.voice, 'Hola.', { tone: 'whispering' })

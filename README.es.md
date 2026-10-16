@@ -28,7 +28,7 @@ Todo lo que ves en este README lo renderizó AMBAR.
 | **Imágenes fijas** | Carruseles, capturas para las tiendas, tarjetas de enlace, historias y portadas en todos sus tamaños, desde una plantilla y un archivo de datos. |
 | **Tutoriales de producto** | Capturas de una app real con los datos privados difuminados, y luego cámara, cursor, tecleo y anotaciones que apuntan a los elementos por nombre. |
 | **Hecho para Claude** | Una skill de Claude Code, un agente y un comando de autorrevisión, para que una IA haga una pieza completa y la revise. |
-| **ÁMBAR y una familia** | La mascota, dibujada en SVG en cada cuadro, y un kit para hacer tus propios personajes: paleta, rasgos, orbes o una moneda, y que hablen con la voz real. |
+| **ÁMBAR** | La mascota, dibujada en SVG en cada cuadro: expresiones, parpadeos, mirada y habla con la voz real. |
 | **Aprendido de trabajo real** | Las reglas de la casa salen de unas setenta piezas terminadas: qué funcionó, qué se rechazó y por qué. |
 
 ### `// 02` Hecho para Claude
@@ -114,15 +114,15 @@ El runtime trae lo necesario para que el movimiento se sienta bien: curvas de ea
 ```json
 {
   "voice": { "provider": "gemini", "name": "Sulafat", "language": "es-US", "mode": "take" },
-  "voices": { "sol": { "name": "Leda", "style": "A cheerful little mascot" } },
+  "voices": { "ambar": { "name": "Leda", "style": "A cheerful little mascot" } },
   "lines": [
     { "id": "hello", "text": "Te presento a NGINX.", "say": "Te presento a Engine X." },
-    { "id": "sol",   "speaker": "sol", "text": "¡Hola! Yo te acompaño.", "pause": 0.6 }
+    { "id": "hola",  "speaker": "ambar", "text": "¡Hola! Yo te acompaño.", "pause": 0.6 }
   ],
-  "music": { "file": "music.mp3", "gain": 0.6, "hit": 15.25, "at": "sol" },
+  "music": { "file": "music.mp3", "gain": 0.6, "hit": 15.25, "at": "hola" },
   "sfx": [
     { "type": "whoosh", "at": "hello-0.3", "gain": 0.14 },
-    { "file": "sfx/sello.wav", "at": "sol+0.8" }
+    { "file": "sfx/sello.wav", "at": "hola+0.8" }
   ]
 }
 ```
@@ -271,9 +271,9 @@ src/commands/           studio · render · voice · mix · capture · check · 
 src/lib/                servidor local, Chrome sin interfaz, ffmpeg, línea de tiempo, análisis de audio, efectos sintetizados, WAV, revisión de PDF
 runtime/                lo que importan las escenas: ambar.js (tiempo, easing, texto, formatos) · motion · fx · charts · captions · screen · player · slides · doc · stills · fuentes
 studio/                 el estudio con línea de tiempo
-mascot/ambar.js         ÁMBAR y el kit de personajes, un SVG por cuadro
+mascot/ambar.js         ÁMBAR, un SVG por cuadro
 .claude/               la skill ambar (SKILL.md + referencias) y el agente ambar-producer
-examples/               video de lanzamiento · hero · tutorial · movimiento · familia · deck · informe
+examples/               video de lanzamiento · hero · tutorial · movimiento · deck · informe
 templates/              video · deck · doc · carrusel · tienda · og · infografía · propuesta · el brief AMBAR.md
 ```
 
@@ -291,14 +291,11 @@ mascot({ x: 960, y: 520, R: 180, t, expr: 'feliz', mira: [0.4, 0], chispas: 0.8 
 
 Expresiones: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`, `dormida` (o `happy`, `thinking`, `surprised`, `angry`, `sad`, `sleepy`), o una mezcla de ellas con `pesos`. Las mezclas suman los lóbulos de las siluetas, así que un cambio de ánimo nunca salta.
 
-**Una familia de mascotas.** ÁMBAR está hecha con un kit de personajes que puedes usar para los tuyos. `character({ name, palette, lobes, accessory })` te da un nuevo miembro de la familia: el mismo cuerpo de gel y los mismos ojos de cápsula, su propia paleta, detalles pequeños como orejas o pestañas, y un accesorio, ya sea orbes que giran y se funden con el cuerpo o una moneda que gira sobre la cabeza. Habla siguiendo la envolvente real de la voz (`talk()` de `captions.js`), y `blinks`, `moods`, `gazeAt` y `smoothPath` resuelven parpadeos, cambios de ánimo, mirada y llegadas solo a partir del tiempo. `draw.figure()` pone una versión pequeña de quien habla en el subtítulo.
-
-<p align="center">
-</p>
+**Viva solo a partir del tiempo.** Habla siguiendo la envolvente real de la voz (`talk()` de `captions.js`), y `blinks`, `moods`, `gazeAt` y `smoothPath` resuelven parpadeos, cambios de ánimo, mirada y llegadas. `AmbarKit.ambar.figure()` pone una ÁMBAR pequeña en el subtítulo.
 
 ### `// 13` Desarrollo
 
 ```bash
-npm test                # runtime, movimiento, subtítulos, mascotas, audio, mezcla, imágenes fijas, PDF, captura, revisión y skill
+npm test                # runtime, movimiento, subtítulos, mascota, audio, mezcla, imágenes fijas, PDF, captura, revisión y skill
 npm run readme-assets   # vuelve a renderizar todas las imágenes de este README
 ```

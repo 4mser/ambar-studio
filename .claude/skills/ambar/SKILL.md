@@ -31,7 +31,7 @@ Your job is to deliver a piece the user can publish without fixing it: correct, 
    - motion: cameras, transitions, captions, particles, charts, beat grids, formats → `references/motion.md`
    - writing on screen and in narration → `references/writing.md`
    - music, sound, voices, fonts, icons, images and libraries from outside, with their licenses → `references/resources.md`
-   - mascots: ÁMBAR, your own characters, talking, blinking, gaze → `references/mascots.md`
+   - the mascot: ÁMBAR, talking, blinking, gaze → `references/mascots.md`
    - voices, characters, music, sound effects, the mix → `references/audio.md`
    - craft: process, truth, layout, color, icons, formats, carousels, ads, verification → `references/craft.md` (read it once per session before the first piece)
 6. **Voice.** `ambar voice <project>` records the lines and writes `voice/timings.json`. Scenes hang from those cues.

@@ -153,7 +153,7 @@ $('#m').innerHTML = mascot({
 
 Every option has an English name too: `expression`, `weights`, `gaze`, `talk`, `blink`, `sparkle`, `stretch`, `velocity`, `opacity`. Drive `talk` with the voice envelope, never with a sine; the house rules and the rest of the options (`turn`, `halo: false`, `sad`…) are in `mascots.md`.
 
-The same script defines `window.AmbarKit`: `character(spec)` makes other members of ÁMBAR's family (own palette, ear lobes, orbs or a coin), `draw.figure()` draws a small one for a caption, and pure helpers drive any of them from time: `blinks`/`blinkAt`, `moods`/`dominant`, `gazeAt`, `smoothPath`, `arrive`, `trail`, `envelopeAt`. See `mascots.md` and `examples/family`.
+The same script defines `window.AmbarKit`: `ambar.figure()` draws a small ÁMBAR for a caption, and pure helpers drive it from time: `blinks`/`blinkAt`, `moods`/`dominant`, `gazeAt`, `smoothPath`, `arrive`, `trail`, `envelopeAt`. See `mascots.md`.
 
 ## Screencasts
 
