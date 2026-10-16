@@ -192,6 +192,22 @@ sc.type(t, { box: 'login.email', text: 'alex@harbor.example', at: signin.start +
 sc.callout(t, { box: 'board.user', text: 'Private data is blurred', from: board.start + 3.2 })
 ```
 
+`ambar capture` también puede grabar una app en movimiento. Agrega `recordings` a `capture.json` y cada clip se graba cuadro a cuadro con un reloj virtual: los temporizadores, los cuadros de animación, las fechas y las animaciones CSS de la app solo avanzan de a un cuadro, así que un equipo lento graba clips fluidos y dos grabaciones dan los mismos cuadros. Los toques, la escritura, los desplazamientos, los arrastres y las marcas se programan al cuadro exacto, y cada toque queda anotado para que la escena dibuje el dedo donde y cuando tocó. Las páginas reciben una fecha y zona horaria fijas, almacenamiento precargado y las zonas seguras de un teléfono. Ninguna escritura sale del navegador: se bloquea o se simula, y puedes retener respuestas lentas para grabar una carga justo cuando la necesitas.
+
+```json
+"recordings": [{
+  "name": "create", "seconds": 6,
+  "actions": [
+    { "at": 0.4, "click": "text=New task" },
+    { "at": 1.0, "type": "Ship the new landing page", "every": 2 },
+    { "at": 3.1, "click": "text=Save task" },
+    { "at": 3.8, "mark": "saved", "boxes": { "task": ".task.new" } }
+  ]
+}]
+```
+
+En una escena, `sc.clip('create', t - at, { rate: 1.3 })` reproduce el clip dentro del dispositivo. `sc.frame` acerca el teléfono hacia un punto, `sc.ring` rodea un elemento medido y `sc.popout` saca una tarjeta de la pantalla. `ambar capture <proyecto> --only create` vuelve a grabar solo ese clip.
+
 <p align="center">
   <img src="docs/assets/tutorial.png" width="100%" alt="Cuatro momentos del tutorial de Harbor: el correo tecleándose, el tablero con la dirección difuminada, el diálogo de nueva tarea y la tarea guardada">
 </p>
@@ -238,7 +254,7 @@ ambar doc infografia.html --long --png  # → una página PDF larga + un PNG arm
 | `ambar voice <proyecto>` | Graba la narración y escribe las marcas, los tiempos de cada palabra y la envolvente de la voz (`--force`, `--recut`) |
 | `ambar voice <proyecto> --verify` | Transcribe cada línea y la compara con el guion |
 | `ambar mix <proyecto>` | Narración, música y efectos → `out/mix.wav` |
-| `ambar capture <proyecto>` | Capturas y posiciones de elementos de una app, según `capture.json` |
+| `ambar capture <proyecto>` | Capturas, posiciones de elementos y grabaciones en movimiento de una app, según `capture.json` (`--only` vuelve a grabar algunos clips) |
 | `ambar embed <proyecto>` | La composición como reproductor web en vivo, con capítulos, sonido y subtítulos (`--out`) |
 | `ambar check <objetivo>` | Revisión automática y hoja de contacto (`--json`, `--at`) → `out/check/` |
 | `ambar slides <deck.html>` | PDF y PNG de un deck |

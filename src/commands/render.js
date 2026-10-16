@@ -18,7 +18,11 @@ async function openComposition (project) {
   return { page, comp, close }
 }
 
-const drawAt = (page, t) => page.evaluate((time) => window.AMBAR.render(time), t)
+// a frame is ready once render(t) ran and every image it swapped in has decoded (runtime/screen.js queues them)
+const drawAt = async (page, t) => {
+  await page.evaluate((time) => window.AMBAR.render(time), t)
+  await page.evaluate(() => Promise.all(window.AMBAR_PENDING?.splice(0) ?? []))
+}
 
 /** --frames 0,1.5,3 → out/frames/t-1.50.png */
 export async function renderFrames (project, times) {

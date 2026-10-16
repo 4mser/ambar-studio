@@ -34,7 +34,7 @@ const HELP = `
       --recut                           cut the saved takes again without recording
       --verify                          transcribe every line and compare it with the script
     ambar mix <project>                 narration, music and effects → out/mix.wav
-    ambar capture <project>             screenshots + element boxes of an app (capture.json)
+    ambar capture <project> [--only a,b]  stills, element boxes and recordings of the app in motion (capture.json)
     ambar embed <project> [--out dir]   the composition as a live web player (index.html?player)
 
   ${bold('Review')}
@@ -119,7 +119,7 @@ async function main () {
     case 'embed':
       return embed(project, { out: typeof args.out === 'string' ? args.out : undefined })
     case 'capture':
-      return capture(project, { config: typeof args.config === 'string' ? args.config : 'capture.json' })
+      return capture(project, { config: typeof args.config === 'string' ? args.config : 'capture.json', only: str(args.only) })
     case 'voice': {
       if (args.verify) {
         const problems = await verifyVoice(project)

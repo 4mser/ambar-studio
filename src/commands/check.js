@@ -245,7 +245,10 @@ async function checkVideo (project, server, report, dir, at) {
     try { if (Object.keys(comp.cues).length) resolveTime(sfx.at, comp.cues) } catch (e) { report.add('error', 'sfx', e.message) }
   }
 
-  const draw = (t) => page.evaluate((time) => window.AMBAR.render(time), t)
+  const draw = async (t) => {
+    await page.evaluate((time) => window.AMBAR.render(time), t)
+    await page.evaluate(() => Promise.all(window.AMBAR_PENDING?.splice(0) ?? []))
+  }
   const times = at.length ? at : sampleTimes(comp.duration, comp.cues)
 
   // render(t) must depend on t only: the same t after other frames gives the same picture

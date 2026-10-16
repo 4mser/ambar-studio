@@ -192,6 +192,22 @@ sc.type(t, { box: 'login.email', text: 'alex@harbor.example', at: signin.start +
 sc.callout(t, { box: 'board.user', text: 'Private data is blurred', from: board.start + 3.2 })
 ```
 
+`ambar capture` can also record an app in motion. Add `recordings` to `capture.json` and each clip is filmed frame by frame on a virtual clock: the app's timers, animation frames, dates and CSS animations only move one frame at a time, so slow machines film smooth clips and two runs give the same frames. Taps, typing, scrolls, drags and marks are scripted to the frame, and every tap is logged so the scene can draw the finger where and when it touched. Pages get a fixed date and time zone, seeded storage and phone safe areas. Writes never leave the browser: they are blocked or mocked, and slow responses can be held back to film a loader on cue.
+
+```json
+"recordings": [{
+  "name": "create", "seconds": 6,
+  "actions": [
+    { "at": 0.4, "click": "text=New task" },
+    { "at": 1.0, "type": "Ship the new landing page", "every": 2 },
+    { "at": 3.1, "click": "text=Save task" },
+    { "at": 3.8, "mark": "saved", "boxes": { "task": ".task.new" } }
+  ]
+}]
+```
+
+In a scene, `sc.clip('create', t - at, { rate: 1.3 })` plays the clip inside the device. `sc.frame` zooms the phone toward a point, `sc.ring` circles a measured element and `sc.popout` lifts a card out of the screen. `ambar capture <project> --only create` re-records just that clip.
+
 <p align="center">
   <img src="docs/assets/tutorial.png" width="100%" alt="Four moments of the Harbor tutorial: typing the email, the board with the blurred address, the new task dialog and the saved task">
 </p>
@@ -238,7 +254,7 @@ ambar doc infographic.html --long --png # → one long PDF page + a stitched PNG
 | `ambar voice <project>` | Records the narration, writes the cues, word timings and voice envelope (`--force`, `--recut`) |
 | `ambar voice <project> --verify` | Transcribes every line and compares it with the script |
 | `ambar mix <project>` | Narration, music and effects → `out/mix.wav` |
-| `ambar capture <project>` | Screenshots and element boxes of an app, from `capture.json` |
+| `ambar capture <project>` | Stills, element boxes and recordings in motion of an app, from `capture.json` (`--only` re-records some clips) |
 | `ambar embed <project>` | The composition as a live web player with chapters, sound and captions (`--out`) |
 | `ambar check <target>` | Machine review and contact sheet (`--json`, `--at`) → `out/check/` |
 | `ambar slides <deck.html>` | PDF and PNGs of a deck |
