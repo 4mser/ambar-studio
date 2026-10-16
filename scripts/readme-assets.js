@@ -10,6 +10,7 @@ import { slides } from '../src/commands/slides.js'
 import { doc } from '../src/commands/doc.js'
 import { capture } from '../src/commands/capture.js'
 import { check } from '../src/commands/check.js'
+import { stills } from '../src/commands/stills.js'
 import { copyFileSync } from 'node:fs'
 import { serve, ROOT } from '../src/lib/server.js'
 import { run } from '../src/lib/ffmpeg.js'
@@ -75,7 +76,39 @@ step('Check')
 await check(tutorial)
 copyFileSync(join(tutorial.outDir, 'check', 'sheet.png'), join(ASSETS, 'check.png'))
 
-// 7 · the studio, on the launch video
+// 7 · the motion example (4:5): settle, camera, charts, particles
+step('Motion')
+const motionProject = loadProject(ex('motion'))
+const beats = [2.3, 6.46, 10.42, 14.42]
+rmSync(join(motionProject.outDir, 'frames'), { recursive: true, force: true })
+await renderFrames(motionProject, beats)
+await run([
+  ...beats.flatMap((t) => ['-i', join(motionProject.outDir, 'frames', `t-${t.toFixed(2)}.png`)]),
+  '-filter_complex', '[0]scale=480:-1[a];[1]scale=480:-1[b];[2]scale=480:-1[c];[3]scale=480:-1[d];[a][b][c][d]hstack=4',
+  join(ASSETS, 'motion.png')
+])
+
+// 8 · the mascot family (4:5)
+step('Family')
+const family = loadProject(ex('family'))
+const lines = [4.72, 9.43, 14.2]
+rmSync(join(family.outDir, 'frames'), { recursive: true, force: true })
+await renderFrames(family, lines)
+await run([
+  ...lines.flatMap((t) => ['-i', join(family.outDir, 'frames', `t-${t.toFixed(2)}.png`)]),
+  '-filter_complex', '[0]scale=640:-1[a];[1]scale=640:-1[b];[2]scale=640:-1[c];[a][b][c]hstack=3',
+  join(ASSETS, 'family.png')
+])
+
+// 9 · still templates: a carousel and store screenshots, as contact sheets
+step('Stills')
+for (const [name, size] of [['carousel', 'post'], ['store', 'ios']]) {
+  const tpl = loadProject(join(ROOT, 'templates', name, `${name}.html`))
+  await stills(tpl, { sheet: true, quiet: true })
+  copyFileSync(join(tpl.outDir, name, `sheet-${size}.png`), join(ASSETS, `${name}.png`))
+}
+
+// 10 · the studio, on the launch video
 step('Studio')
 const server = await serve(launch.dir)
 const browser = await puppeteer.launch({ headless: true })

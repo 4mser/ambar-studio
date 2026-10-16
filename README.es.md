@@ -20,12 +20,16 @@ Todo lo que ves en este README lo renderizó AMBAR.
 |---|---|
 | **Video determinista** | Chrome recorre `render(t)` y lo envía a ffmpeg. 1080p a 30 fps por defecto, o el tamaño y la tasa que definas. |
 | **La narración manda en la línea de tiempo** | Cada línea de narración es una marca. Las escenas cuelgan de las marcas, así que al editar una línea su escena se mueve con ella. |
-| **Una mezcla de verdad** | La voz en sus marcas, música que baja cuando entra la voz y efectos sintetizados. Sin muestras ni licencias. |
+| **Personajes y voces** | Varios personajes, cada uno con su voz, grabados en una sola toma por personaje y cortados en las pausas. Las correcciones de pronunciación no tocan los subtítulos, y `--verify` transcribe cada línea contra el guion. |
+| **Una mezcla de verdad** | Música que baja bajo la voz con un seguidor de envolvente y hace caer su golpe en el momento que elijas, efectos sintetizados o alineados en su golpe, −14 LUFS. |
+| **Movimiento que se asienta** | Cámaras, transiciones, subtítulos palabra por palabra, partículas, gráficos que se dibujan solos y grillas de pulsos, todo en función del tiempo. Sin rebotes ni sobrepasos. |
 | **Un estudio** | Una línea de tiempo en el navegador con marcas de narración, avance cuadro a cuadro, zonas seguras y la mezcla sincronizada. |
-| **Presentaciones y documentos** | Decks con presentador en el navegador y un PDF por deck; documentos A4 exportados tal cual se diseñaron. |
+| **Presentaciones y documentos** | Decks con presentador en el navegador y un PDF por deck; documentos A4, carta y A5, y páginas largas para infografías. Cada PDF se revisa: fuentes Type 3, sombras y cantidad de páginas. |
+| **Imágenes fijas** | Carruseles, capturas para las tiendas, tarjetas de enlace, historias y portadas en todos sus tamaños, desde una plantilla y un archivo de datos. |
 | **Tutoriales de producto** | Capturas de una app real con los datos privados difuminados, y luego cámara, cursor, tecleo y anotaciones que apuntan a los elementos por nombre. |
 | **Hecho para Claude** | Una skill de Claude Code, un agente y un comando de autorrevisión, para que una IA haga una pieza completa y la revise. |
-| **ÁMBAR** | La mascota, dibujada en SVG en cada cuadro, con expresiones, mirada, parpadeo y chispas. |
+| **ÁMBAR y una familia** | La mascota, dibujada en SVG en cada cuadro, y un kit para hacer tus propios personajes: paleta, rasgos, orbes o una moneda, y que hablen con la voz real. |
+| **Aprendido de trabajo real** | Las reglas de la casa salen de unas setenta piezas terminadas: qué funcionó, qué se rechazó y por qué. |
 
 ### `// 02` Hecho para Claude
 
@@ -39,9 +43,9 @@ Después le pides a Claude Code lo que necesites, desde cualquier carpeta: *«un
 
 | Pieza | Qué hace |
 |---|---|
-| **Skill `ambar`** | El flujo (brief → plan → construcción → voz → revisión → render) y las reglas: tiempos desde la narración, zonas seguras y tamaños mínimos, redacción sobria y sin exageraciones, nada inventado, datos privados difuminados, nunca capturar producción. Una referencia por formato. |
+| **Skill `ambar`** | El flujo (brief → una pieza de prueba → plan → construcción → voz → revisión → render) y las reglas aprendidas de piezas terminadas: tiempos desde la narración, movimiento sin rebotes, zonas seguras y tamaños mínimos, redacción sobria y sin exageraciones, nada inventado, datos privados difuminados, nunca capturar producción. Una referencia por formato, más `craft.md` con la razón de cada regla. |
 | **Brief `AMBAR.md`** | Las reglas propias de cada proyecto: audiencia, objetivo, idioma, voz, tono, marca, palabras que usar y evitar, fuentes, qué difuminar. `ambar new` lo crea; la skill lo lee antes que nada y lo sigue por sobre lo predeterminado. |
-| **`ambar check`** | La revisión automática: errores de la página y archivos faltantes, texto fuera de cuadro, cortado o superpuesto, texto demasiado chico para leerse, contenido muy pequeño o cargado a un borde, marcas sin narración, y si `render(t)` depende solo de `t`. Genera una hoja de contacto que luego el agente mira. `--json` para agentes. |
+| **`ambar check`** | La revisión automática: errores de la página y archivos faltantes, texto fuera de cuadro, cortado o superpuesto, rótulos de diagramas cruzados por una línea o tapados por una figura, texto demasiado chico para leerse, contenido muy pequeño o cargado a un borde, marcas sin narración, y si `render(t)` depende solo de `t`. Genera una hoja de contacto que luego el agente mira. `--json` para agentes. |
 | **Agente `ambar-producer`** | Produce una pieza completa a partir de un brief. Uno por pieza para hacer varias en paralelo. |
 
 <p align="center">
@@ -105,16 +109,16 @@ El runtime trae lo necesario para que el movimiento se sienta bien: curvas de ea
 
 ```json
 {
-  "voice": { "provider": "say", "name": "Samantha" },
+  "voice": { "provider": "gemini", "name": "Sulafat", "language": "es-US", "mode": "take" },
+  "voices": { "sol": { "name": "Leda", "style": "A cheerful little mascot" } },
   "lines": [
-    { "id": "hello", "text": "Meet Ambar." },
-    { "id": "time",  "text": "Every frame is a pure function of time.", "pause": 1.4 }
+    { "id": "hello", "text": "Te presento a NGINX.", "say": "Te presento a Engine X." },
+    { "id": "sol",   "speaker": "sol", "text": "¡Hola! Yo te acompaño.", "pause": 0.6 }
   ],
-  "music": { "file": "music.mp3", "gain": 0.6 },
+  "music": { "file": "music.mp3", "gain": 0.6, "hit": 15.25, "at": "sol" },
   "sfx": [
-    { "type": "impact", "at": 0.35, "gain": 0.45 },
-    { "type": "whoosh", "at": "time-0.5", "gain": 0.14 },
-    { "type": "tap",    "at": "time+0.6", "repeat": 12, "every": 0.11 }
+    { "type": "whoosh", "at": "hello-0.3", "gain": 0.14 },
+    { "file": "sfx/sello.wav", "at": "sol+0.8" }
   ]
 }
 ```
@@ -122,11 +126,34 @@ El runtime trae lo necesario para que el movimiento se sienta bien: curvas de ea
 | Voz | Notas |
 |---|---|
 | `say` | Voces de macOS, sin conexión ni clave. Sirve para borradores. |
-| `gemini` | Texto a voz de Gemini. Lee `AMBAR_GEMINI_API_KEY`, o en macOS el ítem `ambar-gemini` del Llavero, y ninguna otra clave. |
+| `gemini` | Texto a voz de Gemini, con modelos de respaldo y reintentos. Lee `AMBAR_GEMINI_API_KEY`, o en macOS el ítem `ambar-gemini` del Llavero, y ninguna otra clave. |
 
-Las grabaciones quedan en caché por texto y voz, así que solo se vuelven a grabar las líneas que cambian. Los efectos son `whoosh`, `tap`, `tick`, `impact` y `riser`, sintetizados con ruido y ondas seno a partir de una semilla fija: la misma configuración siempre suena igual. La mezcla final se normaliza a −16 LUFS.
+- **Personajes.** `speaker` elige una voz de `voices`. Con `"mode": "take"` cada personaje lee todas sus líneas en una sola toma, que AMBAR corta en las pausas más largas: las líneas grabadas una por una suenan a personas distintas. `ambar voice --recut` vuelve a cortar sin grabar.
+- **Pronunciación.** `say` es lo que lee la voz, `text` lo que muestra la pantalla y `caption` lo que muestran los subtítulos. `tone` define cómo se dice una línea.
+- **Ritmo.** Las pausas largas dentro de una línea se acortan a `maxPause` (0,32 s), `tempo` acelera una toma lenta hasta 1,15×, y cada línea lleva fundidos cortos para que ninguna termine en seco.
+- **Para la escena.** `voice/timings.json` trae cada marca con su texto, su personaje y los tiempos de cada palabra; `voice/envelope.json` dice qué tan fuerte suena cada línea cuadro a cuadro, para que una mascota hable con la voz real.
+- **Verificación.** `ambar voice --verify` transcribe cada línea al pie de la letra y avisa de palabras que faltan o sobran y de líneas demasiado lentas.
+- **Música.** Baja bajo la voz con un seguidor de envolvente. `hit` + `at` hacen coincidir un momento de la pista con una marca; `stop` la corta en seco o la frena como una cinta.
+- **Efectos.** `whoosh`, `tap`, `tick`, `click`, `pop`, `impact`, `kick`, `riser`, `heartbeat`, `drone`, `applause` y `glitch`, sintetizados con semilla fija (sin campanitas: se ven baratas). Un efecto con `file` cae en su punto más fuerte.
+- **Máster.** Con saturación suave y normalizado a −14 LUFS (`loudness`). `ambar render --cover 3.2` también escribe `<nombre>-cover.mp4` con ese cuadro primero, porque los feeds usan el cuadro 0 como miniatura.
 
-### `// 06` El estudio
+### `// 06` Movimiento
+
+El lenguaje de movimiento de las piezas terminadas, como funciones del tiempo.
+
+| Módulo | Qué trae |
+|---|---|
+| `ambar.js` | Easing (`ease.settle`, una curva críticamente amortiguada que nunca se pasa), `seeded`, `noise1`, `remap`, `revealLines`, `scramble`, `counter`, y formatos con nombre: `video({ format: 'post' })` para 4:5, `reel`, `story`, `square`, `card`, con `ctx.safe` diciéndote dónde van títulos, contenido y subtítulos |
+| `motion.js` | Una `camera` que encuadra cualquier elemento y se mueve en una sola línea recta sin mostrar el borde del cuadro, `breathe`, `punch` sin vibración, `handheld`, `beats` y `acts` para cortar al ritmo de la música, `smoothPath`, `reversals` para revisar, y `sim()`, que repite con exactitud una simulación con estado en cualquier cuadro |
+| `fx.js` | Partículas sin estado (polvo, estallidos, confeti, estelas, `morph` hacia una forma nueva) y las pocas transiciones que permite el estilo de la casa: fundidos, barridos de luz en los cortes, una revelación circular, una aparición desde el desenfoque |
+| `charts.js` | Gráficos planos de línea, barras, anillo, minilínea y calor que se dibujan solos, armados una vez y actualizados por atributos |
+| `captions.js` | Los tiempos de cada palabra convertidos en subtítulos de dos líneas que se iluminan palabra por palabra, con el nombre y la figurita de quien habla; `talk()` lee la envolvente de la voz |
+
+<p align="center">
+  <img src="docs/assets/motion.png" width="100%" alt="Cuatro cuadros del ejemplo de movimiento en 4:5: una curva que se asienta, una cámara encuadrando una tarjeta, gráficos que se dibujan solos y partículas que forman la palabra AMBAR">
+</p>
+
+### `// 07` El estudio
 
 `ambar studio <proyecto>` abre la composición en un estudio local: recorres la línea de tiempo, avanzas cuadro a cuadro, saltas a cualquier marca de narración, activas las zonas seguras y reproduces la mezcla sincronizada.
 
@@ -134,7 +161,7 @@ Las grabaciones quedan en caché por texto y voz, así que solo se vuelven a gra
   <img src="docs/assets/studio.png" width="100%" alt="AMBAR Studio con el video de lanzamiento, las zonas seguras activas y cinco marcas de narración en la línea de tiempo">
 </p>
 
-### `// 07` Tutoriales sobre apps reales
+### `// 08` Tutoriales sobre apps reales
 
 `ambar capture` recorre una app web con Chrome sin interfaz, siguiendo los pasos de `capture.json`, y guarda una captura por paso más la posición de cada elemento que nombres. Todo lo que coincida con `redact` se difumina en el navegador antes de la captura, así que los datos privados nunca llegan a un PNG.
 
@@ -165,14 +192,17 @@ sc.callout(t, { box: 'board.user', text: 'Private data is blurred', from: board.
   <img src="docs/assets/tutorial.png" width="100%" alt="Cuatro momentos del tutorial de Harbor: el correo tecleándose, el tablero con la dirección difuminada, el diálogo de nueva tarea y la tarea guardada">
 </p>
 
-### `// 08` Presentaciones y documentos
+### `// 09` Presentaciones, documentos e imágenes fijas
 
 Cada `<section class="slide">` es una lámina. Abre el HTML para presentar (flechas, espacio, `F` para pantalla completa) o expórtalo:
 
 ```bash
 ambar slides examples/deck/deck.html   # → out/deck.pdf + un PNG por lámina
 ambar doc examples/report/report.html  # → out/report.pdf (A4)
+ambar doc infografia.html --long --png  # → una página PDF larga + un PNG armado por tramos
 ```
+
+`ambar doc` acepta `--paper a4|letter|a5`, páginas que fluyen con numeración y `--long` para infografías pensadas para recorrerse con scroll. Cada PDF se revisa antes y después de imprimir: las sombras salen de la impresión (los visores las dibujan como bloques grises), se avisa de fuentes variables o negritas falsas porque se imprimen como Type 3, se cuentan los canvas transparentes y debe haber una página del PDF por hoja. `runtime/fonts.css` trae Inter e IBM Plex Mono estáticas.
 
 <p align="center">
   <img src="docs/assets/deck.png" width="100%" alt="Seis láminas del deck de ejemplo en tonos ámbar">
@@ -182,7 +212,17 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
   <img src="docs/assets/report.png" width="78%" alt="Dos páginas A4 del informe de ejemplo: una portada oscura con ÁMBAR y una página clara con la tabla de comandos">
 </p>
 
-### `// 09` Comandos
+**Imágenes fijas.** `ambar stills plantilla.html` renderiza cada elemento de un archivo de datos en cada tamaño que pide: publicaciones y carruseles de Instagram (4:5), historias, capturas para App Store y Google Play, gráficos destacados, íconos, tarjetas de enlace @2x y portadas de Facebook, cada uno con su zona segura. Cada imagen se captura a su tamaño exacto cuando la página está lista. Un texto que se sale del cuadro o que su caja recorta es un error, un carrusel puede dibujarse como un solo panorama y cortarse para que al deslizar se lea como una sola imagen, y `--webp`, `--format png8` y `--sheet` te dan copias para la web, PNG livianos para dibujos de líneas y una hoja de contacto. `ambar new` trae plantillas para todo eso: `--carousel`, `--store`, `--og`, `--infographic`, `--proposal`.
+
+<p align="center">
+  <img src="docs/assets/carousel.png" width="100%" alt="Seis láminas de carrusel en 4:5 sobre una misma grilla, con una línea que las cruza">
+</p>
+
+<p align="center">
+  <img src="docs/assets/store.png" width="100%" alt="Cinco capturas para App Store: un titular, un teléfono con la app y una tarjeta flotante">
+</p>
+
+### `// 10` Comandos
 
 | Comando | Qué hace |
 |---|---|
@@ -190,34 +230,38 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
 | `ambar render <proyecto>` | Narración, mezcla, cuadros y codificación → `out/<nombre>.mp4` |
 | `ambar render <proyecto> --frames 0,1.5,3` | Imágenes PNG en esos segundos |
 | `ambar render <proyecto> --gif out.gif` | Un GIF en loop (`--from`, `--to`, `--gif-fps`, `--width`) |
-| `ambar voice <proyecto>` | Graba la narración y escribe las marcas |
+| `ambar render <proyecto> --cover 3.2` | También `<nombre>-cover.mp4`, con ese cuadro primero para la miniatura del feed |
+| `ambar voice <proyecto>` | Graba la narración y escribe las marcas, los tiempos de cada palabra y la envolvente de la voz (`--force`, `--recut`) |
+| `ambar voice <proyecto> --verify` | Transcribe cada línea y la compara con el guion |
 | `ambar mix <proyecto>` | Narración, música y efectos → `out/mix.wav` |
 | `ambar capture <proyecto>` | Capturas y posiciones de elementos de una app, según `capture.json` |
 | `ambar embed <proyecto>` | La composición como reproductor web en vivo, con capítulos, sonido y subtítulos (`--out`) |
 | `ambar check <objetivo>` | Revisión automática y hoja de contacto (`--json`, `--at`) → `out/check/` |
 | `ambar slides <deck.html>` | PDF y PNG de un deck |
-| `ambar doc <doc.html>` | PDF A4 de un documento |
-| `ambar new <carpeta>` | Un video nuevo, `--deck` o `--doc`, desde una plantilla |
+| `ambar doc <doc.html>` | PDF de un documento (`--paper a4\|letter\|a5`, `--long`, `--png`), revisado |
+| `ambar stills <plantilla.html>` | Cada elemento × tamaño de una plantilla de imágenes fijas (`--data`, `--sizes`, `--sheet`, `--webp`) |
+| `ambar new <carpeta>` | Un video nuevo, `--deck`, `--doc`, `--carousel`, `--store`, `--og`, `--infographic` o `--proposal`, desde una plantilla |
 | `ambar skill` | Enlaza la skill y el agente de Claude Code en `~/.claude` (`--remove`) |
 
-### `// 10` Cómo funciona
+### `// 11` Cómo funciona
 
 ```
 bin/ambar.js            CLI
-src/commands/           studio · render · voice · mix · capture · check · slides · doc · new · skill
-src/lib/                servidor local, Chrome sin interfaz, ffmpeg, línea de tiempo, efectos sintetizados, WAV
-runtime/                lo que importan las escenas: ambar.js (tiempo, easing, texto) · screen.js (screencasts) · estilos de láminas y documentos
+src/commands/           studio · render · voice · mix · capture · check · slides · doc · stills · embed · new · skill
+src/lib/                servidor local, Chrome sin interfaz, ffmpeg, línea de tiempo, análisis de audio, efectos sintetizados, WAV, revisión de PDF
+runtime/                lo que importan las escenas: ambar.js (tiempo, easing, texto, formatos) · motion · fx · charts · captions · screen · player · slides · doc · stills · fuentes
 studio/                 el estudio con línea de tiempo
-mascot/ambar.js         ÁMBAR, un SVG por cuadro
+mascot/ambar.js         ÁMBAR y el kit de personajes, un SVG por cuadro
 .claude/               la skill ambar (SKILL.md + referencias) y el agente ambar-producer
-examples/               video de lanzamiento · hero · tutorial · deck · informe
+examples/               video de lanzamiento · hero · tutorial · movimiento · familia · deck · informe
+templates/              video · deck · doc · carrusel · tienda · og · infografía · propuesta · el brief AMBAR.md
 ```
 
 Un servidor local publica el proyecto en `/` y AMBAR en `/@ambar/`, así una escena importa el runtime igual sin importar dónde esté. `ambar render` graba la narración, abre la escena en Chrome sin interfaz, llama a `render(f / fps)` en cada cuadro, envía las capturas a ffmpeg (H.264, CRF 17), mezcla el audio y une ambos.
 
 Medido en un Apple M5 Pro: el video de lanzamiento de 24 segundos en 1080p, con cinco líneas de narración y doce efectos, se renderiza en 28,7 segundos.
 
-### `// 11` ÁMBAR
+### `// 12` ÁMBAR
 
 ÁMBAR es la mascota: gel ámbar con un núcleo de miel oscura y ojos de cápsula. `mascot()` la dibuja en SVG para el cuadro actual, así que se mueve con la escena y se renderiza como todo lo demás.
 
@@ -225,11 +269,16 @@ Medido en un Apple M5 Pro: el video de lanzamiento de 24 segundos en 1080p, con 
 mascot({ x: 960, y: 520, R: 180, t, expr: 'feliz', mira: [0.4, 0], chispas: 0.8 })
 ```
 
-Expresiones: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`, `dormida`, o una mezcla de ellas con `pesos`.
+Expresiones: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`, `dormida` (o `happy`, `thinking`, `surprised`, `angry`, `sad`, `sleepy`), o una mezcla de ellas con `pesos`. Las mezclas suman los lóbulos de las siluetas, así que un cambio de ánimo nunca salta.
 
-### `// 12` Desarrollo
+**Una familia de mascotas.** ÁMBAR está hecha con un kit de personajes que puedes usar para los tuyos. `character({ name, palette, lobes, accessory })` te da un nuevo miembro de la familia: el mismo cuerpo de gel y los mismos ojos de cápsula, su propia paleta, detalles pequeños como orejas o pestañas, y un accesorio, ya sea orbes que giran y se funden con el cuerpo o una moneda que gira sobre la cabeza. Habla siguiendo la envolvente real de la voz (`talk()` de `captions.js`), y `blinks`, `moods`, `gazeAt` y `smoothPath` resuelven parpadeos, cambios de ánimo, mirada y llegadas solo a partir del tiempo. `draw.figure()` pone una versión pequeña de quien habla en el subtítulo.
+
+<p align="center">
+</p>
+
+### `// 13` Desarrollo
 
 ```bash
-npm test                # matemática del runtime, línea de tiempo, efectos, WAV, captura, revisión y skill
+npm test                # runtime, movimiento, subtítulos, mascotas, audio, mezcla, imágenes fijas, PDF, captura, revisión y skill
 npm run readme-assets   # vuelve a renderizar todas las imágenes de este README
 ```
