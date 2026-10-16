@@ -38,12 +38,6 @@ function place (who, t) {
   return arrive(t, c.from, c.home, c.at, ARRIVAL)
 }
 
-/** The arrival path of a character, for its trail */
-const pathOf = (who) => (u) => {
-  const q = place(who, u)
-  return [q.x, q.y]
-}
-
 /** 0 → 1 from a, critically damped: settles without overshoot */
 const pop = (t, a) => {
   const k = progress(t, a, 1)
@@ -128,9 +122,8 @@ video({
       // Sol's orbs grow in as it names them; Mint's coin pops when it is mentioned
       if (who === 'sol') Object.assign(options, { orbs: 6 * ease.out(progress(t, reveal.orbs, 1.6)), aperture: 0.4 + 0.45 * ease.out(progress(t, reveal.orbs, 2)) })
       if (who === 'mint') options.coin = { scale: pop(t, reveal.coin) }
-      if (c.from) trails += trail(pathOf(who), t, { from: c.at, to: c.at + ARRIVAL, color: c.light })
+      if (c.from) trails += trail((u) => place(who, u), t, { from: c.at, to: c.at + ARRIVAL, color: c.light })
       cast += c.draw(options)
-      css($(`#glow-${who}`), { left: `${p.x}px`, top: `${p.y}px`, opacity: c.from ? ease.out(progress(t, c.at + 0.6, 1)) : 1 })
     }
     $('#trails').innerHTML = trails
     $('#cast').innerHTML = cast
