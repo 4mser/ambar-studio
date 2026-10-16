@@ -2,7 +2,7 @@
 // done. It opens a video, deck or document the way the renderer does and
 // reports what can be checked by machine: page errors and missing files,
 // text that runs off the frame, is clipped, overlaps other text or is too
-// small to read, narration cues the scene asks for but ambar.json lacks, and
+// small to read, labels inside diagrams crossed by lines or covered by shapes, narration cues the scene asks for but ambar.json lacks, and
 // whether render(t) really depends on t alone. It also writes a contact sheet
 // of the sampled frames, slides or pages, so the result can be looked at.
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -42,6 +42,59 @@ export function cuesUsed (dir, entry) {
 
 // Runs in the page. Looks at every visible piece of text inside `root`.
 function auditLayout ({ rootSelector, index, minFont, balance = false }) {
+  // Text inside diagrams (SVG <text>): another text on top of it, a line or an
+  // arrow crossing it, or a shape drawn over it. HTML text is audited below; a
+  // diagram's labels used to slip through because they live inside <svg>.
+  function auditSvgText (root, visible, label) {
+    const found = []
+    const pad = (r, k) => ({ left: r.left + k, right: r.right - k, top: r.top + k, bottom: r.bottom - k })
+    const area = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top))
+    const within = (a, b) => a.left >= b.left - 1 && a.right <= b.right + 1 && a.top >= b.top - 1 && a.bottom <= b.bottom + 1
+    const before = (a, b) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
+    const soft = (el) => el.closest('[data-glow], [data-check="skip"]') || Number(getComputedStyle(el).opacity) < 0.35 || el.hasAttribute('filter')
+    const texts = [...root.querySelectorAll('svg text')].filter((t) => visible(t) && t.textContent.trim()).map((el) => ({ el, r: pad(el.getBoundingClientRect(), 1.5) }))
+    if (!texts.length) return found
+    // a halo (paint-order: stroke) keeps a line drawn underneath from crossing the letters
+    const haloed = (t) => getComputedStyle(t).paintOrder.startsWith('stroke') && parseFloat(getComputedStyle(t).strokeWidth) >= 3
+    const shapes = [...root.querySelectorAll('svg path, svg line, svg polyline, svg polygon, svg rect, svg circle, svg ellipse')].filter((s) => visible(s) && !soft(s))
+    for (let i = 0; i < texts.length; i++) {
+      const a = texts[i]
+      for (let j = i + 1; j < texts.length; j++) {
+        if (area(a.r, texts[j].r) > 6) found.push({ level: 'warn', message: `${label(a.el)} overlaps ${label(texts[j].el)} inside a diagram` })
+      }
+      for (const s of shapes) {
+        const box = s.getBoundingClientRect()
+        const grown = { left: box.left - 3, right: box.right + 3, top: box.top - 3, bottom: box.bottom + 3 }
+        if (area(a.r, grown) <= 4) continue
+        const st = getComputedStyle(s)
+        const filled = st.fill !== 'none' && Number(st.fillOpacity) > 0.3
+        const stroked = st.stroke !== 'none' && parseFloat(st.strokeWidth) > 0
+        const over = before(a.el, s)
+        if (filled && over && box.width > 4 && box.height > 4) {
+          found.push({ level: 'warn', message: `${label(a.el)} is covered by a shape drawn on top of it` })
+          continue
+        }
+        if (!stroked || (filled && within(a.r, box))) continue
+        if (!over && haloed(a.el)) continue
+        // a backing shape between the line and the text (a pill, a card) hides the line
+        if (!over && shapes.some((c) => before(s, c) && before(c, a.el) && getComputedStyle(c).fill !== 'none' && within(a.r, c.getBoundingClientRect()))) continue
+        let hits = 0
+        try {
+          const len = s.getTotalLength()
+          const m = s.getScreenCTM()
+          for (let d = 0; d <= len && hits < 2; d += 2) {
+            const p = s.getPointAtLength(d)
+            const x = p.x * m.a + p.y * m.c + m.e
+            const y = p.x * m.b + p.y * m.d + m.f
+            if (x > a.r.left && x < a.r.right && y > a.r.top && y < a.r.bottom) hits++
+          }
+        } catch {}
+        if (hits > 1) found.push({ level: 'warn', message: `a ${s.tagName} crosses ${label(a.el)} inside a diagram` })
+      }
+    }
+    return found
+  }
+
   const root = rootSelector ? document.querySelectorAll(rootSelector)[index] : document.getElementById('stage')
   const frame = root.getBoundingClientRect()
   const issues = []
@@ -116,6 +169,7 @@ function auditLayout ({ rootSelector, index, minFont, balance = false }) {
       } else if (Math.abs(cx - 0.5) > 0.2) issues.push({ level: 'warn', message: `content sits to the ${cx < 0.5 ? 'left' : 'right'} of the frame (center at ${pct(cx)} of the width)` })
     }
   }
+  issues.push(...auditSvgText(root, visible, label))
   for (let i = 0; i < texts.length; i++) {
     for (let j = i + 1; j < texts.length; j++) {
       const a = texts[i]

@@ -46,3 +46,28 @@ test('check catches text off the frame, a missing cue and a render that keeps st
     rmSync(dir, { recursive: true, force: true })
   }
 })
+
+test('check finds diagram labels crossed by a line or covered by a shape', { timeout: 60000 }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ambar-check-svg-'))
+  try {
+    writeFileSync(join(dir, 'doc.html'), `<!doctype html>
+<link rel="stylesheet" href="/@ambar/runtime/doc.css">
+<section class="page"><svg viewBox="0 0 600 400" width="600" height="400">
+  <line x1="40" y1="60" x2="560" y2="60" stroke="#333" stroke-width="2"/>
+  <text x="300" y="60" font-size="20" text-anchor="middle" dominant-baseline="central">Crossed label</text>
+  <line x1="40" y1="150" x2="560" y2="150" stroke="#333" stroke-width="2"/>
+  <text x="300" y="150" font-size="20" text-anchor="middle" dominant-baseline="central" stroke="#fff" stroke-width="7" paint-order="stroke">Haloed label</text>
+  <text x="300" y="240" font-size="20" text-anchor="middle" dominant-baseline="central">Hidden label</text>
+  <rect x="260" y="225" width="160" height="40" fill="#5b7cfa"/>
+  <text x="300" y="330" font-size="20" text-anchor="middle" dominant-baseline="central">Clean label</text>
+</svg></section>`)
+    const result = await check(loadProject(join(dir, 'doc.html')), { json: true })
+    const messages = result.issues.map((i) => i.message).join('\n')
+    assert.match(messages, /a line crosses "Crossed label" inside a diagram/)
+    assert.match(messages, /"Hidden label" is covered by a shape drawn on top of it/)
+    assert.doesNotMatch(messages, /Haloed label/)
+    assert.doesNotMatch(messages, /Clean label/)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
