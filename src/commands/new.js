@@ -1,4 +1,5 @@
-// ambar new <dir> [--deck | --doc]: scaffolds a project from a template.
+// ambar new <dir> [--deck | --doc]: scaffolds a project from a template, with
+// an AMBAR.md brief to fill in.
 import { cpSync, existsSync, readdirSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { ROOT } from '../lib/server.js'
@@ -8,6 +9,8 @@ export function scaffold (target, kind = 'video') {
   const dir = resolve(target)
   if (existsSync(dir) && readdirSync(dir).length) throw new Error(`${dir} already exists and is not empty`)
   cpSync(join(ROOT, 'templates', kind), dir, { recursive: true })
+  // the brief: the project's own rules, read by the ambar skill before anything else
+  cpSync(join(ROOT, 'templates', 'brief', 'AMBAR.md'), join(dir, 'AMBAR.md'))
   const rel = relative(process.cwd(), dir) || '.'
   const next = {
     video: `ambar studio ${rel}   ${dim('# edit and preview')}\n  ambar render ${rel}   ${dim('# → out/*.mp4')}`,

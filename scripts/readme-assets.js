@@ -9,6 +9,8 @@ import { mix } from '../src/commands/mix.js'
 import { slides } from '../src/commands/slides.js'
 import { doc } from '../src/commands/doc.js'
 import { capture } from '../src/commands/capture.js'
+import { check } from '../src/commands/check.js'
+import { copyFileSync } from 'node:fs'
 import { serve, ROOT } from '../src/lib/server.js'
 import { run } from '../src/lib/ffmpeg.js'
 import { done, step } from '../src/lib/log.js'
@@ -68,7 +70,12 @@ await run([
   join(ASSETS, 'tutorial.png')
 ])
 
-// 6 · the studio, on the launch video
+// 6 · the contact sheet ambar check writes for the tutorial
+step('Check')
+await check(tutorial)
+copyFileSync(join(tutorial.outDir, 'check', 'sheet.png'), join(ASSETS, 'check.png'))
+
+// 7 · the studio, on the launch video
 step('Studio')
 const server = await serve(launch.dir)
 const browser = await puppeteer.launch({ headless: true })

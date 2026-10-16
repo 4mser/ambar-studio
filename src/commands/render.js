@@ -97,6 +97,6 @@ export async function render (project, { fps, audio = true } = {}) {
     renameSync(`${project.output}.tmp.mp4`, project.output)
     rmSync(silent, { force: true })
   }
-  done('Video', `${relative(process.cwd(), project.output)} · ${seconds(Date.now() - started)}`)
+  done('Video', `${relative(process.cwd(), project.output)} · ${comp.duration.toFixed(2)} s long · rendered in ${seconds(Date.now() - started)}`)
   return existsSync(project.output) ? project.output : null
 }

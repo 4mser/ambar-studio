@@ -9,6 +9,8 @@ import { doc } from '../src/commands/doc.js'
 import { studio } from '../src/commands/studio.js'
 import { scaffold } from '../src/commands/new.js'
 import { capture } from '../src/commands/capture.js'
+import { check } from '../src/commands/check.js'
+import { skill } from '../src/commands/skill.js'
 import { serve } from '../src/lib/server.js'
 import { openPage, waitForComposition } from '../src/lib/browser.js'
 import { amber, bold, dim, fail } from '../src/lib/log.js'
@@ -28,12 +30,20 @@ const HELP = `
     ambar mix <project>                 narration, music and effects → out/mix.wav
     ambar capture <project>             screenshots + element boxes of an app (capture.json)
 
+  ${bold('Review')}
+    ambar check <project | deck.html | doc.html> [--json] [--at 1,4.5]
+                                        errors, text off-frame or clipped, overlaps,
+                                        cues, determinism → out/check/sheet.png
+
   ${bold('Slides and documents')}
     ambar slides <deck.html> [--no-png] [--scale 2]   → out/<deck>.pdf + PNGs
     ambar doc <doc.html> [--png]                      → out/<doc>.pdf
 
   ${bold('Start something new')}
-    ambar new <dir> [--deck | --doc]
+    ambar new <dir> [--deck | --doc]    a template plus an AMBAR.md brief
+
+  ${bold('With Claude')}
+    ambar skill [--remove]              link the ambar skill and agent into ~/.claude
 `
 
 function parse (argv) {
@@ -57,6 +67,8 @@ async function main () {
   const [command, target] = args._
   if (!command || command === 'help' || args.help) return console.log(HELP)
 
+  if (command === 'skill') return skill({ remove: Boolean(args.remove) })
+
   if (command === 'new') {
     if (!target) throw new Error('Usage: ambar new <dir> [--deck | --doc]')
     return scaffold(target, args.deck ? 'deck' : args.doc ? 'doc' : 'video')
@@ -76,6 +88,12 @@ async function main () {
         return renderGif(project, file, { from: num(args.from) ?? 0, to: num(args.to), fps: num(args['gif-fps']) ?? 15, width: num(args.width) ?? 960 })
       }
       return render(project, { fps: num(args.fps), audio: args.audio !== false })
+    case 'check': {
+      const at = typeof args.at === 'string' ? args.at.split(',').map(Number) : []
+      const result = await check(project, { json: Boolean(args.json), at })
+      if (!result.ok) process.exitCode = 1
+      return
+    }
     case 'capture':
       return capture(project, { config: typeof args.config === 'string' ? args.config : 'capture.json' })
     case 'voice':

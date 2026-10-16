@@ -24,9 +24,31 @@ Todo lo que ves en este README lo renderizó AMBAR.
 | **Un estudio** | Una línea de tiempo en el navegador con marcas de narración, avance cuadro a cuadro, zonas seguras y la mezcla sincronizada. |
 | **Presentaciones y documentos** | Decks con presentador en el navegador y un PDF por deck; documentos A4 exportados tal cual se diseñaron. |
 | **Tutoriales de producto** | Capturas de una app real con los datos privados difuminados, y luego cámara, cursor, tecleo y anotaciones que apuntan a los elementos por nombre. |
+| **Hecho para Claude** | Una skill de Claude Code, un agente y un comando de autorrevisión, para que una IA haga una pieza completa y la revise. |
 | **ÁMBAR** | La mascota, dibujada en SVG en cada cuadro, con expresiones, mirada, parpadeo y chispas. |
 
-### `// 02` Para empezar
+### `// 02` Hecho para Claude
+
+AMBAR está pensado para que lo maneje un agente de IA. El repo trae una skill y un agente de Claude Code que conocen el flujo y las reglas de la casa, y un comando de revisión con el que el agente revisa su propio trabajo antes de darlo por terminado.
+
+```bash
+ambar skill    # enlaza la skill y el agente en ~/.claude
+```
+
+Después le pides a Claude Code lo que necesites, desde cualquier carpeta: *«un video de lanzamiento de 30 segundos para esta funcionalidad»*, *«un tutorial del registro en staging»*, *«un deck de 10 láminas a partir de este informe»*.
+
+| Pieza | Qué hace |
+|---|---|
+| **Skill `ambar`** | El flujo (brief → plan → construcción → voz → revisión → render) y las reglas: tiempos desde la narración, zonas seguras y tamaños mínimos, redacción sobria y sin exageraciones, nada inventado, datos privados difuminados, nunca capturar producción. Una referencia por formato. |
+| **Brief `AMBAR.md`** | Las reglas propias de cada proyecto: audiencia, objetivo, idioma, voz, tono, marca, palabras que usar y evitar, fuentes, qué difuminar. `ambar new` lo crea; la skill lo lee antes que nada y lo sigue por sobre lo predeterminado. |
+| **`ambar check`** | La revisión automática: errores de la página y archivos faltantes, texto fuera de cuadro, cortado o superpuesto, texto demasiado chico para leerse, contenido muy pequeño o cargado a un borde, marcas sin narración, y si `render(t)` depende solo de `t`. Genera una hoja de contacto que luego el agente mira. `--json` para agentes. |
+| **Agente `ambar-producer`** | Produce una pieza completa a partir de un brief. Uno por pieza para hacer varias en paralelo. |
+
+<p align="center">
+  <img src="docs/assets/check.png" width="100%" alt="Hoja de contacto que genera ambar check para el tutorial de Harbor: seis cuadros de muestra con sus tiempos">
+</p>
+
+### `// 03` Para empezar
 
 Requiere Node 20+ y `ffmpeg` (`brew install ffmpeg` en macOS).
 
@@ -47,7 +69,7 @@ ambar new mi-video            # o: ambar new mi-deck --deck · ambar new mi-doc 
 ambar studio mi-video
 ```
 
-### `// 03` Una escena
+### `// 04` Una escena
 
 Una composición es una carpeta con un `index.html`. Este es todo el contrato:
 
@@ -77,7 +99,7 @@ El runtime trae lo necesario para que el movimiento se sienta bien: curvas de ea
   <img src="docs/assets/launch-scenes.png" width="100%" alt="Cuatro escenas del video de lanzamiento: el título AMBAR, código que se escribe solo, tres tarjetas y tres formatos de salida">
 </p>
 
-### `// 04` Narración y sonido
+### `// 05` Narración y sonido
 
 `ambar.json` va junto a la escena. Las líneas se convierten en marcas, y los efectos se ubican en segundos o relativos a una marca:
 
@@ -104,7 +126,7 @@ El runtime trae lo necesario para que el movimiento se sienta bien: curvas de ea
 
 Las grabaciones quedan en caché por texto y voz, así que solo se vuelven a grabar las líneas que cambian. Los efectos son `whoosh`, `tap`, `tick`, `impact` y `riser`, sintetizados con ruido y ondas seno a partir de una semilla fija: la misma configuración siempre suena igual. La mezcla final se normaliza a −16 LUFS.
 
-### `// 05` El estudio
+### `// 06` El estudio
 
 `ambar studio <proyecto>` abre la composición en un estudio local: recorres la línea de tiempo, avanzas cuadro a cuadro, saltas a cualquier marca de narración, activas las zonas seguras y reproduces la mezcla sincronizada.
 
@@ -112,7 +134,7 @@ Las grabaciones quedan en caché por texto y voz, así que solo se vuelven a gra
   <img src="docs/assets/studio.png" width="100%" alt="AMBAR Studio con el video de lanzamiento, las zonas seguras activas y cinco marcas de narración en la línea de tiempo">
 </p>
 
-### `// 06` Tutoriales sobre apps reales
+### `// 07` Tutoriales sobre apps reales
 
 `ambar capture` recorre una app web con Chrome sin interfaz, siguiendo los pasos de `capture.json`, y guarda una captura por paso más la posición de cada elemento que nombres. Todo lo que coincida con `redact` se difumina en el navegador antes de la captura, así que los datos privados nunca llegan a un PNG.
 
@@ -143,7 +165,7 @@ sc.callout(t, { box: 'board.user', text: 'Private data is blurred', from: board.
   <img src="docs/assets/tutorial.png" width="100%" alt="Cuatro momentos del tutorial de Harbor: el correo tecleándose, el tablero con la dirección difuminada, el diálogo de nueva tarea y la tarea guardada">
 </p>
 
-### `// 07` Presentaciones y documentos
+### `// 08` Presentaciones y documentos
 
 Cada `<section class="slide">` es una lámina. Abre el HTML para presentar (flechas, espacio, `F` para pantalla completa) o expórtalo:
 
@@ -160,7 +182,7 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
   <img src="docs/assets/report.png" width="78%" alt="Dos páginas A4 del informe de ejemplo: una portada oscura con ÁMBAR y una página clara con la tabla de comandos">
 </p>
 
-### `// 08` Comandos
+### `// 09` Comandos
 
 | Comando | Qué hace |
 |---|---|
@@ -171,19 +193,22 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
 | `ambar voice <proyecto>` | Graba la narración y escribe las marcas |
 | `ambar mix <proyecto>` | Narración, música y efectos → `out/mix.wav` |
 | `ambar capture <proyecto>` | Capturas y posiciones de elementos de una app, según `capture.json` |
+| `ambar check <objetivo>` | Revisión automática y hoja de contacto (`--json`, `--at`) → `out/check/` |
 | `ambar slides <deck.html>` | PDF y PNG de un deck |
 | `ambar doc <doc.html>` | PDF A4 de un documento |
 | `ambar new <carpeta>` | Un video nuevo, `--deck` o `--doc`, desde una plantilla |
+| `ambar skill` | Enlaza la skill y el agente de Claude Code en `~/.claude` (`--remove`) |
 
-### `// 09` Cómo funciona
+### `// 10` Cómo funciona
 
 ```
 bin/ambar.js            CLI
-src/commands/           studio · render · voice · mix · capture · slides · doc · new
+src/commands/           studio · render · voice · mix · capture · check · slides · doc · new · skill
 src/lib/                servidor local, Chrome sin interfaz, ffmpeg, línea de tiempo, efectos sintetizados, WAV
 runtime/                lo que importan las escenas: ambar.js (tiempo, easing, texto) · screen.js (screencasts) · estilos de láminas y documentos
 studio/                 el estudio con línea de tiempo
 mascot/ambar.js         ÁMBAR, un SVG por cuadro
+.claude/               la skill ambar (SKILL.md + referencias) y el agente ambar-producer
 examples/               video de lanzamiento · hero · tutorial · deck · informe
 ```
 
@@ -191,7 +216,7 @@ Un servidor local publica el proyecto en `/` y AMBAR en `/@ambar/`, así una esc
 
 Medido en un Apple M5 Pro: el video de lanzamiento de 24 segundos en 1080p, con cinco líneas de narración y doce efectos, se renderiza en 28,7 segundos.
 
-### `// 10` ÁMBAR
+### `// 11` ÁMBAR
 
 ÁMBAR es la mascota: gel ámbar con un núcleo de miel oscura y ojos de cápsula. `mascot()` la dibuja en SVG para el cuadro actual, así que se mueve con la escena y se renderiza como todo lo demás.
 
@@ -201,9 +226,9 @@ mascot({ x: 960, y: 520, R: 180, t, expr: 'feliz', mira: [0.4, 0], chispas: 0.8 
 
 Expresiones: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`, `dormida`, o una mezcla de ellas con `pesos`.
 
-### `// 11` Desarrollo
+### `// 12` Desarrollo
 
 ```bash
-npm test                # matemática del runtime, línea de tiempo, efectos, WAV y captura
+npm test                # matemática del runtime, línea de tiempo, efectos, WAV, captura, revisión y skill
 npm run readme-assets   # vuelve a renderizar todas las imágenes de este README
 ```

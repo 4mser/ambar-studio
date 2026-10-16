@@ -24,9 +24,31 @@ Everything in this README was rendered by AMBAR itself.
 | **A studio** | A timeline in the browser with cue markers, frame stepping, safe areas and the mix in sync. |
 | **Slides and documents** | Decks with a browser presenter and a PDF per deck; A4 documents exported print-exact. |
 | **Product tutorials** | Captures of a real app with private data blurred, then camera, cursor, typing and callouts pointed at elements by name. |
+| **Made for Claude** | A Claude Code skill, an agent and a self-review command, so an AI can make a piece end to end and check it. |
 | **ÁMBAR** | The mascot, drawn as SVG on every frame, with expressions, gaze, blinking and sparkles. |
 
-### `// 02` Quick start
+### `// 02` Made for Claude
+
+AMBAR is built to be driven by an AI agent. The repo ships a Claude Code skill and an agent that know the workflow and the house rules, and a check command that lets the agent review its own work before it says it is done.
+
+```bash
+ambar skill    # links the skill and the agent into ~/.claude
+```
+
+Then ask Claude Code for what you need, from any folder: *"a 30-second launch video for this feature"*, *"a tutorial of the sign-up flow on staging"*, *"a 10-slide deck from this report"*.
+
+| Piece | What it does |
+|---|---|
+| **`ambar` skill** | The workflow (brief → plan → build → voice → check → render) and the rules: timing from narration, safe areas and minimum sizes, plain writing without hype, nothing invented, private data blurred, never capturing production. One reference per format. |
+| **`AMBAR.md` brief** | Each project's own rules: audience, goal, language, voice, tone, brand, words to use and avoid, sources, what to blur. `ambar new` creates it; the skill reads it before anything else and follows it over the defaults. |
+| **`ambar check`** | The machine review: page errors and missing files, text off the frame, clipped or overlapping, text too small to read, content too small or bunched at one edge, cues without narration, and whether `render(t)` depends on `t` alone. Writes a contact sheet the agent then looks at. `--json` for agents. |
+| **`ambar-producer` agent** | Produces a whole piece from a brief, end to end. One per piece to make several in parallel. |
+
+<p align="center">
+  <img src="docs/assets/check.png" width="100%" alt="Contact sheet written by ambar check for the Harbor tutorial: six sampled frames with their times">
+</p>
+
+### `// 03` Quick start
 
 Requires Node 20+ and `ffmpeg` (`brew install ffmpeg` on macOS).
 
@@ -47,7 +69,7 @@ ambar new my-video            # or: ambar new my-deck --deck · ambar new my-doc
 ambar studio my-video
 ```
 
-### `// 03` A scene
+### `// 04` A scene
 
 A composition is a folder with an `index.html`. This is the whole contract:
 
@@ -77,7 +99,7 @@ The runtime ships the pieces that make motion feel right: easings (`out`, `inOut
   <img src="docs/assets/launch-scenes.png" width="100%" alt="Four scenes of the launch video: the AMBAR title, code typing itself, three feature cards and three output formats">
 </p>
 
-### `// 04` Narration and sound
+### `// 05` Narration and sound
 
 `ambar.json` sits next to the scene. Lines become cues, and effects can be placed in seconds or relative to a cue:
 
@@ -104,7 +126,7 @@ The runtime ships the pieces that make motion feel right: easings (`out`, `inOut
 
 Recordings are cached by text and voice, so only changed lines are recorded again. Effects are `whoosh`, `tap`, `tick`, `impact` and `riser`, synthesized from noise and sine waves with a fixed seed: the same config always sounds the same. The final mix is loudness-normalized to −16 LUFS.
 
-### `// 05` The studio
+### `// 06` The studio
 
 `ambar studio <project>` opens the composition in a local studio: scrub the timeline, step frame by frame, jump to any narration cue, toggle safe areas and play the mix in sync.
 
@@ -112,7 +134,7 @@ Recordings are cached by text and voice, so only changed lines are recorded agai
   <img src="docs/assets/studio.png" width="100%" alt="AMBAR Studio with the launch video, safe areas on and five narration cues on the timeline">
 </p>
 
-### `// 06` Tutorials over real apps
+### `// 07` Tutorials over real apps
 
 `ambar capture` walks through a web app with headless Chrome, following the steps in `capture.json`, and saves a screenshot per step plus the position of every element you name. Anything matching `redact` is blurred in the browser before the screenshot, so private data never reaches a PNG.
 
@@ -143,7 +165,7 @@ sc.callout(t, { box: 'board.user', text: 'Private data is blurred', from: board.
   <img src="docs/assets/tutorial.png" width="100%" alt="Four moments of the Harbor tutorial: typing the email, the board with the blurred address, the new task dialog and the saved task">
 </p>
 
-### `// 07` Slides and documents
+### `// 08` Slides and documents
 
 Every `<section class="slide">` is a slide. Open the HTML to present it (arrows, space, `F` for fullscreen), or export it:
 
@@ -160,7 +182,7 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
   <img src="docs/assets/report.png" width="78%" alt="Two A4 pages of the sample report: a dark cover with ÁMBAR and a light page with a commands table">
 </p>
 
-### `// 08` Commands
+### `// 09` Commands
 
 | Command | What it does |
 |---|---|
@@ -171,19 +193,22 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
 | `ambar voice <project>` | Records the narration and writes the cues |
 | `ambar mix <project>` | Narration, music and effects → `out/mix.wav` |
 | `ambar capture <project>` | Screenshots and element boxes of an app, from `capture.json` |
+| `ambar check <target>` | Machine review and contact sheet (`--json`, `--at`) → `out/check/` |
 | `ambar slides <deck.html>` | PDF and PNGs of a deck |
 | `ambar doc <doc.html>` | A4 PDF of a document |
 | `ambar new <dir>` | A new video, `--deck` or `--doc` from a template |
+| `ambar skill` | Links the Claude Code skill and agent into `~/.claude` (`--remove`) |
 
-### `// 09` How it works
+### `// 10` How it works
 
 ```
 bin/ambar.js            CLI
-src/commands/           studio · render · voice · mix · capture · slides · doc · new
+src/commands/           studio · render · voice · mix · capture · check · slides · doc · new · skill
 src/lib/                local server, headless Chrome, ffmpeg, timeline, synthesized effects, WAV
 runtime/                what scenes import: ambar.js (time, easing, text) · screen.js (screencasts) · slides · doc styles
 studio/                 the timeline studio
 mascot/ambar.js         ÁMBAR, an SVG per frame
+.claude/               the ambar skill (SKILL.md + references) and the ambar-producer agent
 examples/               launch video · hero · tutorial · deck · report
 ```
 
@@ -191,7 +216,7 @@ A local server publishes the project at `/` and AMBAR at `/@ambar/`, so a scene 
 
 Measured on an Apple M5 Pro: the 24-second 1080p launch video, with five narration lines and twelve effects, renders in 28.7 seconds.
 
-### `// 10` ÁMBAR
+### `// 11` ÁMBAR
 
 ÁMBAR is the mascot: amber gel with a dark honey core and capsule eyes. `mascot()` draws it as SVG for the current frame, so it moves with the scene and renders like everything else.
 
@@ -201,9 +226,9 @@ mascot({ x: 960, y: 520, R: 180, t, expr: 'feliz', mira: [0.4, 0], chispas: 0.8 
 
 Expressions: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`, `dormida`, or a blend of them with `pesos`.
 
-### `// 11` Development
+### `// 12` Development
 
 ```bash
-npm test                # runtime math, timeline, effects, WAV and capture
+npm test                # runtime math, timeline, effects, WAV, capture, check and skill
 npm run readme-assets   # re-renders every image in this README
 ```

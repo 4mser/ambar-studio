@@ -57,7 +57,7 @@ function mascotaAmbar(o){
     <filter id="${id}b" filterUnits="userSpaceOnUse" x="${x - R * 3}" y="${y - R * 3}" width="${R * 6}" height="${R * 6}"><feGaussianBlur stdDeviation="${R * .06}"/></filter>
     <filter id="${id}e" filterUnits="userSpaceOnUse" x="${x - R * 2}" y="${y - R * 2}" width="${R * 4}" height="${R * 4}"><feGaussianBlur stdDeviation="${R * .07}"/></filter>
   </defs><g opacity="${op}" transform="translate(${x} ${y + R}) scale(${1 + estira * .1} ${1 - estira * .1}) translate(${-x} ${-y - R})">`;
-  h += `<ellipse cx="${x}" cy="${y + dy}" rx="${R * 2.2}" ry="${R * 2.05}" fill="url(#${id}h)"/>`;
+  h += `<ellipse data-glow cx="${x}" cy="${y + dy}" rx="${R * 2.2}" ry="${R * 2.05}" fill="url(#${id}h)"/>`;
   h += `<ellipse cx="${x}" cy="${y + R * .98}" rx="${R * .7}" ry="${R * .11}" fill="${halo}" opacity=".3" filter="url(#${id}b)"/>`;
   // el orbe: contornoB casi redondo que respira suave
   const nx = x + mira[0] * R * .06, ny = y + dy + R * .08 + mira[1] * R * .05;

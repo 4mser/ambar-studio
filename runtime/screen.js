@@ -30,7 +30,7 @@ export function screencast (parent, data, { device = 'laptop', width = 1240, url
   root.className = `sc-device sc-${device}`
   root.innerHTML = `
     <div class="sc-body">
-      ${device === 'browser' || device === 'laptop' ? `<div class="sc-chrome"><i></i><i></i><i></i><span>${url}</span></div>` : ''}
+      ${device === 'browser' || device === 'laptop' ? `<div class="sc-chrome" data-check="skip"><i></i><i></i><i></i><span>${url}</span></div>` : ''}
       <div class="sc-screen"><div class="sc-content">
         <div class="sc-shots"></div>
         <div class="sc-dim"></div>
