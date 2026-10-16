@@ -1,35 +1,73 @@
-/* AMBAR documents: A4 pages, edge-to-edge color, print-exact. */
+/* AMBAR documents, print-exact. Two ways to lay pages out, mixable:
+   - sheets: every <section class="page"> is one fixed page (edge-to-edge
+     colour, you place the content), sized by the paper (A4 by default;
+     <html data-paper="letter | a5"> or `ambar doc --paper`);
+   - flow: content inside <main class="flow"> runs over as many pages as it
+     needs, with the margins, running footers and page counters set in the
+     document's own @page rules.
+   Nothing printed has a shadow: shadows live inside @media screen only. */
 @page { size: A4; margin: 0; }
+@page sheet { margin: 0; }
 
-html, body { background: #2a2420; overflow: visible; height: auto; }
+:root {
+  --paper-w: 210mm;
+  --paper-h: 297mm;
+  --paper: #fffaf2;
+  --paper-ink: #2b1a0b;
+  --paper-text: #4a3523;
+  --paper-line: #ecdcc4;
+}
+html[data-paper='letter'] { --paper-w: 8.5in; --paper-h: 11in; }
+html[data-paper='a5'] { --paper-w: 148mm; --paper-h: 210mm; }
+
+html, body { overflow: visible; height: auto; }
 body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
 .page {
+  page: sheet;
   position: relative;
-  width: 210mm;
-  height: 297mm;
-  margin: 24px auto;
+  width: var(--paper-w);
+  height: var(--paper-h);
   overflow: hidden;
-  background: #fffaf2;
-  color: #2b1a0b;
+  background: var(--paper);
+  color: var(--paper-ink);
   padding: 26mm 22mm 24mm;
   font-family: var(--font);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+.flow { font-family: var(--font); color: var(--paper-ink); }
+
+@media screen {
+  html, body { background: #2a2420; }
+  .page { margin: 24px auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35); }
+  .flow { width: var(--paper-w); margin: 24px auto; padding: 20mm 18mm; background: var(--paper); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35); }
 }
 @media print {
-  .page { margin: 0; box-shadow: none; break-after: page; page-break-after: always; }
+  html, body { background: var(--paper); }
+  .page { margin: 0; break-after: page; page-break-after: always; }
 }
 
-.page h1 { font-size: 34pt; line-height: 1.02; letter-spacing: -0.03em; font-weight: 800; }
-.page h2 { font-size: 16pt; letter-spacing: -0.01em; margin: 9mm 0 3mm; }
-.page p, .page li { font-size: 10.5pt; line-height: 1.6; color: #4a3523; }
-.page .kicker { font: 600 8pt var(--mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--resin); }
-.page .kicker + h1 { margin-top: 4mm; }
+/* A long page (`ambar doc --long`): one sheet as wide as --long-w and as tall
+   as its content, exported as a single PDF page */
+.page.long { width: var(--long-w, 1600px); height: auto; overflow: visible; }
+@media screen {
+  html:has(.page.long), html:has(.page.long) body { background: var(--paper); }
+  .page.long { margin: 0 auto; box-shadow: none; }
+}
+
+.page h1, .flow h1 { font-size: 34pt; line-height: 1.02; letter-spacing: -0.03em; font-weight: 800; }
+.page h2, .flow h2 { font-size: 16pt; letter-spacing: -0.01em; margin: 9mm 0 3mm; }
+.page p, .page li, .flow p, .flow li { font-size: 10.5pt; line-height: 1.6; color: var(--paper-text); }
+.page .kicker, .flow .kicker { font: 500 8pt var(--mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--resin); }
+.page .kicker + h1, .flow .kicker + h1 { margin-top: 4mm; }
 .page .footer {
   position: absolute; left: 22mm; right: 22mm; bottom: 12mm;
   display: flex; justify-content: space-between;
   font: 500 7.5pt var(--mono); letter-spacing: 0.12em; color: #a08060;
 }
-.page table { width: 100%; border-collapse: collapse; margin-top: 3mm; }
-.page th, .page td { text-align: left; padding: 2.2mm 0; border-bottom: 0.3mm solid #ecdcc4; font-size: 10pt; }
-.page th { font: 600 7.5pt var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--resin); }
+.page table, .flow table { width: 100%; border-collapse: collapse; margin-top: 3mm; }
+.page th, .page td, .flow th, .flow td { text-align: left; padding: 2.2mm 0; border-bottom: 0.3mm solid var(--paper-line); font-size: 10pt; }
+.page th, .flow th { font: 500 7.5pt var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--resin); }
+/* Flowing tables: the header repeats on every page, rows do not split */
+.flow thead { display: table-header-group; }
+.flow tr { break-inside: avoid; }
+.flow h2, .flow h3 { break-after: avoid; }

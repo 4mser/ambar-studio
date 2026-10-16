@@ -25,6 +25,12 @@ html[data-mode='present'] .slide.is-current { opacity: 1; pointer-events: auto; 
 
 html[data-mode='print'], html[data-mode='print'] body { overflow: visible; height: auto; background: var(--ink); }
 html[data-mode='print'] .slide { break-after: page; page-break-after: always; }
+/* Printing the presenter: hidden slides leave the layout (opacity or
+   visibility would print ghosts) */
+@media print {
+  html[data-mode='present'] .slide:not(.is-current) { display: none; }
+  html[data-mode='present'] .slide { transition: none; }
+}
 
 /* Mascots and illustrations may glow past their box */
 .slide svg { overflow: visible; }

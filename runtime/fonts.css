@@ -1,0 +1,17 @@
+/* AMBAR static fonts: one file per weight, safe for PDFs. A variable font
+   (the macOS system font included) reaches a PDF as Type 3 glyphs; these do
+   not. Inter 400–800 and IBM Plex Mono 400–500, Latin subset, SIL OFL 1.1
+   (fonts/OFL.txt). Never ask for a weight that is not listed here: Chrome
+   would fake it (synthetic bold), which also prints as Type 3. */
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: block; src: url('fonts/inter-400.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 500; font-display: block; src: url('fonts/inter-500.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: block; src: url('fonts/inter-600.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: block; src: url('fonts/inter-700.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: block; src: url('fonts/inter-800.woff2') format('woff2'); }
+@font-face { font-family: 'Plex Mono'; font-style: normal; font-weight: 400; font-display: block; src: url('fonts/plex-mono-400.woff2') format('woff2'); }
+@font-face { font-family: 'Plex Mono'; font-style: normal; font-weight: 500; font-display: block; src: url('fonts/plex-mono-500.woff2') format('woff2'); }
+
+:root {
+  --font: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Plex Mono', Menlo, monospace;
+}
