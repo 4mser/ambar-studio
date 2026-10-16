@@ -8,15 +8,24 @@ Scenes import from `/@ambar/runtime/ambar.js`. The local server publishes AMBAR 
 import { video, cue } from '/@ambar/runtime/ambar.js'
 
 video({
-  width: 1920, height: 1080, fps: 30,   // defaults
+  format: 'landscape',                  // or 'post' | 'reel' | 'story' | 'square' | 'card'
+  width: 1920, height: 1080, fps: 30,   // width/height override format; defaults shown
   duration,                             // seconds; default: narration end + tail
   tail: 1.6,
-  async setup ({ stage, width, height, cues, duration }) { /* build DOM once */ },
-  render (t, { duration, cues, stage }) { /* draw frame t; depends on t only */ }
+  async setup ({ stage, width, height, format, safe, cues, duration }) { /* build DOM once */ },
+  render (t, { duration, cues, stage, safe }) { /* draw frame t; depends on t only */ }
 })
 ```
 
 The page must contain `<div id="stage">` (created if missing) and load `/@ambar/runtime/ambar.css`.
+
+| Export | Does |
+|---|---|
+| `FORMATS` | `{ landscape: 1920×1080, post: 1080×1350, reel: 1080×1920, story: 1080×1920, square: 1080×1080, card: 1200×630 }` as `{ width, height }` |
+| `safeArea(format)` | `{ top, right, bottom, left, zones: { title, content, captions } }` in px; also `ctx.safe`. A `{ width, height }` gets 5% insets |
+| `formatOf(width, height)` | the format name of a size, or `'custom'`; also `ctx.format` |
+
+The motion language (house rules, timings, which helper for what) is in `motion.md`.
 
 ## Time
 
@@ -29,7 +38,11 @@ The page must contain `<div id="stage">` (created if missing) and load `/@ambar/
 | `stagger(start, i, step = .07)` | start of the i-th item |
 | `clamp(x, a = 0, b = 1)`, `lerp(a, b, k)` | |
 | `hash(seed)` | deterministic pseudo-random in [0, 1) |
-| `ease.linear / in / out / inOut / outExpo / inOutSine / outBack / spring` | |
+| `seeded(seed)` | a seeded PRNG (mulberry32): `const rng = seeded(7); rng()` → same sequence every time; strings work as seeds |
+| `noise1(t, seed = 0)` | smooth 1D value noise in [-1, 1], one new value per unit of t |
+| `remap(t, [[tReal, tDesign], …])` | piecewise linear time remap (slow motion, speed ramps); normal speed outside the pairs |
+| `ease.linear / in / out / inOut / outQuart / outExpo / inOutSine / settle` | all end at exactly 1; `settle` is a critically damped spring with no overshoot |
+| `ease.outBack / spring` | legacy, they overshoot: never in new scenes (house style has no bounce) |
 
 ## Narration
 
@@ -43,11 +56,79 @@ The page must contain `<div id="stage">` (created if missing) and load `/@ambar/
 | `css(el, styles)` | assigns inline styles |
 | `words(el, 'Make it {count}')` | word spans; `{word}` gets `.hl` (amber) |
 | `letters(el, text)` | letter spans |
-| `rise(spans, t, a, b = ∞)` | spans rise in one by one from a, leave before b |
+| `rise(spans, t, a, b = ∞, step = .07, distance = 28, { duration = .6, blur = 8, exit = .4, exitStep = 0 })` | spans rise in one by one from a, leave before b |
 | `fadeUp(el, t, a, b = ∞)` | element fades up at a, away before b |
-| `type(el, text, t, a, rate = 28)` | typewriter; sets `textContent`, so plain text only (style the element, not the string) |
+| `revealLines(el, ['Line one', 'Line two'], t, a, step = .09, { duration = .6, until })` | mask reveal: each line slides up from 112% with a quartic ease-out; builds the masks once |
+| `scramble(el, text, t, a, d = .8, glyphs)` | left-to-right decode; `scrambleText(text, t, a, d)` is the pure version |
+| `type(el, text, t, a, rate = 28, { cursor, blink = .53 })` | typewriter; `cursor: true` (or a character) adds a caret that blinks when done; sets `textContent`, so plain text only |
+| `formatNumber(n, { locale = 'es-CL', decimals = 0, prefix, suffix })` | `1234.5` → `'1.235'`; `{ decimals: 1 }` → `'1.234,5'` |
+| `counter(t, a, d, from, to, { easing, ...formatNumber options })` | `count()` as formatted text |
 
 CSS helpers in `ambar.css`: `.layer` (absolute, full stage), `.glass` (frosted amber card), `.grain`, `.hl`.
+
+## Motion · `/@ambar/runtime/motion.js`
+
+| Function | Does |
+|---|---|
+| `sim({ reset(rng), step(dt, state, rng), draw?(state, t), dt = 1/60, fps = 30, warmup = 0, seed })` | returns `at(t)`: a stateful simulation stepped at a fixed dt up to the frame for t; replays from reset when t goes back, so any frame renders the same in any order |
+| `beats({ bpm, downbeat = 0, perBar = 4 })` | beat grid: `at(n)`, `bar(n)`, `index(t)`, `barIndex(t)`, `phase(t)`, `nearest(t)`, `pulse(t, decay = .12)` (exponential hit on each beat) |
+| `acts(grid, [['intro', 2], ['body', 4]], startBar = 0)` | acts measured in bars → `{ intro: { start, end, from, to, bars } }` |
+| `camera(t, keys, { width, height, clamp = true, fill = .8, root })` | keys `[time, scale, cx, cy]` or `[time, element or {x,y,w,h}, maxScale = 1.3]`; straight moves between final clamped framings → `{ scale, x, y, cx, cy, transform }` for a layer with the default transform-origin |
+| `framing(key, options)` | one key's final framing `{ scale, x, y }` |
+| `boxOf(el, root)` | layout box `{ x, y, w, h }` relative to root (the stage by default), unaffected by transforms |
+| `breathe(t, amount = 1, { cover = true })` | slow push and drift for still shots → `{ scale, x, y, transform }`; never shows the edge |
+| `punch(t, hits, strength = .05, { attack = .06, decay = .28 })` | impact zoom factor: rises fast, decays exponentially, never oscillates |
+| `handheld(t, seed, amount = 1)` | noise drift `{ x, y, rotate, transform }` |
+| `reversals(samples, eps)` | direction reversals per axis, for QA (numbers, arrays or objects) |
+| `smoothPath(fn, t, { sigma = .22, span = .54, step = .09 })` | gaussian-averages a keyframed position (number, array or object) so moves start and stop like a fluid |
+
+`remap`, `seeded` and `noise1` are re-exported here too.
+
+## Effects · `/@ambar/runtime/fx.js`
+
+Particles are pure functions of the index `i` and `t`: loop `i` over persistent SVG circles built once.
+
+| Function | Does |
+|---|---|
+| `dust(i, t, { w, h, speed, seed, size })` | `{ x, y, r, alpha }` floating up, wrapping |
+| `burst(i, t, { at, count, radius, seed, duration = .9, x, y })` | quint-out burst with fade |
+| `confetti(i, t, { at, x, y, seed, speed, spread, gravity, life })` | ballistic flight with a flip → `{ x, y, rotate, flip, alpha, hue }` |
+| `fountain(i, t, { from, to, x, y, … })` | continuous ballistic emission, same fields |
+| `rings(t, at, { count = 3, gap, duration, radius })` | `[{ r, alpha, width }]` expanding rings |
+| `trail(pathFn, t, n = 10, dt = .04, { radius, alpha, end, fade = .9 })` | delayed samples, shrinking and fading; fades out after `end` |
+| `morph(from, to, t, a, d, seed, { arc, stagger })` | particles flying between point sets on quadratic Béziers → `[{ x, y, p }]` |
+| `sample.polyline / line / circle / rect / grid / disc / text` | point sets `[[x, y], …]`; `text` uses a canvas (browser only) |
+| `appear(el, t, a, { duration = .5, blur = 28, scale = 1.12, until })` | the approved "appear from nothing" |
+| `scenes(t, [[el, start], …], fade = .5, { mode: 'over' \| 'through' })` | clean crossfades between scenes; `crossfade(t, at, d)` → `[out, in]` opacities |
+| `lightSweep(overlay, t, cuts, { duration = 1, alpha })` | a skewed soft band crossing the frame on each cut, opacity sin(pπ) |
+| `circleReveal(el, t, a, d = .65, { x, y })` | clip-path circle reveal |
+| `flash(el, t, at, { width = .08, alpha = .6 })` | gaussian flash |
+| `zoomThrough(el, t, a, b, { origin, scale = 5 })` | scale into a node and fade |
+| `grain(el, t, { fps = 24 })` | moves a `.grain` layer to a hashed offset each frame |
+| `motionBlur(el, vx, vy)` | directional SVG blur preset by speed in px per frame (filters injected once) |
+
+## Charts · `/@ambar/runtime/charts.js`
+
+Flat SVG in one accent hue (`color`, default amber). Each builds its shapes once inside the `<svg>` (keyed by `id`, rebuilt only if the data change) and moves attributes per frame. The drawing box is the svg's viewBox minus `pad`, or `x, y, width, height`.
+
+| Function | Does |
+|---|---|
+| `line(svg, data, t, a, d = 1.2, { area, dot, min, max, strokeWidth })` | draws itself left to right with a faint area and a head dot |
+| `sparkline(svg, data, t, a, d)` | thin line, no area |
+| `bars(svg, data, t, a, d = .65, { stagger = .05, highlight: 'peak' \| i, label })` | staggered growth; the highlighted bar takes the accent and gets a label |
+| `ring(svg, value, t, a, d = .65, { cx, cy, r, width, comet })` | progress ring by dash offset, optional dot riding the head |
+| `heat(svg, rows, t, a, d = 1, { gap, radius })` | cells (0..1) fill diagonally from the top left |
+| `scalePoints`, `pathOf`, `lengthOf`, `pointAt` | pure geometry helpers |
+
+## Captions · `/@ambar/runtime/captions.js`
+
+| Function | Does |
+|---|---|
+| `planCaptions(cues, { maxChars = 36, maxLines = 2, breakAt = .45, lead = .15, fade = .2 })` | blocks of ≤ 2 lines from cues with `words: [[word, start, end], …]` (or plain text spread over the cue), breaking at punctuation once 45% full |
+| `captions(el, t, plan, { figure(speaker, t), colors, names })` | draws the active block as a pill with an optional speaker figure and name; words go 0.3 → 1 as spoken |
+| `activeCaption(plan, t)`, `captionOpacity(block, t)`, `wordOpacity(word, t)` | the pure parts |
+| `loadEnvelope(url = 'voice/envelope.json')` | `{ fps, lines: { id: [values] } }`, or null if missing |
+| `talk(t, envelope, cues, speaker?)` | smoothed loudness 0..1 at t (7-tap triangular window, ×0.9), only during that speaker's lines; feed it to the mascot's `habla` |
 
 ## ÁMBAR
 

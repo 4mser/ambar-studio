@@ -1,0 +1,19 @@
+{
+  "title": "AMBAR · motion",
+  "voice": { "provider": "say", "name": "Samantha" },
+  "lead": 0.8,
+  "gap": 0.55,
+  "tail": 1.6,
+  "lines": [
+    { "id": "intro", "text": "Motion that settles, and never bounces." },
+    { "id": "camera", "text": "One camera move per shot, in a straight line toward the detail." },
+    { "id": "charts", "text": "Charts draw themselves in one accent color." },
+    { "id": "shape", "text": "And at the end, the particles fly into the new shape." }
+  ],
+  "sfx": [
+    { "type": "whoosh", "at": "camera-0.3", "gain": 0.12 },
+    { "type": "whoosh", "at": "charts-0.3", "gain": 0.12 },
+    { "type": "riser", "at": "shape", "gain": 0.08 },
+    { "type": "impact", "at": "shape+1.9", "gain": 0.3 }
+  ]
+}

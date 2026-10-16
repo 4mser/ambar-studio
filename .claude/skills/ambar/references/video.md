@@ -49,7 +49,8 @@ render (t, { duration }) {
 - Stage 1920×1080. Safe area: 96 px from left and right, 54 px from top and bottom.
 - Big headline 96–140 px, secondary 44–64 px, labels 24–32 px. Body text never under 28 px.
 - Keep text on calm areas: dark background or `.glass` cards. Never on top of the mascot or busy imagery.
-- Use layers (`.layer`) per beat and fade whole layers in and out with `span`.
+- Use layers (`.layer`) per beat and fade whole layers in and out with `span`, or `scenes()` from `fx.js` for clean crossfades.
+- Motion follows `motion.md`: no bounce, entrances 200–260 ms, stagger ≤ 60 ms, one camera move per shot, crossfades without blur.
 
 ## Rendering
 
@@ -71,6 +72,11 @@ In `ambar.json`: `"chapters": [{ "title": "La voz", "at": "voz" }]` (times as in
 
 ## Variants the user may ask for
 
-- **Vertical (9:16) or 4:5 for phones**: `video({ width: 1080, height: 1920 })` or 1080×1350; stack instead of side by side, headlines 64–110 px, labels 20 px or more (phones show it ~400 px wide). To keep one timeline for both cuts, read a flag from `location.search` (`?v`), switch sizes and add a class to `#stage` for the CSS; then `ambar check|render <dir> --query v` (→ `out/<name>-v.mp4`) and `index.html?player&v` on a page.
-- **Square (1:1)**: 1080×1080.
+Social sizes have names: `video({ format })` sets the size and `ctx.safe` gives the insets and zones (title, content, captions) where things go. Table in `motion.md`.
+
+- **Instagram post (4:5)**: `format: 'post'`, 1080×1350, the default for social. Title at y ≈ 200, content 400–1150, subtitles at y ≈ 1280. Labels 20 px or more (phones show it ~400 px wide).
+- **Reel (9:16)**: `format: 'reel'`; titles from y ≈ 270, nothing important below 1700. **Story**: `format: 'story'`; keep the top 250 px and bottom 400 px free. Stack instead of side by side, headlines 64–110 px.
+- **Square (1:1)**: `format: 'square'`. **Link card**: `format: 'card'`, 1200×630.
+- **One timeline, several cuts**: read a flag from `location.search` (`?v`), switch the format and add a class to `#stage` for the CSS; then `ambar check|render <dir> --query v` (→ `out/<name>-v.mp4`) and `index.html?player&v` on a page.
+- **Subtitles**: `planCaptions` + `captions` from `captions.js`, in `safe.zones.captions`; 36 characters per line for 4:5.
 - **Silent loop for a site or README**: no lines, set `duration`, render with `--gif` or `--no-audio`.
