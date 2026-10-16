@@ -19,10 +19,9 @@
     { "type": "tick", "at": "signin+3.0", "gain": 0.06, "repeat": 13, "every": 0.0625, "pitch": 3200 },
     { "type": "tap", "at": "signin+4.4", "gain": 0.3 },
     { "type": "whoosh", "at": "board-0.35", "gain": 0.1, "duration": 0.5 },
-    { "type": "tap", "at": "create+0.7", "gain": 0.3 },
-    { "type": "tap", "at": "create+1.6", "gain": 0.3 },
-    { "type": "tick", "at": "create+1.8", "gain": 0.06, "repeat": 25, "every": 0.0556, "pitch": 3200 },
-    { "type": "tap", "at": "create+3.9", "gain": 0.3 },
+    { "type": "tap", "at": "create+0.61", "gain": 0.3 },
+    { "type": "tick", "at": "create+1.07", "gain": 0.06, "repeat": 25, "every": 0.0513, "pitch": 3200 },
+    { "type": "tap", "at": "create+2.68", "gain": 0.3 },
     { "type": "riser", "at": "done-0.9", "gain": 0.08 },
     { "type": "tick", "at": "done+0.6", "gain": 0.14, "pitch": 2600 }
   ]

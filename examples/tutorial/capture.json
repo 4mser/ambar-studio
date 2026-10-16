@@ -1,6 +1,8 @@
 {
   "url": "app/index.html",
   "viewport": { "width": 1440, "height": 900, "scale": 2 },
+  "now": "2026-03-14T10:00:00",
+  "timezone": "America/New_York",
   "redact": ["[data-private]"],
   "shots": [
     {
@@ -13,23 +15,30 @@
         { "type": "#email", "text": "alex@harbor.example" },
         { "type": "#password", "text": "correct horse" },
         { "click": "#signin" },
-        { "waitFor": "#list" }
+        { "waitFor": "#list" },
+        { "wait": 800 }
       ],
       "boxes": { "add": "#add", "list": "#list", "user": "[data-private]" }
-    },
+    }
+  ],
+  "recordings": [
     {
-      "name": "dialog",
-      "actions": [{ "click": "#add" }, { "waitFor": "#title" }],
-      "boxes": { "title": "#title", "save": "#save", "dialog": ".dialog" }
-    },
-    {
-      "name": "saved",
-      "actions": [
-        { "type": "#title", "text": "Ship the new landing page" },
-        { "click": "#save" },
-        { "wait": 150 }
+      "name": "create",
+      "scale": 1,
+      "seconds": 6,
+      "settle": 1.5,
+      "prepare": [
+        { "at": 0, "type": "alex@harbor.example", "into": "#email", "every": 1 },
+        { "at": 0.8, "type": "correct horse", "into": "#password", "every": 1 },
+        { "at": 1.4, "click": "#signin" }
       ],
-      "boxes": { "task": ".task.new", "list": "#list" }
+      "actions": [
+        { "at": 0.4, "click": "text=New task" },
+        { "at": 0.9, "mark": "dialog", "boxes": { "title": "#title", "save": "#save", "dialog": ".dialog" } },
+        { "at": 1.0, "type": "Ship the new landing page", "every": 2 },
+        { "at": 3.1, "click": "text=Save task" },
+        { "at": 3.8, "mark": "saved", "boxes": { "task": ".task.new", "list": "#list" } }
+      ]
     }
   ]
 }

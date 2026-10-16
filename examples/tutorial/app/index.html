@@ -51,6 +51,21 @@
     .row { display: flex; gap: 12px; margin-top: 26px; justify-content: flex-end; }
     .row .primary { width: auto; margin: 0; padding: 0 26px; }
     .ghost { height: 50px; padding: 0 22px; border: 1.5px solid #e7e5e4; border-radius: 12px; background: #fff; color: #57534e; }
+
+    /* motion: a timer-driven sign-in, staggered tasks, the dialog popping in, the new task sliding in and a toast */
+    .primary.busy { display: flex; align-items: center; justify-content: center; gap: 10px; opacity: 0.85; }
+    .primary.busy::before { content: ''; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; animation: spin 0.8s linear infinite; }
+    .app.enter .task:not(.new) { animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .backdrop:not(.hidden) { animation: fade 0.25s ease-out both; }
+    .backdrop:not(.hidden) .dialog { animation: pop 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .task.new { animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .toast { position: fixed; right: 40px; bottom: 36px; padding: 14px 20px; border-radius: 12px; background: #1c1917; color: #fff; font-size: 15px; font-weight: 600;
+      opacity: 0; transform: translateY(16px); transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none; }
+    .toast.on { opacity: 1; transform: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+    @keyframes fade { from { opacity: 0; } }
+    @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(0.96); } }
   </style>
 </head>
 <body>
@@ -75,8 +90,8 @@
       <div class="toolbar"><button class="add" id="add">+ New task</button><button class="chip">This week</button><button class="chip">Assigned to me</button></div>
       <div class="list" id="list">
         <div class="task"><b></b><span>Review the onboarding flow</span><em>Design</em><time>Today</time></div>
-        <div class="task"><b></b><span>Prepare the quarterly numbers</span><em>Finance</em><time>Thu</time></div>
-        <div class="task"><b></b><span>Reply to the supplier quote</span><em>Ops</em><time>Fri</time></div>
+        <div class="task" style="animation-delay: 0.08s"><b></b><span>Prepare the quarterly numbers</span><em>Finance</em><time>Thu</time></div>
+        <div class="task" style="animation-delay: 0.16s"><b></b><span>Reply to the supplier quote</span><em>Ops</em><time>Fri</time></div>
       </div>
     </main>
   </section>
@@ -89,17 +104,33 @@
     </div>
   </div>
 
+  <div class="toast" id="toast">Task saved</div>
+
   <script>
     const $ = (id) => document.getElementById(id)
-    $('signin').onclick = () => { $('login').classList.add('hidden'); $('board').classList.remove('hidden') }
-    $('add').onclick = () => $('dialog').classList.remove('hidden')
+    // signing in takes a moment (a timer stands in for the server)
+    $('signin').onclick = () => {
+      $('signin').classList.add('busy')
+      $('signin').textContent = 'Signing in…'
+      setTimeout(() => {
+        $('login').classList.add('hidden')
+        $('board').classList.remove('hidden')
+        $('board').classList.add('enter')
+      }, 700)
+    }
+    $('add').onclick = () => { $('dialog').classList.remove('hidden'); $('title').focus() }
     $('save').onclick = () => {
+      const title = $('title').value || 'Untitled'
+      // a write: ambar capture blocks it, so recording never changes real data
+      fetch('api/tasks', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ title }) }).catch(() => {})
       const task = document.createElement('div')
       task.className = 'task new'
       task.innerHTML = `<b></b><span></span><em>Product</em><time>Today</time>`
-      task.querySelector('span').textContent = $('title').value || 'Untitled'
+      task.querySelector('span').textContent = title
       $('list').prepend(task)
       $('dialog').classList.add('hidden')
+      $('toast').classList.add('on')
+      setTimeout(() => $('toast').classList.remove('on'), 2200)
     }
   </script>
 </body>

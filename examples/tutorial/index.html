@@ -14,7 +14,7 @@
     .step { display: flex; align-items: center; gap: 18px; font-size: 26px; font-weight: 600; color: rgba(255, 244, 224, 0.4); }
     .step b { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 50%; font: 700 18px var(--mono);
       border: 2px solid rgba(255, 210, 122, 0.25); color: rgba(255, 244, 224, 0.5); }
-    #mascot { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
+    #mascot { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; will-change: transform; }
     .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: rgba(255, 210, 122, 0.08); }
     .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--resin), var(--amber)); }
   </style>

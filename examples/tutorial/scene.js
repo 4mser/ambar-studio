@@ -1,8 +1,10 @@
 // A product tutorial over real captures of the Harbor demo app
-// (ambar capture examples/tutorial). The camera, the cursor, the typing and
-// the spotlights all hang off the narration cues of ambar.json.
-import { video, cue, css, ease, fadeUp, keys, progress, span, mascot, words, rise, $ } from '/@ambar/runtime/ambar.js'
-import { loadShots, screencast } from '/@ambar/runtime/screen.js'
+// (ambar capture examples/tutorial): stills for signing in and the board, and
+// a clip of the app recorded in motion for creating the task. The camera, the
+// cursor, the typing and the spotlights all hang off the narration cues of
+// ambar.json; the cursor clicks where and when the recording clicked.
+import { video, cue, css, ease, fadeUp, progress, span, mascot, words, rise, $ } from '/@ambar/runtime/ambar.js'
+import { loadClips, loadShots, screencast } from '/@ambar/runtime/screen.js'
 
 const STEPS = ['Sign in', 'Find your board', 'Create a task', 'Check it']
 let sc, title
@@ -10,9 +12,10 @@ let sc, title
 video({
   async setup ({ stage }) {
     const shots = await loadShots()
-    sc = screencast(stage, shots, { device: 'laptop', width: 1180, url: 'harbor.example/board' })
+    const { clips } = await loadClips()
+    sc = screencast(stage, { ...shots, clips }, { device: 'laptop', width: 1180, url: 'harbor.example/board' })
     css(sc.root, { left: '640px', top: '128px' })
-    await Promise.all(Object.values(sc.images).map((img) => img.decode()))
+    await sc.ready()
 
     $('#steps').innerHTML = STEPS.map((s, i) => `<div class="step"><b>${i + 1}</b><span>${s}</span></div>`).join('')
     title = words($('#title'), 'Create your {first} task')
@@ -25,12 +28,15 @@ video({
     const create = cue('create', 16.6, 3)
     const done = cue('done', 23.3, 3.4)
 
-    // Which shot is on screen
-    const showDialog = create.start + 0.9
-    const showSaved = create.start + 4.2
-    sc.show(t, [[0, 'login'], [signin.start + 4.6, 'board'], [showDialog, 'dialog'], [showSaved, 'saved']])
+    // The recorded clip plays from just after the create cue, 1.3× faster
+    const clipAt = create.start + 0.3
+    const rate = 1.3
+    const scene = (c) => clipAt + c / rate
+    const [newTask, saveTask] = sc.clips.create.taps.map(([c, x, y]) => [scene(c), [x, y]])
+    sc.show(t, [[0, 'login'], [signin.start + 4.6, 'board'], [clipAt, 'create']])
+    sc.clip('create', t - clipAt, { rate, taps: false })
 
-    // Camera: [time, zoom, target]; targets are "shot.box" or [x, y] in app px
+    // Camera: [time, zoom, target]; targets are "shot.box", "clip.mark.box" or [x, y] in app px
     sc.camera(t, [
       [0, 1, [720, 450]],
       [signin.start, 1, [720, 450]],
@@ -40,15 +46,15 @@ video({
       [board.start + 0.4, 1, [720, 450]],
       [board.start + 1.0, 1.35, [820, 300]],
       [create.start, 1.35, [820, 300]],
-      [create.start + 0.5, 1.6, 'board.add'],
-      [showDialog + 0.2, 1.6, 'dialog.dialog'],
-      [showSaved, 1.6, 'dialog.dialog'],
-      [showSaved + 0.7, 1.3, 'saved.task'],
-      [duration, 1.3, 'saved.task']
+      [newTask[0] - 0.1, 1.6, 'board.add'],
+      [newTask[0] + 0.5, 1.6, 'create.dialog.dialog'],
+      [saveTask[0] + 0.2, 1.6, 'create.dialog.dialog'],
+      [saveTask[0] + 0.9, 1.3, 'create.saved.task'],
+      [duration, 1.3, 'create.saved.task']
     ])
 
-    // Cursor and clicks
-    const clicks = [signin.start + 0.9, signin.start + 2.9, signin.start + 4.4, create.start + 0.7, create.start + 1.6, create.start + 3.9]
+    // Cursor: signing in over the stills, then the clicks of the recording
+    const clicks = [signin.start + 0.9, signin.start + 2.9, signin.start + 4.4, newTask[0], saveTask[0]]
     sc.cursor(t, [
       [signin.start + 0.2, [1100, 760]],
       [signin.start + 0.85, 'login.email'],
@@ -57,26 +63,25 @@ video({
       [signin.start + 3.9, 'login.password'],
       [signin.start + 4.35, 'login.signin'],
       [create.start, [900, 300]],
-      [create.start + 0.65, 'board.add'],
-      [create.start + 1.0, 'board.add'],
-      [create.start + 1.55, 'dialog.title'],
-      [create.start + 3.4, 'dialog.title'],
-      [create.start + 3.85, 'dialog.save'],
-      [create.start + 4.3, [1180, 520]]
+      [newTask[0] - 0.05, newTask[1]],
+      [newTask[0] + 0.35, newTask[1]],
+      [newTask[0] + 0.8, [860, 470]],
+      [saveTask[0] - 0.5, [860, 470]],
+      [saveTask[0] - 0.05, saveTask[1]],
+      [saveTask[0] + 0.4, [1180, 620]]
     ], clicks)
 
-    // Typing over the empty fields of the captures
+    // Typing over the empty fields of the sign-in still (the clip types for real)
     sc.type(t, { box: 'login.email', text: 'alex@harbor.example', at: signin.start + 1.1, until: signin.start + 4.6 })
     sc.type(t, { box: 'login.password', text: 'correct horse', at: signin.start + 3.0, until: signin.start + 4.6, mask: true })
-    sc.type(t, { box: 'dialog.title', text: 'Ship the new landing page', at: create.start + 1.8, rate: 18, until: showSaved })
 
     // Spotlights and callouts
     sc.clear()
     sc.spotlight(t, { box: 'board.list', from: board.start + 1.0, to: board.start + 3.0 })
     sc.spotlight(t, { box: 'board.user', from: board.start + 3.0, to: create.start - 0.2, pad: 8 })
     sc.callout(t, { box: 'board.user', text: 'Private data is blurred', from: board.start + 3.2, to: create.start - 0.2, side: 'bottom' })
-    sc.spotlight(t, { box: 'saved.task', from: done.start + 0.4, to: duration + 1 })
-    sc.callout(t, { box: 'saved.task', text: 'Your new task', from: done.start + 0.6, to: duration + 1, side: 'bottom' })
+    sc.ring(t, { box: 'create.saved.task', from: done.start + 0.4, to: duration + 1 })
+    sc.callout(t, { box: 'create.saved.task', text: 'Your new task', from: done.start + 0.6, to: duration + 1, side: 'bottom' })
 
     // Device enters, lesson text and steps on the left
     const enter = ease.out(progress(t, 0.1, 1.1))

@@ -1,0 +1,98 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "mobile": false
+  },
+  "scale": 1,
+  "clips": {
+    "create": {
+      "name": "create",
+      "mode": "virtual",
+      "fps": 30,
+      "frames": 180,
+      "seconds": 6,
+      "dir": "captures/create",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "mobile": false
+      },
+      "scale": 1,
+      "safeArea": null,
+      "now": "2026-03-14T10:00:00",
+      "timezone": "America/New_York",
+      "firstChange": 0.4,
+      "taps": [
+        [
+          0.4,
+          346,
+          113
+        ],
+        [
+          3.1,
+          883,
+          524
+        ]
+      ],
+      "drags": [],
+      "keys": [],
+      "marks": [
+        [
+          0.9,
+          "dialog"
+        ],
+        [
+          3.8,
+          "saved"
+        ]
+      ],
+      "boxes": {
+        "dialog": {
+          "t": 0.9,
+          "boxes": {
+            "title": {
+              "x": 494,
+              "y": 425,
+              "w": 452,
+              "h": 48
+            },
+            "save": {
+              "x": 820,
+              "y": 499,
+              "w": 126,
+              "h": 50
+            },
+            "dialog": {
+              "x": 460,
+              "y": 318,
+              "w": 520,
+              "h": 265
+            }
+          }
+        },
+        "saved": {
+          "t": 3.8,
+          "boxes": {
+            "task": {
+              "x": 284,
+              "y": 159,
+              "w": 1112,
+              "h": 61
+            },
+            "list": {
+              "x": 284,
+              "y": 159,
+              "w": 1112,
+              "h": 280
+            }
+          }
+        }
+      },
+      "blocked": [
+        "POST /app/api/tasks"
+      ],
+      "mocked": []
+    }
+  }
+}
