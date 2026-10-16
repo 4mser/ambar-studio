@@ -103,7 +103,7 @@ video({
     $('#s3').querySelector('.kicker').style.opacity = 1
     rise(T.t3, t, s3[0] + 0.1, s3[1])
     T.cards.forEach((card, i) => {
-      const k = ease.outBack(progress(t, sync.start + 0.3 + i * 0.35, 0.7))
+      const k = ease.settle(progress(t, sync.start + 0.3 + i * 0.35, 0.7))
       const o = 1 - ease.inOut(progress(t, s3[1] - 0.45, 0.45))
       css(card, { opacity: Math.min(1, k) * o, transform: `translateY(${(1 - k) * 80}px) scale(${0.94 + 0.06 * k})` })
     })
@@ -114,7 +114,7 @@ video({
     rise(T.t4, t, s4[0] + 0.1, s4[1])
     T.outs.forEach((out, i) => {
       const a = outputs.start + 0.4 + i * 0.5
-      const k = ease.outBack(progress(t, a, 0.6))
+      const k = ease.settle(progress(t, a, 0.6))
       const o = 1 - ease.inOut(progress(t, s4[1] - 0.45, 0.45))
       const float = Math.sin(t * 1.4 + i * 1.3) * 8
       css(out, { opacity: Math.min(1, k) * o, transform: `translateY(${(1 - k) * 70 + float}px) rotate(${(i - 1) * (1 - k) * 6}deg)` })
