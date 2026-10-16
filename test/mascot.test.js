@@ -52,7 +52,7 @@ test('ÁMBAR output is stable: same options, same string, ids included', () => {
   const digest = (s) => createHash('sha1').update(s).digest('hex').slice(0, 12)
   assert.equal(digest(ambar(o)), 'd844edb792c0')
   assert.equal(digest(ambar({ x: 960, y: 540, R: 120, t: 0, expr: 'sorprendida' })), 'd13c72308a43')
-  assert.equal(digest(ambar({ x: 200, y: 200, R: 80, t: 2, expression: 'sad', talk: 0.7 })), '289bd7663002')
+  assert.equal(digest(ambar({ x: 200, y: 200, R: 80, t: 2, expression: 'sad', talk: 0.7 })), 'f883e9625a24')
 })
 
 test('every character gets its own id prefix, and ids name their content', () => {

@@ -1,0 +1,17 @@
+{
+  "title": "AMBAR · family",
+  "voice": { "provider": "say", "name": "Samantha" },
+  "lead": 2.2,
+  "gap": 1,
+  "tail": 2.4,
+  "lines": [
+    { "id": "ambar", "text": "Meet the family. One gel body, the same eyes, a colour each." },
+    { "id": "sol", "text": "I'm Sol. My orbs circle me and melt back into my body." },
+    { "id": "mint", "text": "And I'm Mint. My coin spins above my head, never over my face." }
+  ],
+  "sfx": [
+    { "type": "whoosh", "at": 0.4, "gain": 0.1, "from": 300, "to": 3000 },
+    { "type": "whoosh", "at": 0.9, "gain": 0.1, "from": 300, "to": 3000 },
+    { "type": "tick", "at": "mint+0.6", "gain": 0.08, "repeat": 3, "every": 0.12, "pitch": 2600 }
+  ]
+}

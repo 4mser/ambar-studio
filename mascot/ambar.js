@@ -443,7 +443,7 @@
       const layers = accessory(ctx) ?? {}
       const masked = sheet.accessory === 'orbs' || (layers.blobs && layers.blobs.length > 0)
 
-      let h = `<defs><radialGradient id="${id}h"><stop offset="0" stop-color="${C.halo}" stop-opacity="${talk > 0.01 ? (0.5 + 0.2 * talk).toFixed(3) : '.5'}"/><stop offset="1" stop-color="${C.halo}" stop-opacity="0"/></radialGradient>`
+      let h = `<defs><radialGradient id="${id}h"><stop offset="0" stop-color="${C.halo}" stop-opacity=".5"/><stop offset="1" stop-color="${C.halo}" stop-opacity="0"/></radialGradient>`
       h += `<filter id="${id}b" filterUnits="userSpaceOnUse" x="${x - R * 3}" y="${y - R * 3}" width="${R * 6}" height="${R * 6}"><feGaussianBlur stdDeviation="${R * 0.06}"/></filter>`
       h += `<filter id="${id}e" filterUnits="userSpaceOnUse" x="${x - R * 2}" y="${y - R * 2}" width="${R * 4}" height="${R * 4}"><feGaussianBlur stdDeviation="${R * 0.07}"/></filter>`
       h += `</defs><g opacity="${s.opacity}" transform="translate(${x} ${y + R}) scale(${1 + stretch * 0.1} ${1 - stretch * 0.1}) translate(${-x} ${-y - R})">`
@@ -454,6 +454,7 @@
       // one material: the colour darkens with depth toward a core that follows the gaze
       const nx = x + gaze[0] * R * 0.06 + (turn ? Math.sin(yaw) * R * 0.1 : 0)
       const ny = y + dy + R * 0.08 + gaze[1] * R * 0.05
+      // the voice lights the gel from inside (the halo stays put: a pulsing halo reads as a size pulse)
       const glow = talk > 0.01 ? (0.22 + 0.16 * talk).toFixed(3) : '.22'
       const rim = talk > 0.01 ? (0.35 + 0.12 * talk).toFixed(3) : '.35'
       if (!masked) {

@@ -1,0 +1,20 @@
+{
+  "cues": {
+    "ambar": {
+      "start": 2.2,
+      "duration": 4.2,
+      "end": 6.4
+    },
+    "sol": {
+      "start": 7.4,
+      "duration": 3.388,
+      "end": 10.788
+    },
+    "mint": {
+      "start": 11.788,
+      "duration": 4.018,
+      "end": 15.806
+    }
+  },
+  "end": 15.806
+}
