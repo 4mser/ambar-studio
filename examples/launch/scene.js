@@ -4,6 +4,10 @@
 import {
   video, cue, words, letters, rise, fadeUp, span, keys, ease, progress, hash, mascot, css, $
 } from '/@ambar/runtime/ambar.js'
+import { loadEnvelope, talk } from '/@ambar/runtime/captions.js'
+
+// how loud the narration is, frame by frame: ÁMBAR talks with the real voice
+let envelope = null
 
 const CODE = [
   ['<span class="k">video</span>({', 'video({'],
@@ -26,7 +30,8 @@ const OUTPUTS = [['MP4', 'Video', '1920×1080 · 30 fps'], ['PDF', 'Slides', 'on
 const T = {}
 
 video({
-  setup ({ stage }) {
+  async setup ({ stage }) {
+    envelope = await loadEnvelope()
     T.t1 = letters($('#t1'), 'AMBAR')
     T.t2 = words($('#t2'), 'Every frame is a {function} of {time}.')
     T.t3 = words($('#t3'), 'The narration {drives} the timeline.')
@@ -43,7 +48,7 @@ video({
     T.outs = [...$('#outputs').children]
   },
 
-  render (t, { duration }) {
+  render (t, { duration, cues }) {
     const hello = cue('hello', 1.4, 1.2)
     const time = cue('time', 3.4, 4.6)
     const sync = cue('sync', 8.8, 4.6)
@@ -76,7 +81,7 @@ video({
       x: mx, y: my, R: mr, t,
       expr: happy ? 'feliz' : 'normal',
       estira: squash,
-      habla: [hello, time, sync, outputs, outro].some((c) => t > c.start && t < c.end) ? 0.6 + 0.4 * Math.sin(t * 18) : 0,
+      habla: talk(t, envelope, cues),
       mira: t > s2[0] && t < s5[0] ? [0.9, -0.4] : [0, 0],
       parpadeo: Math.max(0, 1 - Math.abs((t % 3.7) - 0.1) / 0.09),
       chispas: span(t, s1[0] + 0.6, s1[1]) + span(t, s5[0] + 1, duration) * 0.8
