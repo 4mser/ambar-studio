@@ -1,6 +1,7 @@
-/* ÁMBAR · la mascota: gel translúcido con un núcleo oscuro brillante
-   y dos ojos de luz. La forma fluctúa (armónicos lentos) y nunca es un círculo. Enojada: el gel se oscurece hacia rojo y los ojos
-   se inclinan. Devuelve un string SVG; se dibuja por cuadro. */
+/* ÁMBAR, la mascota de AMBAR Studio: gel ámbar translúcido con un núcleo de miel oscura y dos ojos
+   de cápsula con pestañitas. La forma fluctúa (armónicos lentos) y nunca es un círculo. Las
+   expresiones se mezclan por pesos y el gel se tiñe hacia rojo (rojo) o azul (triste).
+   Devuelve un string SVG; se dibuja por cuadro, así que se mueve con la escena. */
 let _midB = 0;
 const mezclaB = (a, b, k) => { const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), A = p(a), B = p(b);
   return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * k).toString(16).padStart(2, '0')).join(''); };
@@ -27,12 +28,16 @@ const FORMAS_B = {
   triste:      { base: .72, lob: [[112, .34, .34], [68, .34, .34], [180, .2, .42], [0, .2, .42], [-90, .08, .5]] },
   dormida:     { base: .66, lob: [[0, .42, .5], [180, .42, .5], [-90, .06, .5], [60, .1, .5], [120, .1, .5]] },
 };
-/* mezclaB de formas: pesos {expr: w}; más un estirón según la velocidad (cola hacia atrás) */
+/* mezclaB de formas: pesos {expr: w}. El contorno es base + suma de lóbulos, así que mezclar dos
+   expresiones es sumar los lóbulos de cada una escalados por su peso. Promediar los ÁNGULOS de los
+   lóbulos (como se hacía antes) daba saltos de ~40 px cuando dos lóbulos casi opuestos pesaban igual.
+   Más un estirón según la velocidad (cola hacia atrás). */
 function formaMezclaB(pesos, t, vel = [0, 0]){
-  const L = [0, 1, 2, 3, 4].map(i => { let a = 0, ax = 0, ay = 0, len = 0, sg = 0, W = 0;
-    for (const [k, w] of Object.entries(pesos)){ if (!w) continue; const [ang, l, s] = FORMAS_B[k].lob[i]; ax += Math.cos(ang * Math.PI / 180) * w; ay += Math.sin(ang * Math.PI / 180) * w; len += l * w; sg += s * w; W += w; }
-    a = Math.atan2(ay, ax); return [a + Math.sin(t * .6 + i * 1.9) * .08, len / W * (1 + .08 * Math.sin(t * .9 + i * 1.7)), sg / W]; });
-  let base = 0, W = 0; for (const [k, w] of Object.entries(pesos)){ base += FORMAS_B[k].base * w; W += w; }
+  const E = Object.entries(pesos).filter(([, w]) => w > 0); let W = 0; for (const [, w] of E) W += w;
+  if (!W) return formaMezclaB({ normal: 1 }, t, vel);
+  let base = 0; const L = [];
+  E.forEach(([k, w]) => { base += FORMAS_B[k].base * w;
+    FORMAS_B[k].lob.forEach(([ang, l, s], i) => L.push([ang * Math.PI / 180 + Math.sin(t * .6 + i * 1.9) * .08, l * w / W * (1 + .08 * Math.sin(t * .9 + i * 1.7)), s])); });
   const v = Math.hypot(vel[0], vel[1]); if (v > 1) L.push([Math.atan2(-vel[1], -vel[0]), Math.min(.3, v / 1500), .42]);
   return { base: base / W, L };
 }
