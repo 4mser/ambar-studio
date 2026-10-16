@@ -265,7 +265,7 @@ async function checkVideo (project, server, report, dir, at) {
     await draw(t)
     const where = `t=${t.toFixed(2)}`
     const before = report.issues.length
-    for (const i of await page.evaluate(auditLayout, { minFont: Math.round(comp.height / 72), balance: 'strict' })) report.add(i.level, where, i.message)
+    for (const i of await page.evaluate(auditLayout, { minFont: Math.round(Math.min(comp.width, comp.height) / 72), balance: 'strict' })) report.add(i.level, where, i.message)
     const file = join(dir, `t-${t.toFixed(2)}.png`)
     await page.screenshot({ path: file })
     tiles.push({ src: jpeg(await page.screenshot({ type: 'jpeg', quality: 72 })), label: where, problems: report.issues.length - before })
