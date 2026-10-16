@@ -1,0 +1,35 @@
+{
+  "url": "app/index.html",
+  "viewport": { "width": 1440, "height": 900, "scale": 2 },
+  "redact": ["[data-private]"],
+  "shots": [
+    {
+      "name": "login",
+      "boxes": { "email": "#email", "password": "#password", "signin": "#signin", "card": ".card" }
+    },
+    {
+      "name": "board",
+      "actions": [
+        { "type": "#email", "text": "alex@harbor.example" },
+        { "type": "#password", "text": "correct horse" },
+        { "click": "#signin" },
+        { "waitFor": "#list" }
+      ],
+      "boxes": { "add": "#add", "list": "#list", "user": "[data-private]" }
+    },
+    {
+      "name": "dialog",
+      "actions": [{ "click": "#add" }, { "waitFor": "#title" }],
+      "boxes": { "title": "#title", "save": "#save", "dialog": ".dialog" }
+    },
+    {
+      "name": "saved",
+      "actions": [
+        { "type": "#title", "text": "Ship the new landing page" },
+        { "click": "#save" },
+        { "wait": 150 }
+      ],
+      "boxes": { "task": ".task.new", "list": "#list" }
+    }
+  ]
+}

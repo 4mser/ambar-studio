@@ -23,6 +23,7 @@ Everything in this README was rendered by AMBAR itself.
 | **A real mix** | Voice on its cues, music that ducks under the voice, and synthesized sound effects. No samples, no licenses. |
 | **A studio** | A timeline in the browser with cue markers, frame stepping, safe areas and the mix in sync. |
 | **Slides and documents** | Decks with a browser presenter and a PDF per deck; A4 documents exported print-exact. |
+| **Product tutorials** | Captures of a real app with private data blurred, then camera, cursor, typing and callouts pointed at elements by name. |
 | **ÁMBAR** | The mascot, drawn as SVG on every frame, with expressions, gaze, blinking and sparkles. |
 
 ### `// 02` Quick start
@@ -111,7 +112,38 @@ Recordings are cached by text and voice, so only changed lines are recorded agai
   <img src="docs/assets/studio.png" width="100%" alt="AMBAR Studio with the launch video, safe areas on and five narration cues on the timeline">
 </p>
 
-### `// 06` Slides and documents
+### `// 06` Tutorials over real apps
+
+`ambar capture` walks through a web app with headless Chrome, following the steps in `capture.json`, and saves a screenshot per step plus the position of every element you name. Anything matching `redact` is blurred in the browser before the screenshot, so private data never reaches a PNG.
+
+```json
+{
+  "url": "app/index.html",
+  "redact": ["[data-private]"],
+  "shots": [
+    { "name": "login", "boxes": { "email": "#email", "signin": "#signin" } },
+    { "name": "board", "actions": [{ "type": "#email", "text": "alex@harbor.example" }, { "click": "#signin" }, { "waitFor": "#list" }],
+      "boxes": { "list": "#list", "user": "[data-private]" } }
+  ]
+}
+```
+
+`runtime/screen.js` turns those captures into a screencast inside a laptop, browser or phone frame. Camera, cursor, typing, spotlights and callouts are functions of time like everything else, and they point at elements by name (`'login.email'`), not by pixel.
+
+```js
+const sc = screencast(stage, await loadShots(), { device: 'laptop' })
+sc.show(t, [[0, 'login'], [signin.start + 4.6, 'board']])
+sc.camera(t, [[signin.start, 1, [720, 450]], [signin.start + 0.6, 1.55, 'login.card']])
+sc.cursor(t, [[signin.start + 0.85, 'login.email'], [signin.start + 4.35, 'login.signin']], clicks)
+sc.type(t, { box: 'login.email', text: 'alex@harbor.example', at: signin.start + 1.1 })
+sc.callout(t, { box: 'board.user', text: 'Private data is blurred', from: board.start + 3.2 })
+```
+
+<p align="center">
+  <img src="docs/assets/tutorial.png" width="100%" alt="Four moments of the Harbor tutorial: typing the email, the board with the blurred address, the new task dialog and the saved task">
+</p>
+
+### `// 07` Slides and documents
 
 Every `<section class="slide">` is a slide. Open the HTML to present it (arrows, space, `F` for fullscreen), or export it:
 
@@ -128,7 +160,7 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
   <img src="docs/assets/report.png" width="78%" alt="Two A4 pages of the sample report: a dark cover with ÁMBAR and a light page with a commands table">
 </p>
 
-### `// 07` Commands
+### `// 08` Commands
 
 | Command | What it does |
 |---|---|
@@ -138,27 +170,28 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
 | `ambar render <project> --gif out.gif` | A looping GIF (`--from`, `--to`, `--gif-fps`, `--width`) |
 | `ambar voice <project>` | Records the narration and writes the cues |
 | `ambar mix <project>` | Narration, music and effects → `out/mix.wav` |
+| `ambar capture <project>` | Screenshots and element boxes of an app, from `capture.json` |
 | `ambar slides <deck.html>` | PDF and PNGs of a deck |
 | `ambar doc <doc.html>` | A4 PDF of a document |
 | `ambar new <dir>` | A new video, `--deck` or `--doc` from a template |
 
-### `// 08` How it works
+### `// 09` How it works
 
 ```
 bin/ambar.js            CLI
-src/commands/           studio · render · voice · mix · slides · doc · new
+src/commands/           studio · render · voice · mix · capture · slides · doc · new
 src/lib/                local server, headless Chrome, ffmpeg, timeline, synthesized effects, WAV
-runtime/                what scenes import: ambar.js (time, easing, text) · slides · doc styles
+runtime/                what scenes import: ambar.js (time, easing, text) · screen.js (screencasts) · slides · doc styles
 studio/                 the timeline studio
 mascot/ambar.js         ÁMBAR, an SVG per frame
-examples/               launch video · hero · deck · report
+examples/               launch video · hero · tutorial · deck · report
 ```
 
 A local server publishes the project at `/` and AMBAR at `/@ambar/`, so a scene imports the runtime the same way wherever it lives. `ambar render` records the narration, opens the scene in headless Chrome, calls `render(f / fps)` for every frame, streams the screenshots into ffmpeg (H.264, CRF 17), mixes the audio and muxes both.
 
 Measured on an Apple M5 Pro: the 24-second 1080p launch video, with five narration lines and twelve effects, renders in 28.7 seconds.
 
-### `// 09` ÁMBAR
+### `// 10` ÁMBAR
 
 ÁMBAR is the mascot: amber gel with a dark honey core and capsule eyes. `mascot()` draws it as SVG for the current frame, so it moves with the scene and renders like everything else.
 
@@ -168,9 +201,9 @@ mascot({ x: 960, y: 520, R: 180, t, expr: 'feliz', mira: [0.4, 0], chispas: 0.8 
 
 Expressions: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`, `dormida`, or a blend of them with `pesos`.
 
-### `// 10` Development
+### `// 11` Development
 
 ```bash
-npm test                # runtime math, timeline, effects and WAV
+npm test                # runtime math, timeline, effects, WAV and capture
 npm run readme-assets   # re-renders every image in this README
 ```

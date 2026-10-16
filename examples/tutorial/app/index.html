@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Harbor · tasks</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'Inter', 'Segoe UI', sans-serif; background: #f6f4f1; color: #1c1917; height: 100vh; }
+    button { font: inherit; cursor: pointer; }
+    .hidden { display: none !important; }
+
+    /* sign in */
+    .login { height: 100vh; display: grid; place-items: center; background: linear-gradient(160deg, #f6f4f1, #ece7e1); }
+    .card { width: 440px; padding: 44px; border-radius: 22px; background: #fff; box-shadow: 0 30px 60px -30px rgba(40, 30, 20, 0.35); }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 22px; letter-spacing: -0.02em; }
+    .logo i { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #2f6df6, #6aa6ff); }
+    .card h1 { margin: 28px 0 6px; font-size: 28px; letter-spacing: -0.03em; }
+    .card p { color: #78716c; font-size: 15px; }
+    label { display: block; margin: 22px 0 8px; font-size: 13px; font-weight: 600; color: #57534e; }
+    input { width: 100%; height: 48px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #e7e5e4; font: 500 17px -apple-system, 'Inter', sans-serif; outline: none; }
+    input:focus { border-color: #2f6df6; box-shadow: 0 0 0 4px rgba(47, 109, 246, 0.15); }
+    .primary { width: 100%; height: 50px; margin-top: 28px; border: 0; border-radius: 12px; background: #2f6df6; color: #fff; font-weight: 650; font-size: 16px; }
+
+    /* board */
+    .app { display: grid; grid-template-columns: 240px 1fr; height: 100vh; }
+    .side { padding: 28px 20px; background: #1c1917; color: #e7e5e4; }
+    .side .logo { color: #fff; }
+    .nav { margin-top: 36px; display: grid; gap: 4px; }
+    .nav a { padding: 10px 12px; border-radius: 10px; font-size: 15px; color: #a8a29e; text-decoration: none; }
+    .nav a.on { background: #292524; color: #fff; }
+    .main { padding: 30px 44px; overflow: hidden; }
+    .top { display: flex; align-items: center; justify-content: space-between; }
+    .top h2 { font-size: 30px; letter-spacing: -0.03em; }
+    .user { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #57534e; }
+    .user i { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #fcd34d); }
+    .toolbar { display: flex; gap: 12px; margin-top: 26px; }
+    .add { height: 44px; padding: 0 20px; border: 0; border-radius: 12px; background: #2f6df6; color: #fff; font-weight: 650; }
+    .chip { height: 44px; padding: 0 16px; border-radius: 12px; border: 1.5px solid #e7e5e4; background: #fff; color: #57534e; }
+    .list { margin-top: 24px; display: grid; gap: 12px; }
+    .task { display: grid; grid-template-columns: 28px 1fr auto auto; align-items: center; gap: 14px; padding: 18px 20px; border-radius: 14px; background: #fff; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04); }
+    .task b { width: 22px; height: 22px; border-radius: 7px; border: 2px solid #d6d3d1; }
+    .task span { font-size: 16px; font-weight: 550; }
+    .task em { font-style: normal; font-size: 13px; padding: 5px 10px; border-radius: 999px; background: #eef2ff; color: #3b5bdb; }
+    .task time { font-size: 13px; color: #a8a29e; }
+    .task.new { box-shadow: 0 0 0 2px #2f6df6; }
+
+    /* new task dialog */
+    .backdrop { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(28, 25, 23, 0.4); }
+    .dialog { width: 520px; padding: 34px; border-radius: 22px; background: #fff; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.5); }
+    .dialog h3 { font-size: 24px; letter-spacing: -0.02em; }
+    .row { display: flex; gap: 12px; margin-top: 26px; justify-content: flex-end; }
+    .row .primary { width: auto; margin: 0; padding: 0 26px; }
+    .ghost { height: 50px; padding: 0 22px; border: 1.5px solid #e7e5e4; border-radius: 12px; background: #fff; color: #57534e; }
+  </style>
+</head>
+<body>
+  <section class="login" id="login">
+    <div class="card">
+      <div class="logo"><i></i>Harbor</div>
+      <h1>Welcome back</h1>
+      <p>Sign in to see your board.</p>
+      <label for="email">Work email</label><input id="email" autocomplete="off">
+      <label for="password">Password</label><input id="password" type="password">
+      <button class="primary" id="signin">Sign in</button>
+    </div>
+  </section>
+
+  <section class="app hidden" id="board">
+    <aside class="side">
+      <div class="logo"><i></i>Harbor</div>
+      <nav class="nav"><a class="on">My board</a><a>Team</a><a>Calendar</a><a>Reports</a></nav>
+    </aside>
+    <main class="main">
+      <div class="top"><h2>My board</h2><div class="user"><span data-private>alex.morgan@harbor.example</span><i></i></div></div>
+      <div class="toolbar"><button class="add" id="add">+ New task</button><button class="chip">This week</button><button class="chip">Assigned to me</button></div>
+      <div class="list" id="list">
+        <div class="task"><b></b><span>Review the onboarding flow</span><em>Design</em><time>Today</time></div>
+        <div class="task"><b></b><span>Prepare the quarterly numbers</span><em>Finance</em><time>Thu</time></div>
+        <div class="task"><b></b><span>Reply to the supplier quote</span><em>Ops</em><time>Fri</time></div>
+      </div>
+    </main>
+  </section>
+
+  <div class="backdrop hidden" id="dialog">
+    <div class="dialog">
+      <h3>New task</h3>
+      <label for="title">Title</label><input id="title" autocomplete="off">
+      <div class="row"><button class="ghost">Cancel</button><button class="primary" id="save">Save task</button></div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id)
+    $('signin').onclick = () => { $('login').classList.add('hidden'); $('board').classList.remove('hidden') }
+    $('add').onclick = () => $('dialog').classList.remove('hidden')
+    $('save').onclick = () => {
+      const task = document.createElement('div')
+      task.className = 'task new'
+      task.innerHTML = `<b></b><span></span><em>Product</em><time>Today</time>`
+      task.querySelector('span').textContent = $('title').value || 'Untitled'
+      $('list').prepend(task)
+      $('dialog').classList.add('hidden')
+    }
+  </script>
+</body>
+</html>

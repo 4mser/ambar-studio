@@ -23,6 +23,7 @@ Todo lo que ves en este README lo renderizó AMBAR.
 | **Una mezcla de verdad** | La voz en sus marcas, música que baja cuando entra la voz y efectos sintetizados. Sin muestras ni licencias. |
 | **Un estudio** | Una línea de tiempo en el navegador con marcas de narración, avance cuadro a cuadro, zonas seguras y la mezcla sincronizada. |
 | **Presentaciones y documentos** | Decks con presentador en el navegador y un PDF por deck; documentos A4 exportados tal cual se diseñaron. |
+| **Tutoriales de producto** | Capturas de una app real con los datos privados difuminados, y luego cámara, cursor, tecleo y anotaciones que apuntan a los elementos por nombre. |
 | **ÁMBAR** | La mascota, dibujada en SVG en cada cuadro, con expresiones, mirada, parpadeo y chispas. |
 
 ### `// 02` Para empezar
@@ -111,7 +112,38 @@ Las grabaciones quedan en caché por texto y voz, así que solo se vuelven a gra
   <img src="docs/assets/studio.png" width="100%" alt="AMBAR Studio con el video de lanzamiento, las zonas seguras activas y cinco marcas de narración en la línea de tiempo">
 </p>
 
-### `// 06` Presentaciones y documentos
+### `// 06` Tutoriales sobre apps reales
+
+`ambar capture` recorre una app web con Chrome sin interfaz, siguiendo los pasos de `capture.json`, y guarda una captura por paso más la posición de cada elemento que nombres. Todo lo que coincida con `redact` se difumina en el navegador antes de la captura, así que los datos privados nunca llegan a un PNG.
+
+```json
+{
+  "url": "app/index.html",
+  "redact": ["[data-private]"],
+  "shots": [
+    { "name": "login", "boxes": { "email": "#email", "signin": "#signin" } },
+    { "name": "board", "actions": [{ "type": "#email", "text": "alex@harbor.example" }, { "click": "#signin" }, { "waitFor": "#list" }],
+      "boxes": { "list": "#list", "user": "[data-private]" } }
+  ]
+}
+```
+
+`runtime/screen.js` convierte esas capturas en un screencast dentro de un notebook, un navegador o un teléfono. Cámara, cursor, tecleo, focos y anotaciones son funciones del tiempo como todo lo demás, y apuntan a los elementos por nombre (`'login.email'`), no por píxel.
+
+```js
+const sc = screencast(stage, await loadShots(), { device: 'laptop' })
+sc.show(t, [[0, 'login'], [signin.start + 4.6, 'board']])
+sc.camera(t, [[signin.start, 1, [720, 450]], [signin.start + 0.6, 1.55, 'login.card']])
+sc.cursor(t, [[signin.start + 0.85, 'login.email'], [signin.start + 4.35, 'login.signin']], clicks)
+sc.type(t, { box: 'login.email', text: 'alex@harbor.example', at: signin.start + 1.1 })
+sc.callout(t, { box: 'board.user', text: 'Private data is blurred', from: board.start + 3.2 })
+```
+
+<p align="center">
+  <img src="docs/assets/tutorial.png" width="100%" alt="Cuatro momentos del tutorial de Harbor: el correo tecleándose, el tablero con la dirección difuminada, el diálogo de nueva tarea y la tarea guardada">
+</p>
+
+### `// 07` Presentaciones y documentos
 
 Cada `<section class="slide">` es una lámina. Abre el HTML para presentar (flechas, espacio, `F` para pantalla completa) o expórtalo:
 
@@ -128,7 +160,7 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
   <img src="docs/assets/report.png" width="78%" alt="Dos páginas A4 del informe de ejemplo: una portada oscura con ÁMBAR y una página clara con la tabla de comandos">
 </p>
 
-### `// 07` Comandos
+### `// 08` Comandos
 
 | Comando | Qué hace |
 |---|---|
@@ -138,27 +170,28 @@ ambar doc examples/report/report.html  # → out/report.pdf (A4)
 | `ambar render <proyecto> --gif out.gif` | Un GIF en loop (`--from`, `--to`, `--gif-fps`, `--width`) |
 | `ambar voice <proyecto>` | Graba la narración y escribe las marcas |
 | `ambar mix <proyecto>` | Narración, música y efectos → `out/mix.wav` |
+| `ambar capture <proyecto>` | Capturas y posiciones de elementos de una app, según `capture.json` |
 | `ambar slides <deck.html>` | PDF y PNG de un deck |
 | `ambar doc <doc.html>` | PDF A4 de un documento |
 | `ambar new <carpeta>` | Un video nuevo, `--deck` o `--doc`, desde una plantilla |
 
-### `// 08` Cómo funciona
+### `// 09` Cómo funciona
 
 ```
 bin/ambar.js            CLI
-src/commands/           studio · render · voice · mix · slides · doc · new
+src/commands/           studio · render · voice · mix · capture · slides · doc · new
 src/lib/                servidor local, Chrome sin interfaz, ffmpeg, línea de tiempo, efectos sintetizados, WAV
-runtime/                lo que importan las escenas: ambar.js (tiempo, easing, texto) · estilos de láminas y documentos
+runtime/                lo que importan las escenas: ambar.js (tiempo, easing, texto) · screen.js (screencasts) · estilos de láminas y documentos
 studio/                 el estudio con línea de tiempo
 mascot/ambar.js         ÁMBAR, un SVG por cuadro
-examples/               video de lanzamiento · hero · deck · informe
+examples/               video de lanzamiento · hero · tutorial · deck · informe
 ```
 
 Un servidor local publica el proyecto en `/` y AMBAR en `/@ambar/`, así una escena importa el runtime igual sin importar dónde esté. `ambar render` graba la narración, abre la escena en Chrome sin interfaz, llama a `render(f / fps)` en cada cuadro, envía las capturas a ffmpeg (H.264, CRF 17), mezcla el audio y une ambos.
 
 Medido en un Apple M5 Pro: el video de lanzamiento de 24 segundos en 1080p, con cinco líneas de narración y doce efectos, se renderiza en 28,7 segundos.
 
-### `// 09` ÁMBAR
+### `// 10` ÁMBAR
 
 ÁMBAR es la mascota: gel ámbar con un núcleo de miel oscura y ojos de cápsula. `mascot()` la dibuja en SVG para el cuadro actual, así que se mueve con la escena y se renderiza como todo lo demás.
 
@@ -168,9 +201,9 @@ mascot({ x: 960, y: 520, R: 180, t, expr: 'feliz', mira: [0.4, 0], chispas: 0.8 
 
 Expresiones: `normal`, `feliz`, `pensativa`, `sorprendida`, `enojada`, `triste`, `dormida`, o una mezcla de ellas con `pesos`.
 
-### `// 10` Desarrollo
+### `// 11` Desarrollo
 
 ```bash
-npm test                # matemática del runtime, línea de tiempo, efectos y WAV
+npm test                # matemática del runtime, línea de tiempo, efectos, WAV y captura
 npm run readme-assets   # vuelve a renderizar todas las imágenes de este README
 ```

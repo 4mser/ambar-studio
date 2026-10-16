@@ -8,6 +8,7 @@ import { voice } from '../src/commands/voice.js'
 import { mix } from '../src/commands/mix.js'
 import { slides } from '../src/commands/slides.js'
 import { doc } from '../src/commands/doc.js'
+import { capture } from '../src/commands/capture.js'
 import { serve, ROOT } from '../src/lib/server.js'
 import { run } from '../src/lib/ffmpeg.js'
 import { done, step } from '../src/lib/log.js'
@@ -52,7 +53,22 @@ await doc(report, { png: true })
 const page = (n) => join(report.dir, 'out', 'report', `0${n}.png`)
 await run(['-i', page(1), '-i', page(2), '-filter_complex', '[0]scale=800:1131[a];[1]scale=800:1131[b];[a][b]hstack', join(ASSETS, 'report.png')])
 
-// 5 · the studio, on the launch video
+// 5 · the tutorial, four moments over the captures
+step('Tutorial')
+const tutorial = loadProject(ex('tutorial'))
+await capture(tutorial)
+await voice(tutorial)
+const moments = [7.33, 14.93, 19.5, 23.38]
+rmSync(join(tutorial.outDir, 'frames'), { recursive: true, force: true })
+await renderFrames(tutorial, moments)
+const still = (t) => join(tutorial.outDir, 'frames', `t-${t.toFixed(2)}.png`)
+await run([
+  ...moments.flatMap((t) => ['-i', still(t)]),
+  '-filter_complex', '[0]scale=800:-1[a];[1]scale=800:-1[b];[2]scale=800:-1[c];[3]scale=800:-1[d];[a][b]hstack[t];[c][d]hstack[u];[t][u]vstack',
+  join(ASSETS, 'tutorial.png')
+])
+
+// 6 · the studio, on the launch video
 step('Studio')
 const server = await serve(launch.dir)
 const browser = await puppeteer.launch({ headless: true })

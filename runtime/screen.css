@@ -1,0 +1,47 @@
+/* AMBAR screencast devices and overlays. Builds on ambar.css. */
+.sc-device { position: absolute; }
+.sc-body { position: relative; border-radius: 22px; padding: 14px; background: linear-gradient(160deg, #2b2621, #121010); box-shadow: 0 60px 120px -40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.06); }
+.sc-screen { position: relative; overflow: hidden; border-radius: 8px; background: #fff; }
+.sc-content { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.sc-shots { position: absolute; inset: 0; z-index: 0; } /* own stacking context for the crossfade */
+.sc-shot { position: absolute; left: 0; top: 0; display: block; }
+
+.sc-chrome { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; margin: -2px 0 10px; }
+.sc-chrome i { width: 12px; height: 12px; border-radius: 50%; background: #ff6159; }
+.sc-chrome i:nth-child(2) { background: #ffbd2e; }
+.sc-chrome i:nth-child(3) { background: #28c941; }
+.sc-chrome span { margin-left: 14px; flex: 1; max-width: 520px; padding: 6px 14px; border-radius: 8px; background: rgba(255, 255, 255, 0.07); font: 500 14px var(--mono); color: rgba(255, 255, 255, 0.55); }
+
+/* laptop: body + a base */
+.sc-laptop .sc-body { border-radius: 26px 26px 10px 10px; }
+.sc-base { height: 26px; margin: 0 -70px; border-radius: 0 0 26px 26px; background: linear-gradient(180deg, #3a342e, #1a1714); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.8); }
+.sc-base::before { content: ''; display: block; width: 180px; height: 9px; margin: 0 auto; border-radius: 0 0 10px 10px; background: rgba(0, 0, 0, 0.45); }
+
+/* phone */
+.sc-phone .sc-body { border-radius: 64px; padding: 18px; }
+.sc-phone .sc-screen { border-radius: 48px; }
+.sc-phone .sc-body::after { content: ''; position: absolute; top: 30px; left: 50%; width: 120px; height: 34px; margin-left: -60px; border-radius: 20px; background: #000; }
+
+/* none: just the screen with a soft shadow */
+.sc-none .sc-body { padding: 0; background: none; box-shadow: none; }
+.sc-none .sc-screen { box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8); }
+
+.sc-dim { position: absolute; opacity: 0; pointer-events: none; z-index: 1; }
+.sc-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+
+.sc-cursor { position: absolute; width: 36px; height: 36px; margin: -4px 0 0 -6px; transform-origin: 6px 4px; pointer-events: none; z-index: 5; }
+.sc-cursor svg { width: 100%; height: 100%; fill: #111; stroke: #fff; stroke-width: 1.6; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.35)); }
+
+.sc-click { position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 4px solid #f2a324; background: rgba(242, 163, 36, 0.18); opacity: 0; }
+
+.sc-type { position: absolute; display: flex; align-items: center; padding: 0 14px; font: 500 17px -apple-system, 'Inter', sans-serif; color: #1c1917; white-space: nowrap; overflow: hidden; }
+.sc-type i { display: inline-block; width: 2px; height: 22px; margin-left: 1px; background: #1c1917; }
+
+.sc-callout { position: absolute; padding: 12px 18px; border-radius: 12px; background: #1b0f05; color: #fff4e0; font: 650 19px var(--font); white-space: nowrap;
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5), 0 0 0 2px #f2a324; transform-origin: 0 50%; }
+.sc-callout.sc-left { transform-origin: 100% 50%; }
+.sc-callout::before { content: ''; position: absolute; width: 12px; height: 12px; background: #1b0f05; box-shadow: -2px 2px 0 #f2a324; transform: rotate(45deg); }
+.sc-right::before { left: -6px; top: calc(50% - 6px); }
+.sc-left::before { right: -6px; top: calc(50% - 6px); transform: rotate(225deg); }
+.sc-bottom::before { top: -6px; left: calc(50% - 6px); transform: rotate(135deg); }
+.sc-top::before { bottom: -6px; left: calc(50% - 6px); transform: rotate(-45deg); }

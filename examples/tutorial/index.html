@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Harbor · tutorial</title>
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="/@ambar/runtime/screen.css">
+  <style>
+    #stage { background: radial-gradient(80% 100% at 70% 40%, #2e1806, #170c04 60%, #0a0603); }
+    .lesson { position: absolute; left: 110px; top: 190px; width: 440px; }
+    .lesson .kicker { font: 600 20px var(--mono); letter-spacing: 0.28em; color: var(--amber); text-transform: uppercase; }
+    .lesson h1 { margin-top: 22px; font-size: 64px; line-height: 1.02; letter-spacing: -0.04em; }
+    .steps { margin-top: 54px; display: grid; gap: 18px; }
+    .step { display: flex; align-items: center; gap: 18px; font-size: 26px; font-weight: 600; color: rgba(255, 244, 224, 0.4); }
+    .step b { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 50%; font: 700 18px var(--mono);
+      border: 2px solid rgba(255, 210, 122, 0.25); color: rgba(255, 244, 224, 0.5); }
+    #mascot { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
+    .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: rgba(255, 210, 122, 0.08); }
+    .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--resin), var(--amber)); }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <div class="lesson" id="lesson">
+      <div class="kicker">Lesson 1</div>
+      <h1 id="title">Create your first task</h1>
+      <div class="steps" id="steps"></div>
+    </div>
+    <svg id="mascot" viewBox="0 0 1920 1080"><g id="m"></g></svg>
+    <div class="bar"><span id="barFill"></span></div>
+  </div>
+  <script src="/@ambar/mascot/ambar.js"></script>
+  <script type="module" src="./scene.js"></script>
+</body>
+</html>

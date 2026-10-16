@@ -1,0 +1,29 @@
+{
+  "title": "Harbor · your first task",
+  "voice": { "provider": "say", "name": "Samantha" },
+  "lead": 1.2,
+  "gap": 0.6,
+  "tail": 2,
+  "lines": [
+    { "id": "intro", "text": "In this lesson, you'll create your first task in Harbor." },
+    { "id": "signin", "text": "Start by signing in with your work email and password.", "pause": 0.6 },
+    { "id": "board", "text": "Your board lists everything that's pending. Your email stays private.", "pause": 2.2 },
+    { "id": "create", "text": "Press New task, write a title, and save it.", "pause": 0.4 },
+    { "id": "done", "text": "And that's it. Your new task is at the top of the board.", "pause": 2.4 }
+  ],
+  "sfx": [
+    { "type": "whoosh", "at": "intro-0.6", "gain": 0.12, "from": 300, "to": 4000 },
+    { "type": "tap", "at": "signin+0.9", "gain": 0.3 },
+    { "type": "tick", "at": "signin+1.1", "gain": 0.06, "repeat": 19, "every": 0.0625, "pitch": 3200 },
+    { "type": "tap", "at": "signin+2.9", "gain": 0.3 },
+    { "type": "tick", "at": "signin+3.0", "gain": 0.06, "repeat": 13, "every": 0.0625, "pitch": 3200 },
+    { "type": "tap", "at": "signin+4.4", "gain": 0.3 },
+    { "type": "whoosh", "at": "board-0.35", "gain": 0.1, "duration": 0.5 },
+    { "type": "tap", "at": "create+0.7", "gain": 0.3 },
+    { "type": "tap", "at": "create+1.6", "gain": 0.3 },
+    { "type": "tick", "at": "create+1.8", "gain": 0.06, "repeat": 25, "every": 0.0556, "pitch": 3200 },
+    { "type": "tap", "at": "create+3.9", "gain": 0.3 },
+    { "type": "riser", "at": "done-0.9", "gain": 0.08 },
+    { "type": "tick", "at": "done+0.6", "gain": 0.14, "pitch": 2600 }
+  ]
+}

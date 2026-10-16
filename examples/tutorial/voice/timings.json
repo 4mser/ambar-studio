@@ -1,0 +1,30 @@
+{
+  "cues": {
+    "intro": {
+      "start": 1.2,
+      "duration": 3.132,
+      "end": 4.332
+    },
+    "signin": {
+      "start": 5.532,
+      "duration": 2.994,
+      "end": 8.526
+    },
+    "board": {
+      "start": 11.326,
+      "duration": 3.732,
+      "end": 15.058
+    },
+    "create": {
+      "start": 16.058,
+      "duration": 2.922,
+      "end": 18.98
+    },
+    "done": {
+      "start": 21.98,
+      "duration": 2.908,
+      "end": 24.888
+    }
+  },
+  "end": 24.888
+}

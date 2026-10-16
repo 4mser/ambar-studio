@@ -8,6 +8,7 @@ import { slides } from '../src/commands/slides.js'
 import { doc } from '../src/commands/doc.js'
 import { studio } from '../src/commands/studio.js'
 import { scaffold } from '../src/commands/new.js'
+import { capture } from '../src/commands/capture.js'
 import { serve } from '../src/lib/server.js'
 import { openPage, waitForComposition } from '../src/lib/browser.js'
 import { amber, bold, dim, fail } from '../src/lib/log.js'
@@ -25,6 +26,7 @@ const HELP = `
       --gif <file> [--from s] [--to s] [--gif-fps 15] [--width 960]
     ambar voice <project> [--force]     record narration lines → voice/*.wav + timings
     ambar mix <project>                 narration, music and effects → out/mix.wav
+    ambar capture <project>             screenshots + element boxes of an app (capture.json)
 
   ${bold('Slides and documents')}
     ambar slides <deck.html> [--no-png] [--scale 2]   → out/<deck>.pdf + PNGs
@@ -74,6 +76,8 @@ async function main () {
         return renderGif(project, file, { from: num(args.from) ?? 0, to: num(args.to), fps: num(args['gif-fps']) ?? 15, width: num(args.width) ?? 960 })
       }
       return render(project, { fps: num(args.fps), audio: args.audio !== false })
+    case 'capture':
+      return capture(project, { config: typeof args.config === 'string' ? args.config : 'capture.json' })
     case 'voice':
       return voice(project, { force: Boolean(args.force) })
     case 'mix': {
