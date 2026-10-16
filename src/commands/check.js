@@ -187,6 +187,30 @@ function auditLayout ({ rootSelector, index, minFont, balance = false }) {
   return issues
 }
 
+/**
+ * Whether two screenshots differ by more than Chrome's own rasterization
+ * noise. Blurs and gradients can come out 1–2 levels apart on a repaint even
+ * when the DOM is identical; a real state leak moves pixels by much more.
+ */
+async function visiblyDifferent (page, a, b, { tolerance = 8 } = {}) {
+  return page.evaluate(async (srcA, srcB, tol) => {
+    const load = (src) => new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = src })
+    const [x, y] = await Promise.all([load(srcA), load(srcB)])
+    const pixels = (img) => {
+      const c = document.createElement('canvas')
+      c.width = img.width; c.height = img.height
+      const g = c.getContext('2d')
+      g.drawImage(img, 0, 0)
+      return g.getImageData(0, 0, img.width, img.height).data
+    }
+    const p = pixels(x)
+    const q = pixels(y)
+    if (p.length !== q.length) return true
+    for (let i = 0; i < p.length; i++) if (Math.abs(p[i] - q[i]) > tol) return true
+    return false
+  }, `data:image/png;base64,${a.toString('base64')}`, `data:image/png;base64,${b.toString('base64')}`, tolerance)
+}
+
 const jpeg = (buffer) => `data:image/jpeg;base64,${buffer.toString('base64')}`
 
 async function contactSheet (browser, tiles, file, { columns, width }) {
@@ -228,7 +252,7 @@ async function checkVideo (project, server, report, dir, at) {
     await draw(a); const first = await page.screenshot({ type: 'png' })
     await draw(b); await draw(a / 2); await draw(a)
     const again = await page.screenshot({ type: 'png' })
-    if (!first.equals(again)) report.add('error', `t=${a.toFixed(2)}`, 'the frame changes when drawn again after other frames: render(t) keeps state or uses CSS transitions, timers or randomness')
+    if (!first.equals(again) && await visiblyDifferent(page, first, again)) report.add('error', `t=${a.toFixed(2)}`, 'the frame changes when drawn again after other frames: render(t) keeps state or uses CSS transitions, timers or randomness')
   }
 
   const tiles = []

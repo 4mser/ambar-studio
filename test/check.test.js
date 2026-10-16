@@ -31,7 +31,7 @@ test('check catches text off the frame, a missing cue and a render that keeps st
   video({ duration: 4, render (t) {
     cue('goodbye', 2)
     $('#off').style.opacity = 1
-    $('#stage').style.background = 'rgb(' + (frames++ % 255) + ',0,0)'
+    $('#stage').style.background = 'rgb(' + (frames++ * 40 % 255) + ',0,0)'
   } })
 </script>`)
     const result = await check(loadProject(dir), { json: true })
