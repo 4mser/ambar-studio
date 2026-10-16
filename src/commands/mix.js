@@ -1,11 +1,18 @@
 // ambar mix: narration on its cues, music that ducks under the voice, and
-// synthesized sound effects, into out/mix.wav.
+// sound effects, into out/mix.wav.
+//
+// The music can be lined up so a hit in the track lands on a moment of the
+// story (`hit` + `at`), cut dead or stopped like tape at a moment (`stop`),
+// and it ducks under the voice with an envelope follower (fast attack, slow
+// release). Effects are synthesized or read from files; files land on their
+// loudest point, so the transient falls exactly on the animation event.
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { decodeAudio } from '../lib/ffmpeg.js'
 import { writeWav } from '../lib/wav.js'
 import { EFFECTS, RATE } from '../lib/sfx.js'
 import { resolveTime } from '../lib/timeline.js'
+import { follow, softClip, toMono, transient } from '../lib/audio.js'
 import { done, step } from '../lib/log.js'
 
 /** Adds interleaved stereo (or mono, to both channels) at `at` seconds */
@@ -26,18 +33,31 @@ function place (bus, samples, at, gain = 1, mono = false) {
   }
 }
 
-/** Moving average of a 0/1 activity track (prefix sums: O(n)) */
-function smooth (activity, window) {
-  const prefix = new Float64Array(activity.length + 1)
-  for (let i = 0; i < activity.length; i++) prefix[i + 1] = prefix[i] + activity[i]
-  const half = Math.floor(window / 2)
-  const out = new Float32Array(activity.length)
-  for (let i = 0; i < activity.length; i++) {
-    const a = Math.max(0, i - half)
-    const b = Math.min(activity.length, i + half)
-    out[i] = (prefix[b] - prefix[a]) / Math.max(1, b - a)
+/**
+ * Where the track starts in the video and from which second of the file.
+ * With `hit` (a second of the track) and `at` (a time or cue in the video),
+ * the track is offset so that hit lands on at. Music should start at frame 0:
+ * if the hit is too early for that, the track starts later and we say so.
+ */
+export function musicPlacement (music, cues = {}) {
+  let from = music.start ?? 0
+  let delay = 0
+  if (music.hit !== undefined && music.at !== undefined) {
+    const at = resolveTime(music.at, cues)
+    from = music.hit - at
+    if (from < 0) { delay = -from; from = 0 }
   }
-  return out
+  return { from, delay }
+}
+
+/**
+ * Speed of the track at video time t for a tape stop at `at` over `length`:
+ * 1 before, slowing to 0 with an ease, silent after.
+ */
+export function tapeSpeed (t, at, length = 0.45) {
+  if (t < at) return 1
+  if (t >= at + length) return 0
+  return Math.pow(1 - (t - at) / length, 1.4)
 }
 
 export async function mix (project, duration) {
@@ -65,39 +85,62 @@ export async function mix (project, duration) {
   const music = new Float32Array(frames * 2)
   if (config.music?.file) {
     const m = config.music
-    const samples = decodeAudio(resolve(dir, m.file), { rate: RATE, start: m.start ?? 0, duration: duration + 1 })
-    const duck = smooth(speaking, Math.round(0.25 * RATE))
-    const fadeIn = Math.round((m.fadeIn ?? 1.2) * RATE)
+    const { from, delay } = musicPlacement(m, cues)
+    if (delay > 0.05) console.log(`  the track starts ${delay.toFixed(2)} s into the video to line up its hit: music usually reads better from frame 0`)
+    const samples = decodeAudio(resolve(dir, m.file), { rate: RATE, start: from, duration: duration + 2 })
+    const duck = follow(speaking, RATE, { attack: m.attack ?? 0.035, release: m.release ?? 0.4 })
+    const fadeIn = Math.round((m.fadeIn ?? 0.6) * RATE)
     const fadeOut = Math.round((m.fadeOut ?? 2.5) * RATE)
-    for (let i = 0; i < frames && i * 2 + 1 < samples.length; i++) {
-      let g = (m.gain ?? 0.6) * (1 - (config.duck ?? 0.55) * Math.min(1, duck[i] * 1.4))
-      if (i < fadeIn) g *= i / fadeIn
-      if (i > frames - fadeOut) g *= Math.pow((frames - i) / fadeOut, 1.3)
-      music[i * 2] = samples[i * 2] * g
-      music[i * 2 + 1] = samples[i * 2 + 1] * g
+    const stop = m.stop ? { at: resolveTime(m.stop.at ?? m.stop, cues), style: m.stop.style ?? 'cut', length: m.stop.length ?? 0.45 } : null
+    const start = Math.round(delay * RATE)
+    let pos = 0 // read position in the track (frames), advances by the tape speed
+    for (let i = start; i < frames; i++) {
+      const t = i / RATE
+      let speed = 1
+      let g = (m.gain ?? 0.6) * (1 - (config.duck ?? 0.55) * Math.min(1, duck[i] * 1.2))
+      if (i - start < fadeIn) g *= Math.pow((i - start) / fadeIn, 2)
+      if (i > frames - fadeOut) g *= Math.pow((frames - i) / fadeOut, 1.5)
+      if (stop) {
+        if (stop.style === 'tape') speed = tapeSpeed(t, stop.at, stop.length)
+        else g *= t < stop.at ? 1 : Math.max(0, 1 - (t - stop.at) / 0.03) // a dead cut, 30 ms so it does not click
+        if (speed === 0 || (stop.style !== 'tape' && t > stop.at + 0.03)) break
+      }
+      const f = Math.floor(pos)
+      const k = pos - f
+      if (f * 2 + 3 >= samples.length) break
+      music[i * 2] = (samples[f * 2] * (1 - k) + samples[f * 2 + 2] * k) * g
+      music[i * 2 + 1] = (samples[f * 2 + 1] * (1 - k) + samples[f * 2 + 3] * k) * g
+      pos += speed
     }
   }
 
-  // Sound effects
+  // Sound effects: synthesized by name, or a file placed on its loudest point
   const effects = new Float32Array(frames * 2)
   for (const sfx of config.sfx ?? []) {
-    const make = EFFECTS[sfx.type]
-    if (!make) throw new Error(`Unknown sound effect "${sfx.type}" (${Object.keys(EFFECTS).join(', ')})`)
-    const { type, at, gain = 0.2, repeat = 1, every = 0.2, ...params } = sfx
-    for (let k = 0; k < repeat; k++) {
-      place(effects, make({ ...params, seed: (params.seed ?? 7) + k }), resolveTime(at, cues) + k * every, gain, true)
+    const { type, file, at, gain = 0.2, repeat = 1, every = 0.2, align = 'peak', ...params } = sfx
+    let make
+    let lead = 0
+    if (file) {
+      const mono = toMono(decodeAudio(resolve(dir, file), { rate: RATE }))
+      lead = align === 'peak' ? transient(mono) / RATE : 0
+      make = () => mono
+    } else {
+      if (!EFFECTS[type]) throw new Error(`Unknown sound effect "${type}" (${Object.keys(EFFECTS).join(', ')}) — or give a "file"`)
+      make = (k) => EFFECTS[type]({ ...params, seed: (params.seed ?? 7) + k })
     }
+    for (let k = 0; k < repeat; k++) place(effects, make(k), resolveTime(at, cues) + k * every - lead, gain, true)
   }
 
   const bus = new Float32Array(frames * 2)
   for (let i = 0; i < bus.length; i++) bus[i] = voice[i] + music[i] + effects[i] * 0.9
+  softClip(bus)
   let peak = 0
   for (const v of bus) peak = Math.max(peak, Math.abs(v))
-  if (peak > 0.97) for (let i = 0; i < bus.length; i++) bus[i] *= 0.97 / peak
+  if (peak > 0) for (let i = 0; i < bus.length; i++) bus[i] *= 0.9 / peak
 
   mkdirSync(outDir, { recursive: true })
-  const file = join(outDir, 'mix.wav')
-  writeWav(file, bus, { rate: RATE })
-  done('Mix', file.replace(`${dir}/`, ''))
-  return file
+  const out = join(outDir, 'mix.wav')
+  writeWav(out, bus, { rate: RATE })
+  done('Mix', out.replace(`${dir}/`, ''))
+  return out
 }

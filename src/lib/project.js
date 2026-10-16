@@ -7,13 +7,16 @@ export const DEFAULTS = {
   title: '',
   output: 'out/{name}.mp4',
   voice: { provider: 'say', name: 'Samantha', speed: 1 },
+  voices: {},
   lead: 0.8,
   gap: 0.55,
   tail: 1.6,
   lines: [],
   music: null,
   sfx: [],
-  duck: 0.55
+  duck: 0.55,
+  loudness: -14,
+  cover: null
 }
 
 export function loadProject (input = '.') {

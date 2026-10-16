@@ -2,7 +2,7 @@
 // AMBAR command line.
 import { loadProject } from '../src/lib/project.js'
 import { render, renderFrames, renderGif } from '../src/commands/render.js'
-import { voice } from '../src/commands/voice.js'
+import { voice, verifyVoice } from '../src/commands/voice.js'
 import { mix } from '../src/commands/mix.js'
 import { slides } from '../src/commands/slides.js'
 import { doc } from '../src/commands/doc.js'
@@ -25,9 +25,12 @@ const HELP = `
     ambar render <project>              narration + mix + frames → out/<name>.mp4
       --fps <n>                         override the composition frame rate
       --no-audio                        picture only
+      --cover <s>                       also <name>-cover.mp4 with the frame at <s> first (feed thumbnail)
       --frames 0,1.5,3                  PNG stills at those seconds → out/frames/
       --gif <file> [--from s] [--to s] [--gif-fps 15] [--width 960]
-    ambar voice <project> [--force]     record narration lines → voice/*.wav + timings
+    ambar voice <project> [--force]     record narration lines → voice/*.wav + timings + envelope
+      --recut                           cut the saved takes again without recording
+      --verify                          transcribe every line and compare it with the script
     ambar mix <project>                 narration, music and effects → out/mix.wav
     ambar capture <project>             screenshots + element boxes of an app (capture.json)
     ambar embed <project> [--out dir]   the composition as a live web player (index.html?player)
@@ -89,7 +92,7 @@ async function main () {
         const file = args.gif === true ? resolve(project.outDir, `${project.name}.gif`) : resolve(args.gif)
         return renderGif(project, file, { from: num(args.from) ?? 0, to: num(args.to), fps: num(args['gif-fps']) ?? 15, width: num(args.width) ?? 960 })
       }
-      return render(project, { fps: num(args.fps), audio: args.audio !== false })
+      return render(project, { fps: num(args.fps), audio: args.audio !== false, cover: num(args.cover) })
     case 'check': {
       const at = typeof args.at === 'string' ? args.at.split(',').map(Number) : []
       const result = await check(project, { json: Boolean(args.json), at })
@@ -100,8 +103,14 @@ async function main () {
       return embed(project, { out: typeof args.out === 'string' ? args.out : undefined })
     case 'capture':
       return capture(project, { config: typeof args.config === 'string' ? args.config : 'capture.json' })
-    case 'voice':
-      return voice(project, { force: Boolean(args.force) })
+    case 'voice': {
+      if (args.verify) {
+        const problems = await verifyVoice(project)
+        if (problems.length) process.exitCode = 1
+        return
+      }
+      return voice(project, { force: Boolean(args.force), recut: Boolean(args.recut) })
+    }
     case 'mix': {
       await voice(project)
       // the mix needs the composition's length

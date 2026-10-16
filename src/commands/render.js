@@ -62,7 +62,7 @@ export async function renderGif (project, file, { from = 0, to, fps = 15, width 
   done('Animation', relative(process.cwd(), file))
 }
 
-export async function render (project, { fps, audio = true } = {}) {
+export async function render (project, { fps, audio = true, cover } = {}) {
   assertFfmpeg()
   const started = Date.now()
   const hasSound = audio && ((project.config.lines ?? []).length || project.config.music || (project.config.sfx ?? []).length)
@@ -92,11 +92,34 @@ export async function render (project, { fps, audio = true } = {}) {
     const wav = await mix(project, comp.duration)
     await run([
       '-i', silent, '-i', wav, '-map', '0:v', '-map', '1:a', '-c:v', 'copy',
-      '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-shortest', `${project.output}.tmp.mp4`
+      '-af', `loudnorm=I=${project.config.loudness ?? -14}:TP=-1.5:LRA=11`, '-c:a', 'aac', '-b:a', '192k', '-shortest', `${project.output}.tmp.mp4`
     ])
     renameSync(`${project.output}.tmp.mp4`, project.output)
     rmSync(silent, { force: true })
   }
   done('Video', `${relative(process.cwd(), project.output)} · ${comp.duration.toFixed(2)} s long · rendered in ${seconds(Date.now() - started)}`)
+  const at = cover ?? project.config.cover
+  if (at !== null && at !== undefined && at !== false) await withCover(project.output, Number(at), rate, Boolean(hasSound))
   return existsSync(project.output) ? project.output : null
+}
+
+/**
+ * <name>-cover.mp4: the same video with one frame of the moment `at` in front.
+ * Feeds like Instagram use frame 0 as the thumbnail, which is usually an empty
+ * background before anything enters; the audio moves one frame to stay in sync.
+ */
+export async function withCover (file, at, fps, sound = true) {
+  const still = file.replace(/\.mp4$/, '.cover.png')
+  const out = file.replace(/\.mp4$/, '-cover.mp4')
+  const shift = Math.round(1000 / fps)
+  await run(['-ss', String(at), '-i', file, '-frames:v', '1', still])
+  await run([
+    '-loop', '1', '-framerate', String(fps), '-t', String(1 / fps), '-i', still, '-i', file,
+    '-filter_complex', `[0:v]fps=${fps},format=yuv420p,setsar=1[p];[1:v]fps=${fps},format=yuv420p,setsar=1[v];[p][v]concat=n=2:v=1:a=0[o]`,
+    '-map', '[o]', ...(sound ? ['-map', '1:a', '-af', `adelay=${shift}|${shift}`, '-c:a', 'aac', '-b:a', '192k'] : []),
+    '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-movflags', '+faststart', out
+  ])
+  rmSync(still, { force: true })
+  done('Cover', `${relative(process.cwd(), out)} · frame at ${at} s first`)
+  return out
 }
