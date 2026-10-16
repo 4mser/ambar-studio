@@ -127,6 +127,16 @@ test('the coin spins above the head: width follows |cos|, and it can be hidden o
   assert.ok(coinY + 20 < -R * 0.95, 'the coin clears the top of the head')
 })
 
+test('a custom accessory draws in layers and can fuse blobs into the body', () => {
+  const hat = character({ name: 'Hat', palette: PALETTE, accessory: ({ x, y, R, id }) => `<rect id="${id}hat" x="${x - R * 0.3}" y="${y - R * 1.4}" width="${R * 0.6}" height="${R * 0.2}"/>` })
+  const svg = hat({ x: 100, y: 100, R: 50, t: 0 })
+  assert.match(svg, /<rect id="hat_[0-9a-z]+_hat" x="85" y="30"/)
+  const bud = character({ name: 'Bud', palette: PALETTE, accessory: ({ x, y, R }) => ({ blobs: [{ x: x + R * 1.1, y, r: R * 0.2 }], back: '<g id="behind"/>' }) })
+  const out = bud({ x: 100, y: 100, R: 50, t: 0 })
+  assert.match(out, /<mask [\s\S]*<circle cx="155.0" cy="100.0" r="10.00"\/>/)
+  assert.ok(out.indexOf('id="behind"') < out.indexOf('<mask '))
+})
+
 test('a head turn slides the eyes around a sphere and hides the far one', () => {
   const eyes = (svg) => (svg.match(/<g color="#fff" fill="#fff">([\s\S]*?)<\/g><\/g>|<g color="#fff" fill="#fff">([\s\S]*)$/) ?? [''])[0]
   const count = (svg) => (eyes(svg).match(/<rect /g) ?? []).length
