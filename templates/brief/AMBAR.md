@@ -9,12 +9,17 @@ Rules for this project. AMBAR (and Claude, through the `ambar` skill) reads this
 - **Audience:** <who, and what they already know>
 - **Length:** <seconds, slides or pages>
 - **Where it goes:** <site, LinkedIn, internal training, email…>
+- **Format:** <4:5 post 1080×1350 (social default) | 9:16 reel | 16:9 | A4 | store screenshots>
+- **Series:** <one piece | a series: the first one is a test, approved before the rest>
 
 ## Language and voice
 
 - **Language:** <English | neutral Spanish with "tú" | …>
-- **Narration voice:** <say: Samantha | say: Paulina | gemini: Kore>
+- **Narration voice:** <say: Samantha | say: Paulina | gemini: Sulafat (es-US)>
 - **Tone:** <plain and direct | warm | formal>
+- **Characters:** <name — voice, model, gender and pronouns, one line of personality | none>
+- **Pronunciation:** <how the voice must say brand names, e.g. NGINX → "Engine X" (goes in each line's `say`)>
+- **Music:** <a real track you may use, without vocals; where its hit should land | none>
 
 ## Brand
 
@@ -22,6 +27,8 @@ Rules for this project. AMBAR (and Claude, through the `ambar` skill) reads this
 - **Fonts:** <system | a font you have the right to use>
 - **Mascot:** <ÁMBAR yes | no>
 - **Logo:** <path to an SVG or PNG in this folder, or none>
+- **Approved references:** <pieces of this brand whose look must be reused | none>
+- **Rejected:** <looks, names, accessories or effects already turned down; never offer them again>
 
 ## Words
 

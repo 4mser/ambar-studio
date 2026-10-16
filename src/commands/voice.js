@@ -246,13 +246,14 @@ export async function voice (project, { force = false, recut = false } = {}) {
     const mono = toMono(decodeAudio(join(voiceDir, `${line.id}.wav`), { rate: RATE }))
     durations[line.id] = mono.length / RATE
     env[line.id] = envelope(mono, RATE, { fps: FPS })
-    words[line.id] = estimateWords(line.text, env[line.id], FPS)
+    // the words the viewer reads: `caption` replaces the text on screen (pronunciation lives in `say`)
+    words[line.id] = estimateWords(line.caption ?? line.text, env[line.id], FPS)
   }
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
   const timings = layoutCues(lines, durations, { lead: config.lead, gap: config.gap })
   for (const line of lines) {
     const cue = timings.cues[line.id]
-    cue.text = line.text
+    cue.text = line.caption ?? line.text
     if (line.speaker) cue.speaker = line.speaker
     cue.words = words[line.id].map(([w, a, b]) => [w, round(cue.start + a), round(cue.start + b)])
   }
