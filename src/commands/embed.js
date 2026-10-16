@@ -3,6 +3,7 @@
 // carries the project, the parts of AMBAR it uses (under _ambar/), the mix as
 // AAC and player.json with the chapters and captions. Open index.html?player
 // (usually in an iframe) to get the web player; plain index.html previews.
+import { createHash } from 'node:crypto'
 import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { extname, join, relative, resolve } from 'node:path'
 import { serve, ROOT } from '../lib/server.js'
@@ -73,7 +74,8 @@ export async function embed (project, { out } = {}) {
   if (hasSound) {
     const wav = await mix(project, duration)
     await run(['-i', wav, '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', join(target, 'audio.m4a')])
-    data.audio = 'audio.m4a'
+    // a new mix must not be hidden by a cached old one
+    data.audio = `audio.m4a?v=${createHash('sha1').update(readFileSync(join(target, 'audio.m4a'))).digest('hex').slice(0, 10)}`
   }
   writeFileSync(join(target, 'player.json'), JSON.stringify(data, null, 2))
   done('Embed', `${relative(process.cwd(), join(target, project.entry))}?player · ${data.chapters.length} chapters · ${duration.toFixed(1)} s`)
