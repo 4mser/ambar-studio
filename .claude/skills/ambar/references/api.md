@@ -139,8 +139,8 @@ $('#m').innerHTML = mascot({
   x: 960, y: 540, R: 160, t,
   expr: 'feliz',          // normal | feliz | pensativa | sorprendida | enojada | triste | dormida
   pesos: { feliz: .6, sorprendida: .4 },   // optional blend instead of expr
-  mira: [0.4, 0],         // gaze, -1..1
-  habla: 0.5 + 0.5 * Math.sin(t * 17),     // mouth while a line plays
+  mira: [1, 0],           // gaze; exaggerate to about ±2.4 so it reads (gazeAt does it)
+  habla: AmbarKit.envelopeAt(t, envelope, 'intro', intro.start),   // voice level while a line plays, 0..1.2
   parpadeo: 0..1,         // blink
   chispas: 0..1,          // sparkles
   op: 1                   // opacity
@@ -150,6 +150,10 @@ $('#m').innerHTML = mascot({
 ```html
 <svg id="mascot" viewBox="0 0 1920 1080"><g id="m"></g></svg>
 ```
+
+Every option has an English name too: `expression`, `weights`, `gaze`, `talk`, `blink`, `sparkle`, `stretch`, `velocity`, `opacity`. Drive `talk` with the voice envelope, never with a sine; the house rules and the rest of the options (`turn`, `halo: false`, `sad`…) are in `mascots.md`.
+
+The same script defines `window.AmbarKit`: `character(spec)` makes other members of ÁMBAR's family (own palette, ear lobes, orbs or a coin), `draw.figure()` draws a small one for a caption, and pure helpers drive any of them from time: `blinks`/`blinkAt`, `moods`/`dominant`, `gazeAt`, `smoothPath`, `arrive`, `trail`, `envelopeAt`. See `mascots.md` and `examples/family`.
 
 ## Screencasts
 
