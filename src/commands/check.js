@@ -11,9 +11,11 @@ import { serve } from '../lib/server.js'
 import { openPage, waitForComposition } from '../lib/browser.js'
 import { resolveTime } from '../lib/timeline.js'
 import { amber, bold, dim, done, green, red, step } from '../lib/log.js'
+import { stills } from './stills.js'
 
 /** What kind of piece an entry file is, from the runtime it loads */
 export function kindOf (html) {
+  if (html.includes('runtime/stills.js')) return 'still'
   if (html.includes('runtime/slides.js')) return 'deck'
   if (html.includes('runtime/doc.css')) return 'doc'
   return 'video'
@@ -316,12 +318,20 @@ export async function check (project, { json = false, at = [] } = {}) {
     }
   }
   if (!json) step('Check', `${report.project} · ${kind}`)
-  const server = await serve(project.dir)
+  if (kind === 'still') {
+    // still templates: every item × size, with the overflow guard of `ambar stills`
+    const shot = await stills(project, { sheet: true, quiet: true })
+    for (const i of shot.issues) report.add(i.level, i.where, i.message)
+    report.frames.push(...shot.files.map((f) => relative(process.cwd(), f)))
+    const sheets = readdirSync(join(project.outDir, name)).filter((f) => f.startsWith('sheet-'))
+    if (sheets.length) writeFileSync(join(dir, 'sheet.png'), readFileSync(join(project.outDir, name, sheets[0])))
+  }
+  const server = kind === 'still' ? null : await serve(project.dir)
   try {
-    if (kind === 'video') await checkVideo(project, server, report, dir, at)
+    if (kind === 'still') { /* done above */ } else if (kind === 'video') await checkVideo(project, server, report, dir, at)
     else await checkPages(project, server, report, dir, kind)
   } finally {
-    await server.close()
+    await server?.close()
   }
   report.sheet = relative(process.cwd(), join(dir, 'sheet.png'))
   const errors = report.issues.filter((i) => i.level === 'error').length

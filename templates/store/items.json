@@ -13,7 +13,7 @@
     "headline": ["Write it down", "in two taps"],
     "view": "new",
     "typing": "Ship the new landing page",
-    "card": { "icon": "plus", "label": "New task", "value": "Title, save, done", "side": "left", "y": 0.3 }
+    "card": { "icon": "plus", "label": "New task", "value": "Title, save, done", "side": "left", "y": 0.47 }
   },
   {
     "id": "saved",
@@ -30,7 +30,7 @@
     "headline": ["Every task", "has a team"],
     "view": "board",
     "highlight": 1,
-    "card": { "icon": "tag", "label": "Finance", "value": "Prepare the quarterly numbers", "note": "Due Thursday", "side": "left", "y": 0.42 }
+    "card": { "icon": "tag", "label": "Finance", "value": "Prepare the quarterly numbers", "note": "Due Thursday", "side": "left", "y": 0.56 }
   },
   {
     "id": "privacy",

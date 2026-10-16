@@ -43,4 +43,4 @@ html[data-mode='print'] .slide { break-after: page; page-break-after: always; }
 .slide p, .slide li { font-size: 34px; line-height: 1.45; color: var(--muted); }
 .slide .accent { color: var(--amber); }
 .slide [data-number] { position: absolute; right: 140px; bottom: 80px; font: 500 22px var(--mono); color: var(--muted); letter-spacing: 0.1em; }
-.slide .brand { position: absolute; left: 140px; bottom: 80px; font: 700 22px var(--mono); letter-spacing: 0.3em; color: var(--honey); }
+.slide .brand { position: absolute; left: 140px; bottom: 80px; font: 500 22px var(--mono); letter-spacing: 0.3em; color: var(--honey); }

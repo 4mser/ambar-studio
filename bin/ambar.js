@@ -6,6 +6,7 @@ import { voice, verifyVoice } from '../src/commands/voice.js'
 import { mix } from '../src/commands/mix.js'
 import { slides } from '../src/commands/slides.js'
 import { doc } from '../src/commands/doc.js'
+import { stills, previewStills } from '../src/commands/stills.js'
 import { studio } from '../src/commands/studio.js'
 import { scaffold } from '../src/commands/new.js'
 import { capture } from '../src/commands/capture.js'
@@ -43,10 +44,17 @@ const HELP = `
 
   ${bold('Slides and documents')}
     ambar slides <deck.html> [--no-png] [--scale 2]   → out/<deck>.pdf + PNGs
-    ambar doc <doc.html> [--png]                      → out/<doc>.pdf
+    ambar doc <doc.html> [--png] [--paper a4|letter|a5] → out/<doc>.pdf (checked: fonts, shadows, pages)
+      --long [--width 1600]             one long PDF page (+ a stitched PNG with --png), for infographics
+
+  ${bold('Still images')}
+    ambar stills <template.html>        every item × size → out/<template>/<size>/NN-<id>.png
+      --data items.json --sizes post,story,ios,play,og   --scale 2   --format png|jpg|webp|png8
+      --webp  --sheet  --only <id>  --serve
 
   ${bold('Start something new')}
     ambar new <dir> [--deck | --doc]    a template plus an AMBAR.md brief
+      --carousel --store --og --infographic --proposal
 
   ${bold('With Claude')}
     ambar skill [--remove]              link the ambar skill and agent into ~/.claude
@@ -67,6 +75,7 @@ function parse (argv) {
 }
 
 const num = (x) => (x === undefined || x === true ? undefined : Number(x))
+const str = (x) => (typeof x === 'string' ? x : undefined)
 
 async function main () {
   const args = parse(process.argv.slice(2))
@@ -76,8 +85,9 @@ async function main () {
   if (command === 'skill') return skill({ remove: Boolean(args.remove) })
 
   if (command === 'new') {
-    if (!target) throw new Error('Usage: ambar new <dir> [--deck | --doc]')
-    return scaffold(target, args.deck ? 'deck' : args.doc ? 'doc' : 'video')
+    const kind = ['deck', 'doc', 'carousel', 'store', 'og', 'infographic', 'proposal'].find((k) => args[k]) ?? 'video'
+    if (!target) throw new Error('Usage: ambar new <dir> [--deck | --doc | --carousel | --store | --og | --infographic | --proposal]')
+    return scaffold(target, kind)
   }
 
   const project = loadProject(target ?? '.')
@@ -128,10 +138,25 @@ async function main () {
       await server.close()
       return mix(project, duration)
     }
-    case 'slides':
-      return slides(project, { png: args.png !== false, scale: num(args.scale) ?? 1 })
-    case 'doc':
-      return doc(project, { png: Boolean(args.png) })
+    case 'slides': {
+      const r = await slides(project, { png: args.png !== false, scale: num(args.scale) ?? 1 })
+      if (r && !r.ok) process.exitCode = 1
+      return
+    }
+    case 'doc': {
+      const r = await doc(project, { png: Boolean(args.png), scale: num(args.scale) ?? 2, paper: str(args.paper), long: Boolean(args.long), width: num(args.width) ?? 1600 })
+      if (r && !r.ok) process.exitCode = 1
+      return
+    }
+    case 'stills': {
+      if (args.serve) return previewStills(project, { sizes: str(args.sizes), port: num(args.port) }) // keeps running
+      const r = await stills(project, {
+        data: str(args.data), sizes: str(args.sizes), scale: num(args.scale), format: str(args.format) ?? 'png',
+        sheet: Boolean(args.sheet), only: str(args.only) ?? null, webp: Boolean(args.webp)
+      })
+      if (!r.ok) process.exitCode = 1
+      return
+    }
     default:
       console.log(HELP)
       throw new Error(`Unknown command "${command}"`)

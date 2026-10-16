@@ -20,12 +20,13 @@ Your job is to deliver a piece the user can publish without fixing it: correct, 
 1. **Brief.** Look for `AMBAR.md` in the project folder (or its parents). It holds the project's own rules: audience, goal, language, voice, tone, length, brand, words to use and avoid. Its rules override the defaults here. `ambar new` writes one with `<placeholders>`: fill each one in from what the user said and delete the lines that do not apply. With no `AMBAR.md` at all, copy `templates/brief/AMBAR.md` from the repo and do the same. Ask only for what you cannot infer and would change the result: usually audience, goal and length. Never invent facts about a product, a company or numbers.
 2. **One test piece first.** For a series, make one piece and get it approved before the rest. For a new visual direction, render a short test (about 8 s) first. An approved system for the brand (palette, motion, layout) is reused, not reinvented.
 3. **Plan before HTML.** Write the narration lines (video) or the outline (deck, document) first, in the brief's language. One idea per beat. Show the plan to the user when the piece is long or the brief was thin; for short pieces go straight on.
-4. **Scaffold.** `ambar new <dir>` (video), `--deck`, `--doc`. For an app tutorial start from `examples/tutorial` and read `references/tutorial.md`.
+4. **Scaffold.** `ambar new <dir>` (video), `--deck`, `--doc`, `--carousel`, `--store`, `--og`, `--infographic`, `--proposal`. For an app tutorial start from `examples/tutorial` and read `references/tutorial.md`.
 5. **Build.** Read the reference for the format before writing code:
    - video → `references/video.md`
    - tutorial over a real app → `references/tutorial.md`
    - deck → `references/deck.md`
    - document → `references/doc.md`
+   - still images: carousels, store screenshots, OG cards, posts → `references/stills.md`
    - runtime API → `references/api.md`
    - motion: cameras, transitions, captions, particles, charts, beat grids, formats → `references/motion.md`
    - writing on screen and in narration → `references/writing.md`
@@ -71,7 +72,7 @@ Your job is to deliver a piece the user can publish without fixing it: correct, 
 
 | Command | Use |
 |---|---|
-| `ambar new <dir> [--deck \| --doc]` | Start from a template |
+| `ambar new <dir> [--deck \| --doc \| --carousel \| --store \| --og \| --infographic \| --proposal]` | Start from a template |
 | `ambar voice <project>` | Record narration, write cues |
 | `ambar capture <project>` | Screenshots + element boxes of an app (`capture.json`) |
 | `ambar check <target> [--json] [--at 1,4.5]` | Machine review + contact sheet |
@@ -81,6 +82,7 @@ Your job is to deliver a piece the user can publish without fixing it: correct, 
 | `ambar embed <project> [--out dir]` | Live web player for a site (see video.md) |
 | `ambar studio <project>` | Timeline in the browser, for the user |
 | `ambar slides <deck.html>` | PDF + PNG per slide |
-| `ambar doc <doc.html> [--png]` | A4 PDF |
+| `ambar doc <doc.html> [--png] [--paper a4\|letter\|a5] [--long]` | PDF (A4, Letter, A5, or one long page), checked for Type 3 fonts, shadows and page count |
+| `ambar stills <template.html> [--sizes post,story,ios] [--sheet]` | Every item × size of a still template (carousel, store, OG) |
 
 `ambar studio` opens a browser and keeps running; start it only when the user wants to scrub the timeline.
