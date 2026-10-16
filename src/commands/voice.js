@@ -215,7 +215,7 @@ export async function voice (project, { force = false, recut = false } = {}) {
         console.log(`  ${dim('rec')} ${speaker || 'narrator'} ${dim(`· ${group.length} lines in one take`)}`)
       }
       const mono = toMono(decodeAudio(takeFile, { rate: RATE }))
-      const pieces = cutByPauses(mono, RATE, group.length)
+      const pieces = cutByPauses(mono, RATE, group.length, { weights: group.map((l) => spoken(l).split(/\s+/).filter(Boolean).length) })
       group.forEach((line, k) => {
         writeWav(join(voiceDir, `${line.id}.wav`), toStereo(mono.slice(pieces[k].start, pieces[k].end)), { rate: RATE })
         manifest[line.id] = key

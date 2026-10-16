@@ -51,3 +51,11 @@ test('the WAV writer produces a valid 16-bit stereo header', () => {
   assert.equal(wav.readInt16LE(44 + 8), 32767)
   assert.equal(wav.readInt16LE(44 + 10), -32768)
 })
+
+test('a take is cut where the text says, not only at the longest pauses', async () => {
+  const { pickCuts } = await import('../src/lib/audio.js')
+  // three lines of 10, 10 and 20 words over 400 windows; the middle line has a long inner pause
+  const runs = [{ from: 95, to: 105 }, { from: 140, to: 175 }, { from: 195, to: 205 }]
+  const cuts = pickCuts(runs, 400, [10, 10, 20], 3)
+  assert.deepEqual(cuts, [{ from: 95, to: 105 }, { from: 195, to: 205 }])
+})

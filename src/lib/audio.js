@@ -48,6 +48,47 @@ function silences (peaks, threshold) {
 }
 
 /**
+ * Chooses count - 1 cuts among the silences so that each piece lasts about
+ * what its text predicts (`weights`: words per line) while preferring long
+ * silences. The longest pauses alone fail when a line pauses inside itself
+ * ("…una sola regla: lo que se ve…") longer than between two lines.
+ */
+export function pickCuts (runs, total, weights, count) {
+  const sorted = [...runs].sort((a, b) => a.from - b.from)
+  const mids = sorted.map((r) => (r.from + r.to) / 2)
+  const sum = weights.reduce((x, y) => x + y, 0) || 1
+  const expect = weights.map((w) => (total * w) / sum)
+  const m = sorted.length
+  const cost = (from, to, k) => {
+    const d = Math.max(1, to - from)
+    return Math.log(d / Math.max(1, expect[k])) ** 2
+  }
+  const bonus = (i) => 0.15 * Math.log(1 + (sorted[i].to - sorted[i].from))
+  // best[k][i]: pieces 0..k placed, the k-th piece ending at cut i
+  const best = Array.from({ length: count - 1 }, () => new Array(m).fill(Infinity))
+  const from = Array.from({ length: count - 1 }, () => new Array(m).fill(-1))
+  for (let i = 0; i < m; i++) best[0][i] = cost(0, mids[i], 0) - bonus(i)
+  for (let k = 1; k < count - 1; k++) {
+    for (let i = k; i < m; i++) {
+      for (let j = k - 1; j < i; j++) {
+        if (best[k - 1][j] === Infinity) continue
+        const c = best[k - 1][j] + cost(mids[j], mids[i], k) - bonus(i)
+        if (c < best[k][i]) { best[k][i] = c; from[k][i] = j }
+      }
+    }
+  }
+  let end = -1
+  let score = Infinity
+  for (let i = count - 2; i < m; i++) {
+    const c = best[count - 2][i] + cost(mids[i], total, count - 1)
+    if (c < score) { score = c; end = i }
+  }
+  const picked = []
+  for (let k = count - 2, i = end; k >= 0; k--) { picked.unshift(sorted[i]); i = from[k][i] }
+  return picked
+}
+
+/**
  * Cuts one take that reads `count` lines (with long pauses between them) into
  * `count` pieces. The count - 1 longest interior silences are the cuts; each
  * cut sits in the middle of its silence. Every piece is then trimmed to its
@@ -55,14 +96,15 @@ function silences (peaks, threshold) {
  * syllable is lost.
  * Returns [{ start, end }] in samples.
  */
-export function cutByPauses (mono, rate, count, { window = 0.02, threshold = 0.02 } = {}) {
+export function cutByPauses (mono, rate, count, { window = 0.02, threshold = 0.02, weights } = {}) {
   const win = Math.max(1, Math.round(window * rate))
   const peaks = windowPeaks(mono, win)
   let max = 0
   for (const p of peaks) max = Math.max(max, p)
   const limit = max * threshold
-  const runs = silences(peaks, limit).sort((a, b) => (b.to - b.from) - (a.to - a.from)).slice(0, Math.max(0, count - 1))
-  if (runs.length < count - 1) throw new Error(`The take has ${runs.length + 1} phrases separated by pauses, expected ${count}. Record it again or ask for longer pauses.`)
+  const all = silences(peaks, limit)
+  if (all.length < count - 1) throw new Error(`The take has ${all.length + 1} phrases separated by pauses, expected ${count}. Record it again or ask for longer pauses.`)
+  const runs = weights?.length === count ? pickCuts(all, peaks.length, weights, count) : all.sort((a, b) => (b.to - b.from) - (a.to - a.from)).slice(0, Math.max(0, count - 1))
   const edges = [0, ...runs.sort((a, b) => a.from - b.from).map((r) => Math.round(((r.from + r.to) / 2) * win)), mono.length]
   const pieces = []
   for (let k = 0; k < count; k++) {
