@@ -1,0 +1,40 @@
+/* AMBAR slides. Builds on ambar.css (palette and fonts). */
+html[data-mode='present'], html[data-mode='present'] body { background: #050302; overflow: hidden; height: 100%; }
+
+.slide {
+  position: relative;
+  width: var(--slide-w, 1920px);
+  height: var(--slide-h, 1080px);
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 85% 10%, rgba(242, 163, 36, 0.16), transparent 55%),
+    radial-gradient(80% 70% at 0% 100%, rgba(138, 74, 12, 0.35), transparent 60%), var(--ink);
+  color: var(--cream);
+  padding: 120px 140px;
+}
+
+html[data-mode='present'] .slide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(var(--slide-scale, 1));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+html[data-mode='present'] .slide.is-current { opacity: 1; pointer-events: auto; }
+
+html[data-mode='print'], html[data-mode='print'] body { overflow: visible; height: auto; background: var(--ink); }
+html[data-mode='print'] .slide { break-after: page; page-break-after: always; }
+
+/* Mascots and illustrations may glow past their box */
+.slide svg { overflow: visible; }
+
+/* Type scale */
+.slide .kicker { font: 600 26px/1 var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--amber); }
+.slide .kicker + h1, .slide .kicker + h2 { margin-top: 30px; }
+.slide h1 { font-size: 132px; line-height: 0.98; letter-spacing: -0.045em; font-weight: 800; }
+.slide h2 { font-size: 84px; line-height: 1.02; letter-spacing: -0.035em; font-weight: 750; }
+.slide p, .slide li { font-size: 34px; line-height: 1.45; color: var(--muted); }
+.slide .accent { color: var(--amber); }
+.slide [data-number] { position: absolute; right: 140px; bottom: 80px; font: 500 22px var(--mono); color: var(--muted); letter-spacing: 0.1em; }
+.slide .brand { position: absolute; left: 140px; bottom: 80px; font: 700 22px var(--mono); letter-spacing: 0.3em; color: var(--honey); }

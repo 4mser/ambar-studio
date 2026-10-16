@@ -1,0 +1,71 @@
+// Renders every image in the README with AMBAR itself: npm run readme-assets
+import { mkdirSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
+import puppeteer from 'puppeteer'
+import { loadProject } from '../src/lib/project.js'
+import { renderFrames, renderGif } from '../src/commands/render.js'
+import { voice } from '../src/commands/voice.js'
+import { mix } from '../src/commands/mix.js'
+import { slides } from '../src/commands/slides.js'
+import { doc } from '../src/commands/doc.js'
+import { serve, ROOT } from '../src/lib/server.js'
+import { run } from '../src/lib/ffmpeg.js'
+import { done, step } from '../src/lib/log.js'
+
+const ASSETS = join(ROOT, 'docs', 'assets')
+mkdirSync(ASSETS, { recursive: true })
+const ex = (name) => join(ROOT, 'examples', name)
+
+// 1 · animated hero
+step('Hero')
+await renderGif(loadProject(ex('hero')), join(ASSETS, 'hero.gif'), { fps: 12, width: 960 })
+
+// 2 · the launch video, one still per scene
+step('Launch scenes')
+const launch = loadProject(ex('launch'))
+await voice(launch)
+const scenes = [1.9, 6.4, 11.4, 16.9, 21.5]
+rmSync(join(launch.outDir, 'frames'), { recursive: true, force: true })
+await renderFrames(launch, scenes)
+const frame = (t) => join(launch.outDir, 'frames', `t-${t.toFixed(2)}.png`)
+await run([
+  ...scenes.slice(0, 4).flatMap((t) => ['-i', frame(t)]),
+  '-filter_complex', '[0]scale=800:-1[a];[1]scale=800:-1[b];[2]scale=800:-1[c];[3]scale=800:-1[d];[a][b]hstack[t];[c][d]hstack[u];[t][u]vstack',
+  join(ASSETS, 'launch-scenes.png')
+])
+await run(['-i', frame(21.5), '-vf', 'scale=1600:-1', join(ASSETS, 'launch-outro.png')])
+
+// 3 · deck contact sheet
+step('Deck')
+const deck = loadProject(join(ex('deck'), 'deck.html'))
+await slides(deck)
+const slide = (n) => join(deck.dir, 'out', 'deck', `${String(n).padStart(2, '0')}.png`)
+await run([
+  ...[1, 2, 3, 4, 5, 6].flatMap((n) => ['-i', slide(n)]),
+  '-filter_complex', '[0]scale=640:-1[a];[1]scale=640:-1[b];[2]scale=640:-1[c];[3]scale=640:-1[d];[4]scale=640:-1[e];[5]scale=640:-1[f];[a][b][c]hstack=3[t];[d][e][f]hstack=3[u];[t][u]vstack',
+  join(ASSETS, 'deck.png')
+])
+
+// 4 · report pages side by side
+step('Report')
+const report = loadProject(join(ex('report'), 'report.html'))
+await doc(report, { png: true })
+const page = (n) => join(report.dir, 'out', 'report', `0${n}.png`)
+await run(['-i', page(1), '-i', page(2), '-filter_complex', '[0]scale=800:1131[a];[1]scale=800:1131[b];[a][b]hstack', join(ASSETS, 'report.png')])
+
+// 5 · the studio, on the launch video
+step('Studio')
+const server = await serve(launch.dir)
+const browser = await puppeteer.launch({ headless: true })
+const tab = await browser.newPage()
+await tab.setViewport({ width: 1600, height: 1000 })
+await tab.goto(`${server.url}/@ambar/studio/`, { waitUntil: 'networkidle2', timeout: 60000 })
+await tab.waitForFunction(() => document.getElementById('meta').textContent.includes('fps'))
+await tab.evaluate(() => { const r = document.getElementById('scrub'); r.value = 11.4; r.dispatchEvent(new Event('input')) })
+await tab.click('#safe')
+await new Promise((r) => setTimeout(r, 400))
+await tab.screenshot({ path: join(ASSETS, 'studio.png') })
+await browser.close()
+await server.close()
+
+done('README assets', 'docs/assets/')

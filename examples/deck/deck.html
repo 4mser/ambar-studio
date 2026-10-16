@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AMBAR · deck</title>
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="/@ambar/runtime/slides.css">
+  <style>
+    .split { display: grid; grid-template-columns: 1.1fr 0.9fr; height: 100%; align-items: center; gap: 60px; }
+    .hero-mascot { width: 760px; height: 760px; justify-self: center; }
+    .stack { display: flex; flex-direction: column; gap: 32px; }
+    .points { margin-top: 160px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .point { padding: 44px 40px; }
+    .point b { font: 600 22px var(--mono); color: var(--amber); letter-spacing: 0.14em; }
+    .point h3 { margin: 24px 0 14px; font-size: 46px; letter-spacing: -0.03em; }
+    .point p { font-size: 28px; }
+    .stats { margin-top: 170px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .stat .n { font-size: 190px; font-weight: 850; letter-spacing: -0.06em; line-height: 0.9;
+      background: linear-gradient(180deg, #fff4e0, #f2a324); -webkit-background-clip: text; color: transparent; }
+    .stat p { margin-top: 16px; }
+    .flow { margin-top: 170px; display: flex; align-items: center; gap: 22px; }
+    .node { flex: 1; padding: 40px 30px; text-align: center; }
+    .node b { display: block; font: 700 34px var(--mono); color: var(--honey); }
+    .node span { display: block; margin-top: 14px; font-size: 24px; color: var(--muted); }
+    .arrow { font: 600 44px var(--mono); color: var(--amber); }
+    .quote { font-size: 92px; line-height: 1.08; letter-spacing: -0.035em; font-weight: 750; max-width: 1450px; }
+    .quote .accent { font-weight: 850; }
+    .who { margin-top: 60px; font: 600 26px var(--mono); color: var(--muted); letter-spacing: 0.12em; }
+    .end { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; gap: 30px; }
+    .end svg { width: 420px; height: 420px; }
+    code { font-family: var(--mono); color: var(--honey); }
+  </style>
+</head>
+<body>
+  <section class="slide">
+    <div class="split">
+      <div class="stack">
+        <div class="kicker">AMBAR Studio</div>
+        <h1>Content that <span class="accent">renders</span> itself.</h1>
+        <p>Video, slides and documents from HTML. A sample deck made with the engine it describes.</p>
+      </div>
+      <svg class="hero-mascot" viewBox="0 0 760 760" data-mascot='{"x":380,"y":390,"R":230,"t":2.4,"expr":"feliz","chispas":0.9}'></svg>
+    </div>
+    <div class="brand">AMBAR</div><div data-number></div>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">Why</div>
+    <h2>Motion design, written as code.</h2>
+    <div class="points">
+      <div class="point glass"><b>01</b><h3>Reviewable</h3><p>Every change is a diff. Scenes live in git, next to the product.</p></div>
+      <div class="point glass"><b>02</b><h3>Repeatable</h3><p>Same input, same frames. Re-render after a copy change in one command.</p></div>
+      <div class="point glass"><b>03</b><h3>Yours</h3><p>CSS, SVG, canvas and any web library you already know.</p></div>
+    </div>
+    <div class="brand">AMBAR</div><div data-number></div>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">The numbers</div>
+    <h2>One engine, three outputs.</h2>
+    <div class="stats">
+      <div class="stat"><div class="n">30</div><p>frames per second, each one a call to <code>render(t)</code></p></div>
+      <div class="stat"><div class="n">0</div><p>timeline editors. The narration is the timeline.</p></div>
+      <div class="stat"><div class="n">1</div><p>command from HTML to a finished MP4, PDF or PNG</p></div>
+    </div>
+    <div class="brand">AMBAR</div><div data-number></div>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">The pipeline</div>
+    <h2>From a page to a file.</h2>
+    <div class="flow">
+      <div class="node glass"><b>HTML</b><span>your scene</span></div><div class="arrow">→</div>
+      <div class="node glass"><b>render(t)</b><span>pure function</span></div><div class="arrow">→</div>
+      <div class="node glass"><b>Chrome</b><span>frame by frame</span></div><div class="arrow">→</div>
+      <div class="node glass"><b>ffmpeg</b><span>encode + mix</span></div><div class="arrow">→</div>
+      <div class="node glass"><b>MP4</b><span>done</span></div>
+    </div>
+    <p style="margin-top: 90px; max-width: 1300px"><code>ambar render</code> runs every step: narration, mix, frames and encode. <code>ambar studio</code> shows any frame before that.</p>
+    <div class="brand">AMBAR</div><div data-number></div>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">Principle</div>
+    <div class="quote" style="margin-top: 90px">If a frame depends only on <span class="accent">time</span>, you can render any frame, in any order, as many times as you want.</div>
+    <div class="who">— the one rule of AMBAR</div>
+    <div class="brand">AMBAR</div><div data-number></div>
+  </section>
+
+  <section class="slide">
+    <div class="end">
+      <svg viewBox="0 0 420 420" data-mascot='{"x":210,"y":215,"R":130,"t":5.1,"expr":"sorprendida","chispas":0.7}'></svg>
+      <h2>Thanks.</h2>
+      <p><code>ambar slides deck.html</code> turned this deck into a PDF.</p>
+    </div>
+    <div class="brand">AMBAR</div><div data-number></div>
+  </section>
+
+  <script src="/@ambar/mascot/ambar.js"></script>
+  <script type="module">
+    import { deck } from '/@ambar/runtime/slides.js'
+    // Static mascots: draw each one once at its own pose
+    for (const svg of document.querySelectorAll('[data-mascot]')) {
+      svg.innerHTML = window.mascotaAmbar(JSON.parse(svg.dataset.mascot))
+    }
+    deck()
+  </script>
+</body>
+</html>

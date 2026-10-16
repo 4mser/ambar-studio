@@ -1,0 +1,30 @@
+{
+  "cues": {
+    "hello": {
+      "start": 1.4,
+      "duration": 0.744,
+      "end": 2.144
+    },
+    "time": {
+      "start": 4.244,
+      "duration": 4.813,
+      "end": 9.057
+    },
+    "sync": {
+      "start": 9.757,
+      "duration": 4.734,
+      "end": 14.492
+    },
+    "outputs": {
+      "start": 15.192,
+      "duration": 4.333,
+      "end": 19.524
+    },
+    "outro": {
+      "start": 20.224,
+      "duration": 2.22,
+      "end": 22.445
+    }
+  },
+  "end": 22.445
+}

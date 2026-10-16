@@ -1,0 +1,119 @@
+{
+  "title": "AMBAR · launch",
+  "voice": {
+    "provider": "say",
+    "name": "Samantha",
+    "speed": 1.02
+  },
+  "lead": 1.4,
+  "gap": 0.7,
+  "tail": 2.2,
+  "lines": [
+    {
+      "id": "hello",
+      "text": "Meet Ambar."
+    },
+    {
+      "id": "time",
+      "text": "Every frame is a pure function of time, so any moment renders exactly the same.",
+      "pause": 1.4
+    },
+    {
+      "id": "sync",
+      "text": "The narration drives the timeline, and the music steps aside when the voice comes in."
+    },
+    {
+      "id": "outputs",
+      "text": "Videos, slide decks and documents, all from the same HTML."
+    },
+    {
+      "id": "outro",
+      "text": "Write it once. Render it anywhere."
+    }
+  ],
+  "sfx": [
+    {
+      "type": "impact",
+      "at": 0.35,
+      "gain": 0.45
+    },
+    {
+      "type": "whoosh",
+      "at": 0.5,
+      "gain": 0.12,
+      "from": 400,
+      "to": 5000
+    },
+    {
+      "type": "tick",
+      "at": "hello",
+      "gain": 0.12,
+      "repeat": 5,
+      "every": 0.07,
+      "pitch": 2400
+    },
+    {
+      "type": "whoosh",
+      "at": "time-0.5",
+      "gain": 0.14,
+      "duration": 0.7,
+      "from": 200,
+      "to": 3000
+    },
+    {
+      "type": "tap",
+      "at": "time+0.6",
+      "gain": 0.16,
+      "repeat": 12,
+      "every": 0.11
+    },
+    {
+      "type": "whoosh",
+      "at": "sync-0.4",
+      "gain": 0.14,
+      "duration": 0.8,
+      "from": 300,
+      "to": 3500
+    },
+    {
+      "type": "tap",
+      "at": "sync+0.3",
+      "gain": 0.2,
+      "repeat": 3,
+      "every": 0.35
+    },
+    {
+      "type": "riser",
+      "at": "outputs-1",
+      "gain": 0.1
+    },
+    {
+      "type": "whoosh",
+      "at": "outputs",
+      "gain": 0.15,
+      "duration": 0.8,
+      "from": 150,
+      "to": 2500
+    },
+    {
+      "type": "tick",
+      "at": "outputs+0.4",
+      "gain": 0.14,
+      "repeat": 3,
+      "every": 0.5,
+      "pitch": 3000
+    },
+    {
+      "type": "riser",
+      "at": "outro-1.1",
+      "gain": 0.12
+    },
+    {
+      "type": "impact",
+      "at": "outro-0.1",
+      "gain": 0.5,
+      "from": 70,
+      "to": 40
+    }
+  ]
+}

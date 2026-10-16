@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AMBAR · launch</title>
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="./launch.css">
+</head>
+<body>
+  <div id="stage">
+    <div class="bg" id="bg"></div>
+    <div class="orb" id="orb1"></div>
+    <div class="orb" id="orb2"></div>
+    <svg class="mascot" id="mascot" viewBox="0 0 1920 1080"><g id="m"></g></svg>
+
+    <!-- 1 · hello -->
+    <div class="center" id="s1"><div class="kicker" id="k1">AMBAR Studio</div><div class="mega" id="t1"></div></div>
+
+    <!-- 2 · time -->
+    <div class="left" id="s2"><div class="kicker">The idea</div><div class="title" id="t2"></div></div>
+    <div class="code glass" id="code">
+      <div class="dots"><i></i><i></i><i></i><span>scene.js</span></div>
+      <pre id="src"></pre>
+    </div>
+
+    <!-- 3 · sync -->
+    <div class="top" id="s3"><div class="kicker">How it works</div><div class="title" id="t3"></div></div>
+    <div class="cards" id="cards"></div>
+
+    <!-- 4 · outputs -->
+    <div class="top" id="s4"><div class="kicker">One source</div><div class="title" id="t4"></div></div>
+    <div class="outputs" id="outputs"></div>
+
+    <!-- 5 · outro -->
+    <div class="center low" id="s5"><div class="title" id="t5"></div><div class="cmd glass" id="cmd"><b>$</b> <span id="cmdText"></span><i id="caret"></i></div></div>
+
+    <div class="grain" id="grain"></div>
+    <div class="bar" id="bar"><span id="barFill"></span></div>
+  </div>
+
+  <script src="/@ambar/mascot/ambar.js"></script>
+  <script type="module" src="./scene.js"></script>
+</body>
+</html>

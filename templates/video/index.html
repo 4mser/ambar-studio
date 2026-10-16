@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>New video</title>
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <style>
+    .title { position: absolute; inset: 0; display: grid; place-items: center; font-size: 140px; font-weight: 800; letter-spacing: -0.05em; }
+    #mascot { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <svg id="mascot" viewBox="0 0 1920 1080"><g id="m"></g></svg>
+    <div class="title" id="title"></div>
+  </div>
+  <script src="/@ambar/mascot/ambar.js"></script>
+  <script type="module">
+    import { video, cue, words, rise, keys, mascot, $ } from '/@ambar/runtime/ambar.js'
+
+    let title
+
+    video({
+      setup () {
+        title = words($('#title'), 'Hello, {world}.')
+      },
+      render (t) {
+        const hello = cue('hello', 0.8)       // from ambar.json, or 0.8 s before any voice exists
+        rise(title, t, hello.start)
+
+        const [y] = keys(t, [[0, 1300], [0.8, 760]])
+        $('#m').innerHTML = mascot({ x: 960, y, R: 120, t, expr: 'feliz' })
+      }
+    })
+  </script>
+</body>
+</html>

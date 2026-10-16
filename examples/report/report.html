@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AMBAR · report</title>
+  <link rel="stylesheet" href="/@ambar/runtime/ambar.css">
+  <link rel="stylesheet" href="/@ambar/runtime/doc.css">
+  <style>
+    .cover { background: radial-gradient(120% 70% at 80% 0%, #3a1d06, #1b0f05 55%, #0c0703); color: var(--cream); padding: 30mm 22mm; }
+    .cover .kicker { color: var(--amber); }
+    .cover h1 { margin-top: 8mm; font-size: 46pt; color: var(--cream); }
+    .cover h1 span { color: var(--amber); }
+    .cover p { margin-top: 7mm; font-size: 13pt; color: var(--muted); max-width: 130mm; }
+    .cover svg { position: absolute; right: 8mm; bottom: 30mm; width: 120mm; height: 120mm; overflow: visible; }
+    .cover .meta { position: absolute; left: 22mm; bottom: 22mm; display: grid; grid-template-columns: repeat(3, 38mm); gap: 4mm;
+      font: 500 7.5pt var(--mono); letter-spacing: 0.12em; color: var(--muted); }
+    .cover .meta b { display: block; margin-top: 1.5mm; font: 600 10pt var(--font); letter-spacing: 0; color: var(--cream); }
+    .lead { font-size: 12.5pt !important; color: #2b1a0b !important; margin-top: 5mm; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-top: 6mm; }
+    .card { border: 0.3mm solid #ecdcc4; border-radius: 4mm; padding: 5mm; background: #fff; }
+    .card b { font: 600 7pt var(--mono); color: var(--resin); letter-spacing: 0.14em; }
+    .card h3 { margin: 2.5mm 0 1.5mm; font-size: 12.5pt; }
+    .card p { font-size: 9pt; }
+    code { font-family: var(--mono); font-size: 9pt; color: #8a4a0c; }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="kicker">AMBAR Studio · sample report</div>
+    <h1>Documents are <span>pages</span>, too.</h1>
+    <p>This A4 report is plain HTML and CSS, exported to PDF by <code style="color:#FFD27A">ambar doc</code>. Same palette, same mascot, same repository as the videos and the slides.</p>
+    <svg viewBox="0 0 400 400" data-mascot='{"x":200,"y":210,"R":120,"t":1.2,"expr":"pensativa","mira":[-0.6,0.2],"chispas":0.6}'></svg>
+    <div class="meta"><div>FORMAT<b>A4 · print-exact</b></div><div>SOURCE<b>report.html</b></div><div>COMMAND<b>ambar doc</b></div></div>
+  </section>
+
+  <section class="page">
+    <div class="kicker">01 · Overview</div>
+    <h1>One repository for every format.</h1>
+    <p class="lead">AMBAR treats video, slides and documents as the same thing: a page rendered by Chrome. The difference is only how it leaves the browser.</p>
+
+    <div class="cards">
+      <div class="card"><b>VIDEO</b><h3>render(t)</h3><p>Frames stepped one by one and encoded with ffmpeg, with narration and a mix.</p></div>
+      <div class="card"><b>SLIDES</b><h3>.slide</h3><p>A presenter in the browser and a PDF with one page per slide.</p></div>
+      <div class="card"><b>DOCUMENTS</b><h3>.page</h3><p>A4 pages with edge-to-edge color, exported exactly as designed.</p></div>
+    </div>
+
+    <h2>Commands</h2>
+    <table>
+      <tr><th>Command</th><th>Output</th></tr>
+      <tr><td><code>ambar studio &lt;project&gt;</code></td><td>Timeline studio in the browser</td></tr>
+      <tr><td><code>ambar render &lt;project&gt;</code></td><td>MP4 with narration, music and effects</td></tr>
+      <tr><td><code>ambar slides deck.html</code></td><td>PDF plus a PNG of every slide</td></tr>
+      <tr><td><code>ambar doc report.html</code></td><td>A4 PDF</td></tr>
+    </table>
+
+    <h2>A measured render</h2>
+    <p>The launch video in <code>examples/launch</code>, rendered on an Apple M5 Pro with <code>ambar render</code>.</p>
+    <table>
+      <tr><th>Measure</th><th>Value</th></tr>
+      <tr><td>Length</td><td>24.0 s · 1920×1080 · 30 fps · 721 frames</td></tr>
+      <tr><td>Audio</td><td>5 narration lines, 12 synthesized effects, AAC</td></tr>
+      <tr><td>Render time</td><td>28.7 s, narration and mix included</td></tr>
+      <tr><td>Loudness</td><td>−18 dB mean, −1.5 dB peak</td></tr>
+    </table>
+
+    <div class="footer"><span>AMBAR STUDIO</span><span>02 / 02</span></div>
+  </section>
+
+  <script src="/@ambar/mascot/ambar.js"></script>
+  <script>
+    for (const svg of document.querySelectorAll('[data-mascot]')) {
+      svg.innerHTML = window.mascotaAmbar(JSON.parse(svg.dataset.mascot))
+    }
+  </script>
+</body>
+</html>

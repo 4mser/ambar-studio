@@ -1,0 +1,35 @@
+/* AMBAR documents: A4 pages, edge-to-edge color, print-exact. */
+@page { size: A4; margin: 0; }
+
+html, body { background: #2a2420; overflow: visible; height: auto; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+.page {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  margin: 24px auto;
+  overflow: hidden;
+  background: #fffaf2;
+  color: #2b1a0b;
+  padding: 26mm 22mm 24mm;
+  font-family: var(--font);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+@media print {
+  .page { margin: 0; box-shadow: none; break-after: page; page-break-after: always; }
+}
+
+.page h1 { font-size: 34pt; line-height: 1.02; letter-spacing: -0.03em; font-weight: 800; }
+.page h2 { font-size: 16pt; letter-spacing: -0.01em; margin: 9mm 0 3mm; }
+.page p, .page li { font-size: 10.5pt; line-height: 1.6; color: #4a3523; }
+.page .kicker { font: 600 8pt var(--mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--resin); }
+.page .kicker + h1 { margin-top: 4mm; }
+.page .footer {
+  position: absolute; left: 22mm; right: 22mm; bottom: 12mm;
+  display: flex; justify-content: space-between;
+  font: 500 7.5pt var(--mono); letter-spacing: 0.12em; color: #a08060;
+}
+.page table { width: 100%; border-collapse: collapse; margin-top: 3mm; }
+.page th, .page td { text-align: left; padding: 2.2mm 0; border-bottom: 0.3mm solid #ecdcc4; font-size: 10pt; }
+.page th { font: 600 7.5pt var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--resin); }

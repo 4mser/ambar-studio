@@ -1,0 +1,53 @@
+/* AMBAR base for compositions: a fixed-size stage and the amber palette. */
+:root {
+  --ink: #120a03;
+  --night: #1b0f05;
+  --deep: #341805;
+  --resin: #8a4a0c;
+  --amber: #f2a324;
+  --glow: #f59e0b;
+  --honey: #ffd27a;
+  --cream: #fff4e0;
+  --muted: rgba(255, 244, 224, 0.62);
+  --line: rgba(255, 210, 122, 0.16);
+  --font: 'SF Pro Display', -apple-system, 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #000; overflow: hidden; }
+body { font-family: var(--font); color: var(--cream); -webkit-font-smoothing: antialiased; }
+
+#stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  transform-origin: 0 0;
+  background: var(--ink);
+}
+
+/* Absolutely positioned layers inside the stage */
+.layer { position: absolute; inset: 0; }
+.w { display: inline-block; will-change: transform, opacity; }
+.hl { color: var(--amber); }
+
+/* Frosted card in amber tones */
+.glass {
+  background: linear-gradient(160deg, rgba(255, 210, 122, 0.12), rgba(138, 74, 12, 0.08));
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 30px 80px -30px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(18px);
+  border-radius: 28px;
+}
+
+/* Film grain that moves with time (set --grain-x / --grain-y from render) */
+.grain {
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  transform: translate(var(--grain-x, 0), var(--grain-y, 0));
+  mix-blend-mode: overlay;
+}

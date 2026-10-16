@@ -1,0 +1,24 @@
+{
+  "name": "ambar-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AMBAR Studio: deterministic video, slides and documents from HTML. Every frame is a function of time.",
+  "type": "module",
+  "bin": {
+    "ambar": "bin/ambar.js"
+  },
+  "scripts": {
+    "studio": "node bin/ambar.js studio examples/launch",
+    "render": "node bin/ambar.js render examples/launch",
+    "slides": "node bin/ambar.js slides examples/deck/deck.html",
+    "doc": "node bin/ambar.js doc examples/report/report.html",
+    "readme-assets": "node scripts/readme-assets.js",
+    "test": "node --test test/"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "puppeteer": "^24.25.0"
+  }
+}
