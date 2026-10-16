@@ -1,0 +1,42 @@
+/* AMBAR stills: the page is the frame. runtime/stills.js sets --w and --h to
+   the size being rendered, --safe-top/right/bottom/left to its safe zone,
+   --index to the item's position and --count to the number of frames side by
+   side (panorama). Builds on ambar.css (palette) and fonts.css (static fonts). */
+html, body {
+  width: calc(var(--w, 1080px) * var(--count, 1));
+  height: var(--h, 1350px);
+  margin: 0;
+  overflow: hidden;
+}
+body { position: relative; background: var(--ink); }
+
+/* One frame. In a panorama, .frame elements sit side by side in order. */
+.frame {
+  position: relative;
+  width: var(--w, 1080px);
+  height: var(--h, 1350px);
+  overflow: hidden;
+}
+html[data-panorama] body { display: flex; }
+html[data-panorama] .frame { flex: none; overflow: visible; }
+
+/* The safe zone as a box: lay content out inside it */
+.safe {
+  position: absolute;
+  top: var(--safe-top, 64px);
+  right: var(--safe-right, 64px);
+  bottom: var(--safe-bottom, 64px);
+  left: var(--safe-left, 64px);
+}
+
+/* A layer that spans the whole set (panorama) or is panned by index, so a
+   swipe reads as one continuous image. Mark decoration that may cross the
+   edges with data-bleed: the overflow guard ignores it. */
+.pan {
+  position: absolute;
+  top: 0;
+  left: calc(var(--w, 1080px) * var(--index, 0) * -1);
+  width: calc(var(--w, 1080px) * var(--pan-count, 6));
+  height: 100%;
+}
+html[data-panorama] .pan { left: 0; }
