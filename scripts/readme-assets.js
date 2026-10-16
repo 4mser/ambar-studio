@@ -24,7 +24,7 @@ await renderGif(loadProject(ex('hero')), join(ASSETS, 'hero.gif'), { fps: 12, wi
 step('Launch scenes')
 const launch = loadProject(ex('launch'))
 await voice(launch)
-const scenes = [1.9, 6.4, 11.4, 16.9, 21.5]
+const scenes = [1.9, 6.4, 11.4, 16.9]
 rmSync(join(launch.outDir, 'frames'), { recursive: true, force: true })
 await renderFrames(launch, scenes)
 const frame = (t) => join(launch.outDir, 'frames', `t-${t.toFixed(2)}.png`)
@@ -33,7 +33,6 @@ await run([
   '-filter_complex', '[0]scale=800:-1[a];[1]scale=800:-1[b];[2]scale=800:-1[c];[3]scale=800:-1[d];[a][b]hstack[t];[c][d]hstack[u];[t][u]vstack',
   join(ASSETS, 'launch-scenes.png')
 ])
-await run(['-i', frame(21.5), '-vf', 'scale=1600:-1', join(ASSETS, 'launch-outro.png')])
 
 // 3 · deck contact sheet
 step('Deck')
