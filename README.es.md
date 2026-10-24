@@ -61,6 +61,13 @@ Después le pides a Claude Code lo que necesites, desde cualquier carpeta: *«un
 Requiere Node 20+ y `ffmpeg` (`brew install ffmpeg` en macOS).
 
 ```bash
+npm install -g ambar-studio   # el comando `ambar`
+ambar new mi-video            # empieza un proyecto
+```
+
+Para probar los ejemplos incluidos, clona el repo:
+
+```bash
 git clone https://github.com/4mser/ambar-studio.git
 cd ambar-studio
 npm install
@@ -302,6 +309,5 @@ npm run readme-assets   # vuelve a renderizar todas las imágenes de este README
 
 ---
 
-<p align="center">
-</p>
+<p align="center"><sub>Publicado con [licencia MIT](LICENSE).</sub></p>
 

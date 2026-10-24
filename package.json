@@ -1,12 +1,47 @@
 {
   "name": "ambar-studio",
   "version": "0.1.0",
-  "private": true,
   "description": "AMBAR Studio: deterministic video, slides and documents from HTML. Every frame is a function of time.",
+  "license": "MIT",
+  "author": "Nicolás Moreno (https://github.com/4mser)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4mser/ambar-studio.git"
+  },
+  "homepage": "https://github.com/4mser/ambar-studio#readme",
+  "bugs": {
+    "url": "https://github.com/4mser/ambar-studio/issues"
+  },
+  "keywords": [
+    "video",
+    "motion-graphics",
+    "html-to-video",
+    "puppeteer",
+    "ffmpeg",
+    "slides",
+    "pdf",
+    "claude-code",
+    "ai-agents",
+    "remotion-alternative"
+  ],
   "type": "module",
   "bin": {
     "ambar": "bin/ambar.js"
   },
+  "files": [
+    "bin",
+    "src",
+    "runtime",
+    "studio",
+    "templates",
+    "mascot",
+    "music",
+    ".claude/skills",
+    ".claude/agents",
+    "README.md",
+    "README.es.md",
+    "LICENSE"
+  ],
   "scripts": {
     "studio": "node bin/ambar.js studio examples/launch",
     "render": "node bin/ambar.js render examples/launch",

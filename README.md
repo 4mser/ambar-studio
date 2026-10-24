@@ -61,6 +61,13 @@ Then ask Claude Code for what you need, from any folder: *"a 30-second launch vi
 Requires Node 20+ and `ffmpeg` (`brew install ffmpeg` on macOS).
 
 ```bash
+npm install -g ambar-studio   # the `ambar` command
+ambar new my-video            # start a project
+```
+
+To try the bundled examples, clone the repo:
+
+```bash
 git clone https://github.com/4mser/ambar-studio.git
 cd ambar-studio
 npm install
@@ -302,6 +309,5 @@ npm run readme-assets   # re-renders every image in this README
 
 ---
 
-<p align="center">
-</p>
+<p align="center"><sub>Released under the [MIT License](LICENSE).</sub></p>
 

@@ -112,12 +112,4 @@ await tab.screenshot({ path: join(ASSETS, 'studio.png') })
 await browser.close()
 await server.close()
 
-// 10 · the family banner at the end of the README (gifsicle, when installed, makes it smaller)
-step('Family')
-const banner = join(ASSETS, 'family.gif')
-await renderGif(loadProject(join(ROOT, 'docs', 'family')), banner, { fps: 12, width: 960 })
-try {
-  execFileSync('gifsicle', ['-b', '-O3', '--lossy=60', '--colors', '160', banner])
-} catch {}
-
 done('README assets', 'docs/assets/')
